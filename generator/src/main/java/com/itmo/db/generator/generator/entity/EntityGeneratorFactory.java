@@ -2,9 +2,15 @@ package com.itmo.db.generator.generator.entity;
 
 import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.generator.entity.impl.PersonGenerator;
+import com.itmo.db.generator.generator.entity.impl.ProjectGenerator;
+import com.itmo.db.generator.generator.entity.impl.link.PersonProjectLinkGenerator;
+import com.itmo.db.generator.generator.model.DependencyDefinition;
 import com.itmo.db.generator.model.entity.AbstractEntity;
 import com.itmo.db.generator.model.entity.Person;
 import com.itmo.db.generator.model.entity.Project;
+import com.itmo.db.generator.model.entity.link.PersonProjectLink;
+
+import java.util.Set;
 
 public class EntityGeneratorFactory {
 
@@ -20,11 +26,15 @@ public class EntityGeneratorFactory {
         return instance;
     }
 
-    public <T extends AbstractEntity> EntityGenerator getGenerator(Class<T> entityClass, Generator generator) {
+    public <T extends AbstractEntity> EntityGenerator getGenerator(Class<T> entityClass,
+                                                                   Set<DependencyDefinition> deps,
+                                                                   Generator generator) {
         if (entityClass.equals(Person.class)) {
-            return new PersonGenerator(generator);
+            return new PersonGenerator(deps, generator);
         } else if (entityClass.equals(Project.class)) {
-            throw new NullPointerException();
+            return new ProjectGenerator(deps, generator);
+        } else if (entityClass.equals(PersonProjectLink.class)) {
+            return new PersonProjectLinkGenerator(deps, generator);
         }
 
         throw new NullPointerException();

@@ -2,15 +2,23 @@ package com.itmo.db.generator.generator.model;
 
 import com.itmo.db.generator.generator.entity.EntityGenerator;
 import com.itmo.db.generator.model.entity.AbstractEntity;
+import com.itmo.db.generator.persistence.PersistenceWorker;
 import com.itmo.db.generator.pool.EntityPool;
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 @Data
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class GeneratableEntity<T extends AbstractEntity> {
-    public Class<? extends AbstractEntity> entityClass;
-    public EntityPool<T> pool;
-    public EntityGenerator generator;
-    public boolean generated;
+    @NonNull
+    private Class<? extends AbstractEntity> entityClass;
+    @NonNull
+    private EntityPool<T> pool;
+    private EntityGenerator generator;
+    private Thread generatorThread;
+    private PersistenceWorker persistenceWorker;
+    private Thread persistenceWorkerThread;
+    private boolean generated = false;
+    private boolean persisted = false;
 }

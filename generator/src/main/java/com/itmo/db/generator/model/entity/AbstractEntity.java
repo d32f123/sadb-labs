@@ -1,6 +1,6 @@
 package com.itmo.db.generator.model.entity;
 
-import com.itmo.db.generator.model.AbstractModel;
+import java.io.Serializable;
 
-public interface AbstractEntity extends AbstractModel {
+public interface AbstractEntity extends Serializable {
 }

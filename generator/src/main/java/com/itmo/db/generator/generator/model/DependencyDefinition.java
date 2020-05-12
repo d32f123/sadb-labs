@@ -5,11 +5,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
-import java.util.List;
+import java.io.Serializable;
 
+@Builder
 @Data
 @AllArgsConstructor
-public class EntityWithValue<T extends (AbstractEntity | List<?>)> {
-    public Class<? extends AbstractEntity> entityClass;
-    public T entityValue;
+public class DependencyDefinition implements Serializable {
+    private Class<? extends AbstractEntity> dependencyClass;
+    private int amountPerInstance;
 }

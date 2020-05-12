@@ -1,12 +1,11 @@
 package com.itmo.db.generator;
 
 import com.itmo.db.generator.generator.Generator;
-import com.itmo.db.generator.generator.model.EntityWithAmount;
+import com.itmo.db.generator.generator.model.DependencyDefinition;
+import com.itmo.db.generator.generator.model.EntityDefinition;
 import com.itmo.db.generator.model.entity.Person;
 import com.itmo.db.generator.model.entity.Project;
-import com.itmo.db.generator.model.entity.Publication;
-import com.itmo.db.generator.model.link.AbstractLink;
-import com.itmo.db.generator.model.link.PersonProjectLink;
+import com.itmo.db.generator.model.entity.link.PersonProjectLink;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -14,8 +13,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @SpringBootApplication
 public class GeneratorApplication implements ApplicationRunner {
@@ -32,15 +29,14 @@ public class GeneratorApplication implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        List<EntityWithAmount> entities = Stream.of(
-                Person.class,
-                Project.class,
-                Publication.class
-        )
-                .map(cls -> EntityWithAmount.builder().entityClass(cls).amount(10).build())
-                .collect(Collectors.toList());
-        List<Class<? extends AbstractLink>> links = Collections.singletonList(PersonProjectLink.class);
-
-        this.generator.generate(entities, links);
+        Set<EntityDefinition> entities = Set.of(
+                new EntityDefinition(Person.class, 2, null),
+                new EntityDefinition(Project.class, 2, null),
+                new EntityDefinition(PersonProjectLink.class, 2, Set.of(
+                        new DependencyDefinition(Person.class, 1),
+                        new DependencyDefinition(Project.class, 1)
+                ))
+        );
+        this.generator.generate(entities);
     }
 }
