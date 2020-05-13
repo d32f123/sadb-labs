@@ -19,7 +19,7 @@ public class PersonGenerator extends AbstractEntityGenerator<Person> {
     @Override
     protected Person getEntity() {
         log.debug("Creating Person");
-        Person person = new Person();
+        Person person = new Person(null, "asdf", "qeer", "asdddd", "lol?");
         // Data filling logic goes here
         return person;
     }

@@ -12,6 +12,7 @@ import com.itmo.db.generator.model.entity.AbstractEntity;
 import com.itmo.db.generator.pool.EntityPool;
 import com.itmo.db.generator.pool.impl.EntityPoolImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -29,6 +30,12 @@ import java.util.Set;
 public class Generator {
     private DependencyTree dependencyTree;
     private final EventBus eventBus;
+
+    @Autowired
+    private PersistenceWorkerFactory persistenceWorkerFactory;
+
+    @Autowired
+    private EntityGeneratorFactory entityGeneratorFactory;
 
     private Map<Class<? extends AbstractEntity>, GeneratableEntity<? extends AbstractEntity>> allEntities;
     private Map<Class<? extends AbstractEntity>, GeneratableEntity<? extends AbstractEntity>> currentEntities;
@@ -126,16 +133,14 @@ public class Generator {
                     this.currentEntities.put(entity.getEntityClass(), generatableEntity);
                     this.allEntities.put(entity.getEntityClass(), generatableEntity);
                     this.currentEntities.get(entity.getEntityClass()).setGenerator(
-                            EntityGeneratorFactory.getInstance().getGenerator(
+                            this.entityGeneratorFactory.getGenerator(
                                     entity.getEntityClass(),
-                                    entity.getDependencies(),
-                                    this
+                                    entity.getDependencies()
                             )
                     );
                     this.currentEntities.get(entity.getEntityClass()).setPersistenceWorker(
-                            PersistenceWorkerFactory.getInstance().getWorker(
-                                    entity.getEntityClass(),
-                                    this
+                            this.persistenceWorkerFactory.getWorker(
+                                    entity.getEntityClass()
                             )
                     );
                 });
