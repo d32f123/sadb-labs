@@ -10,15 +10,17 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
 
 @Slf4j
-public class EntityPoolInstanceImpl<T extends AbstractEntity> implements EntityPoolInstance<T> {
+public class EntityPoolInstanceImpl<T extends AbstractEntity<TId>, TId> implements EntityPoolInstance<T, TId> {
 
-    private final EntityPool<T> pool;
+    private final EntityPool<T, TId> pool;
     private final EventBus eventBus;
     private int pointer;
     private final Queue<ConsumerWithMeta> consumerQueue;
@@ -31,7 +33,7 @@ public class EntityPoolInstanceImpl<T extends AbstractEntity> implements EntityP
         int entitiesCount;
     }
 
-    public EntityPoolInstanceImpl(EntityPool<T> pool, Class<T> entityClass) {
+    public EntityPoolInstanceImpl(EntityPool<T, TId> pool, Class<T> entityClass) {
         this.pool = pool;
         this.pointer = 0;
         this.consumerQueue = new ConcurrentLinkedQueue<>();
@@ -48,7 +50,7 @@ public class EntityPoolInstanceImpl<T extends AbstractEntity> implements EntityP
         new Thread(this::handleQueue).start();
     }
 
-    private int getNumberOfAvailableEntities() {
+    private synchronized int getNumberOfAvailableEntities() {
         return this.pool.getActualAmount() - this.pointer;
     }
 
@@ -63,9 +65,9 @@ public class EntityPoolInstanceImpl<T extends AbstractEntity> implements EntityP
             }
 
             if (this.pool.isFrozen() && this.getNumberOfAvailableEntities() < consumer.entitiesCount) {
-                log.debug("'{}': Pool is already frozen. Sub requests {} but available {}",
+                log.debug("'{}': Pool is already frozen. Sub requests {} but available {}. Sending null",
                         entityClass, consumer.entitiesCount, this.getNumberOfAvailableEntities());
-                consumerQueue.poll();
+                this.sendToConsumer(consumerQueue.poll(), null);
                 continue;
             }
 
@@ -79,18 +81,23 @@ public class EntityPoolInstanceImpl<T extends AbstractEntity> implements EntityP
             consumerQueue.poll();
 
             int entitiesRetrievedCount = consumer.entitiesCount;
-            List<T> entitiesRetrieved = this.pool.getPool().subList(pointer, pointer + entitiesRetrievedCount);
+            List<T> entitiesRetrieved = List.copyOf(this.pool.getPool().subList(pointer, pointer + entitiesRetrievedCount));
             pointer += entitiesRetrievedCount;
             log.debug("'{}': Acquired {} entities", entityClass, consumer.entitiesCount);
-            new Thread(() -> consumer.consumer.accept(entitiesRetrieved)).start();
+            this.sendToConsumer(consumer, entitiesRetrieved);
         }
     }
 
-    private void poolUpdatedCallback(GeneratorEventMessage<T> message) {
+    private synchronized void sendToConsumer(ConsumerWithMeta consumer, List<T> entities) {
+        new Thread(() -> consumer.getConsumer().accept(entities)).start();
+    }
+
+    private synchronized void poolUpdatedCallback(GeneratorEventMessage<T, TId, T> message) {
         this.handleQueue();
     }
 
-    private void poolGenerationCompleteCallback(GeneratorEventMessage<T> message) {
+    // TODO: Unsub here from everything
+    private void poolGenerationCompleteCallback(GeneratorEventMessage<T, TId, ?> message) {
         this.handleQueue();
     }
 

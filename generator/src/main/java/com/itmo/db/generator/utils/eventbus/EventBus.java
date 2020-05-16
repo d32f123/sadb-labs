@@ -1,39 +1,41 @@
 package com.itmo.db.generator.utils.eventbus;
 
-import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.model.entity.AbstractEntity;
 import com.itmo.db.generator.utils.eventmanager.AbstractEventManager;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
 import java.util.*;
 import java.util.function.Consumer;
 
 @Slf4j
+@Component
 public class EventBus extends AbstractEventManager<GeneratorEvent> {
 
     private static EventBus instance = null;
 
-    private final Map<SenderKey, SenderConsumer> consumerMap;
+    private final Map<SenderKey<?, ?>, SenderConsumer<?, ?, ?>> consumerMap;
 
-    @Builder
     @Data
     @AllArgsConstructor
-    private static class SenderKey implements Serializable {
+    @NoArgsConstructor
+    private static class SenderKey<T extends AbstractEntity<TId>, TId> implements Serializable {
         private GeneratorEvent eventType;
-        private Class<? extends AbstractEntity> sender;
+        private Class<T> sender;
     }
 
     @Data
     @AllArgsConstructor
-    private static class SenderConsumer implements Serializable {
+    @NoArgsConstructor
+    private static class SenderConsumer<T extends AbstractEntity<TId>, TId, TMessage> implements Serializable {
         private GeneratorEvent eventType;
-        private Class<? extends AbstractEntity> sender;
-        private List<Consumer<GeneratorEventMessage<?>>> consumers;
-        private Consumer<GeneratorEventMessage<?>> baseConsumer;
+        private Class<T> sender;
+        private List<Consumer<GeneratorEventMessage<T, TId, TMessage>>> consumers;
+        private Consumer<GeneratorEventMessage<T, TId, TMessage>> baseConsumer;
     }
 
     public synchronized static EventBus getInstance() {
@@ -41,23 +43,30 @@ public class EventBus extends AbstractEventManager<GeneratorEvent> {
             return instance;
         }
 
-        instance = new EventBus();
+        new EventBus();
         return instance;
     }
 
-    private EventBus() {
+    public EventBus() {
         super();
+        if (EventBus.instance == null) {
+            EventBus.instance = this;
+        } else {
+            log.error("EventBus instantiated multiple times");
+        }
         this.consumerMap = new HashMap<>();
     }
 
-    public <T> void subscribe(GeneratorEvent eventType, Consumer<GeneratorEventMessage<T>> consumer) {
+    public <T extends AbstractEntity<TId>, TId, TMessage>
+    void subscribe(GeneratorEvent eventType, Consumer<GeneratorEventMessage<T, TId, TMessage>> consumer) {
         super.subscribe(eventType, consumer);
     }
 
-    public <T> void subscribe(GeneratorEvent eventType,
-                              Class<? extends AbstractEntity> sender,
-                              Consumer<GeneratorEventMessage<T>> consumer) {
-        SenderKey key = SenderKey.builder().eventType(eventType).sender(sender).build();
+    public <T extends AbstractEntity<TId>, TId, TMessage>
+    void subscribe(GeneratorEvent eventType,
+                   Class<T> sender,
+                   Consumer<GeneratorEventMessage<T, TId, TMessage>> consumer) {
+        SenderKey<T, TId> key = new SenderKey<>(eventType, sender);
         synchronized (this.consumerMap) {
             log.info("Adding a subscriber '{}:{}'", eventType, sender);
             if (this.consumerMap.containsKey(key)) {
@@ -66,7 +75,7 @@ public class EventBus extends AbstractEventManager<GeneratorEvent> {
                 return;
             }
             log.info("'{}:{}' to new collection", eventType, sender);
-            this.consumerMap.put(key, new SenderConsumer(
+            this.consumerMap.put(key, new SenderConsumer<T, TId, TMessage>(
                             eventType,
                             sender,
                             new ArrayList<>(),
@@ -76,7 +85,9 @@ public class EventBus extends AbstractEventManager<GeneratorEvent> {
                                 }
                                 log.info("'{}:{}' callback, notifying consumers", eventType, sender);
                                 synchronized (this.consumerMap) {
-                                    List<Consumer<GeneratorEventMessage<?>>> consumers = this.consumerMap.get(key).getConsumers();
+                                    List<Consumer<GeneratorEventMessage<T, TId, TMessage>>> consumers =
+                                            (List) this.consumerMap.get(key).getConsumers();
+                                    log.info("'{}:{}' Acquired lock, CONSUMERS FOUND: '{}', notifying consumers", eventType, sender, consumers);
                                     consumers.forEach(sub -> new Thread(() -> sub.accept(message)).start());
                                 }
                             }
@@ -88,14 +99,16 @@ public class EventBus extends AbstractEventManager<GeneratorEvent> {
         }
     }
 
-    public <T> void unsubscribe(GeneratorEvent eventType, Consumer<GeneratorEventMessage<T>> consumer) {
+    public <T extends AbstractEntity<TId>, TId, TMessage>
+    void unsubscribe(GeneratorEvent eventType, Consumer<GeneratorEventMessage<T, TId, TMessage>> consumer) {
         super.unsubscribe(eventType, consumer);
     }
 
-    public <T> void unsubscribe(GeneratorEvent eventType,
-                            Class<? extends AbstractEntity> sender,
-                            Consumer<GeneratorEventMessage<T>> consumer) {
-        SenderKey key = SenderKey.builder().eventType(eventType).sender(sender).build();
+    public <T extends AbstractEntity<TId>, TId, TMessage>
+    void unsubscribe(GeneratorEvent eventType,
+                     Class<T> sender,
+                     Consumer<GeneratorEventMessage<T, TId, TMessage>> consumer) {
+        SenderKey<T, TId> key = new SenderKey<>(eventType, sender);
         synchronized (this.consumerMap) {
             if (!this.consumerMap.containsKey(key)) {
                 throw new IllegalArgumentException("No such key exists");
@@ -116,7 +129,8 @@ public class EventBus extends AbstractEventManager<GeneratorEvent> {
         }
     }
 
-    public <T> void notify(GeneratorEvent eventType, GeneratorEventMessage<T> arg) {
+    public <T extends AbstractEntity<TId>, TId, TMessage>
+    void notify(GeneratorEvent eventType, GeneratorEventMessage<T, TId, TMessage> arg) {
         super.notify(eventType, arg);
     }
 }

@@ -1,6 +1,7 @@
 package com.itmo.db.generator.generator;
 
 import com.itmo.db.generator.generator.model.EntityDefinition;
+import com.itmo.db.generator.mapper.EntityToDAOMapper;
 import com.itmo.db.generator.persistence.PersistenceWorkerFactory;
 import com.itmo.db.generator.utils.dependencytree.DependencyTree;
 import com.itmo.db.generator.utils.eventbus.EventBus;
@@ -29,7 +30,9 @@ import java.util.Set;
 @Slf4j
 public class Generator {
     private DependencyTree dependencyTree;
-    private final EventBus eventBus;
+
+    @Autowired
+    private EventBus eventBus;
 
     @Autowired
     private PersistenceWorkerFactory persistenceWorkerFactory;
@@ -37,21 +40,20 @@ public class Generator {
     @Autowired
     private EntityGeneratorFactory entityGeneratorFactory;
 
-    private Map<Class<? extends AbstractEntity>, GeneratableEntity<? extends AbstractEntity>> allEntities;
-    private Map<Class<? extends AbstractEntity>, GeneratableEntity<? extends AbstractEntity>> currentEntities;
+    private Map<Class<? extends AbstractEntity<?>>, GeneratableEntity<? extends AbstractEntity<?>, ?>> allEntities;
+    private Map<Class<? extends AbstractEntity<?>>, GeneratableEntity<? extends AbstractEntity<?>, ?>> currentEntities;
     private int currentLevel;
     private boolean done;
     private final Thread mainThread;
 
     public Generator() {
         this.mainThread = Thread.currentThread();
-        this.eventBus = EventBus.getInstance();
     }
 
     // TODO: List of levels, so that we can map entities which are dependant on another entities being created
     // TODO: Initiate links creation
     // TODO: Check if links are even needed
-    public void generate(Set<EntityDefinition> entities) {
+    public void generate(Set<EntityDefinition<?, ?>> entities) {
         this.dependencyTree = new DependencyTree(entities);
 
         this.eventBus.subscribe(GeneratorEvent.ENTITY_GENERATION_FINISHED, (message) -> {
@@ -126,9 +128,10 @@ public class Generator {
         this.dependencyTree.getDependencyLevel(this.currentLevel)
                 .forEach(entity -> {
                     log.trace("Instantiating generatableEntity for entity '{}'", entity);
-                    GeneratableEntity<?> generatableEntity = new GeneratableEntity<>(
+                    GeneratableEntity<?, ?> generatableEntity = new GeneratableEntity(
                             entity.getEntityClass(),
-                            new EntityPoolImpl<>(entity.getEntityClass(), entity.getAmount())
+                            new EntityPoolImpl<>(entity.getEntityClass(), entity.getAmount()),
+                            new EntityToDAOMapper<>(entity.getEntityClass())
                     );
                     this.currentEntities.put(entity.getEntityClass(), generatableEntity);
                     this.allEntities.put(entity.getEntityClass(), generatableEntity);
@@ -155,8 +158,12 @@ public class Generator {
         });
     }
 
-    public <T extends AbstractEntity> EntityPool<T> getEntityPool(Class<T> entityClass) {
-        return (EntityPool<T>) this.allEntities.get(entityClass).getPool();
+    public <T extends AbstractEntity<TId>, TId> EntityPool<T, TId> getEntityPool(Class<T> entityClass) {
+        return (EntityPool<T, TId>) this.allEntities.get(entityClass).getPool();
+    }
+
+    public <T extends AbstractEntity<TId>, TId> EntityToDAOMapper<T, TId> getEntityToDAOMapper(Class<T> entityClass) {
+        return (EntityToDAOMapper<T, TId>) this.allEntities.get(entityClass).getMapper();
     }
 
 }

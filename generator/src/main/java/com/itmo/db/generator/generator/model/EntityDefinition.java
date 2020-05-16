@@ -9,8 +9,8 @@ import java.util.Set;
 
 @Data
 @AllArgsConstructor
-public class EntityDefinition implements Serializable {
-    private Class<? extends AbstractEntity> entityClass;
+public class EntityDefinition<T extends AbstractEntity<TId>, TId> implements Serializable {
+    private Class<T> entityClass;
     private int amount;
-    private Set<DependencyDefinition> dependencies;
+    private Set<DependencyDefinition<?, ?>> dependencies;
 }

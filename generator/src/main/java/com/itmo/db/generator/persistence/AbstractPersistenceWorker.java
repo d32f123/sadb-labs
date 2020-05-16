@@ -1,69 +1,87 @@
 package com.itmo.db.generator.persistence;
 
 import com.itmo.db.generator.generator.Generator;
+import com.itmo.db.generator.mapper.EntityToDAOMapper;
 import com.itmo.db.generator.model.entity.AbstractEntity;
-import com.itmo.db.generator.pool.EntityPool;
+import com.itmo.db.generator.persistence.db.IdentifiableDAO;
+import com.itmo.db.generator.pool.EntityPoolInstance;
 import com.itmo.db.generator.utils.eventbus.EventBus;
 import com.itmo.db.generator.utils.eventbus.GeneratorEvent;
 import com.itmo.db.generator.utils.eventbus.GeneratorEventMessage;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.function.Consumer;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 // TODO: When entity is persisted, return ID which should be set to base entity
 @Slf4j
-public abstract class AbstractPersistenceWorker<T extends AbstractEntity<?>> implements PersistenceWorker {
+public abstract class AbstractPersistenceWorker<T extends AbstractEntity<TId>, TId> implements PersistenceWorker {
 
     protected final Generator generator;
     private final Class<T> entityClass;
-    protected EntityPool<T> pool;
+    private final EntityPoolInstance<T, TId> pool;
+    protected final EntityToDAOMapper<T, TId> mapper;
     private final EventBus eventBus;
-
-    private Consumer<GeneratorEventMessage<T>> entityGeneratedConsumer;
-    private Consumer<GeneratorEventMessage<T>> entityGenerationFinishedConsumer;
+    private boolean shouldContinue;
 
     public AbstractPersistenceWorker(Class<T> entityClass,
                                      Generator generator) {
         this.generator = generator;
         this.entityClass = entityClass;
         this.eventBus = EventBus.getInstance();
-        this.eventBus.subscribe(GeneratorEvent.ENTITY_GENERATED, entityClass, this.getEntityGeneratedConsumer());
-        this.eventBus.subscribe(GeneratorEvent.ENTITY_GENERATION_FINISHED, entityClass, this.getEntityGenerationFinishedConsumer());
-        this.pool = this.generator.getEntityPool(entityClass);
+        this.pool = this.generator.getEntityPool(entityClass).getInstance(entityClass);
+        this.mapper = this.generator.getEntityToDAOMapper(entityClass);
     }
 
-    protected abstract void doPersist(T entity);
+    // Return map of DAOs
+    protected abstract List<? extends IdentifiableDAO<?>> doPersist(T entity);
     protected abstract void doCommit();
 
     @Override
     public void run() {
+        this.shouldContinue = true;
+        while (this.shouldContinue) {
+            log.debug("PersistenceWorker '{}' requesting entity", entityClass);
+            this.pool.request(1, (entities) -> {
+                if (entities == null || entities.isEmpty()) {
+                    log.debug("PersistenceWorker '{}' got null, notifying main thead that should exit", entityClass);
+                    this.shouldContinue = false;
+                    synchronized (this) {
+                        this.notify();
+                    }
+                    return;
+                }
+                log.debug("PersistenceWorker '{}' got entity '{}', persisting", entityClass, entities.get(0));
+                this.persistEntity(entities.get(0));
+                synchronized (this) {
+                    this.notify();
+                }
+            });
+            synchronized (this) {
+                try {
+                    this.wait();
+                } catch (InterruptedException ignored) {}
+            }
+        }
+        this.commit();
     }
 
-    private Consumer<GeneratorEventMessage<T>> getEntityGeneratedConsumer() {
-        if (this.entityGeneratedConsumer != null) {
-            return this.entityGeneratedConsumer;
-        }
+    private void persistEntity(T entity) {
+        log.info("'{}': ENTITY GENERATED message received, calling doPersist", entityClass);
+        List<? extends IdentifiableDAO<?>> daoValues = this.doPersist(entity);
+        Map<Class<? extends IdentifiableDAO<?>>, Object> daoMap = new HashMap<>();
+        daoValues.forEach(value -> daoMap.put((Class) value.getClass(), value.getId()));
 
-        this.entityGeneratedConsumer = (message) -> {
-            log.info("'{}': ENTITY GENERATED message received, calling doPersist", entityClass);
-            this.doPersist(message.getMessage());
-        };
-        return this.entityGeneratedConsumer;
+        this.eventBus.notify(GeneratorEvent.ENTITY_PERSISTED, new GeneratorEventMessage<>(
+                this.entityClass,
+                new EntityPersistedEventMessage<>(entity.getId(), daoMap)
+        ));
     }
 
-    private Consumer<GeneratorEventMessage<T>> getEntityGenerationFinishedConsumer() {
-        if (this.entityGenerationFinishedConsumer != null) {
-            return this.entityGenerationFinishedConsumer;
-        }
-
-        this.entityGenerationFinishedConsumer = (message) -> {
-            log.info("'{}': ENTITY GENERATION FINISHED message received, calling doCommit and unsubbing", entityClass);
-            this.eventBus.unsubscribe(GeneratorEvent.ENTITY_GENERATED, entityClass, this.getEntityGeneratedConsumer());
-            this.eventBus.unsubscribe(GeneratorEvent.ENTITY_GENERATION_FINISHED, entityClass, this.getEntityGenerationFinishedConsumer());
-            log.info("'{}': Successfully unsubbed", entityClass);
-            this.doCommit();
-            this.eventBus.notify(GeneratorEvent.PERSISTENCE_FINISHED, new GeneratorEventMessage<>(entityClass, null));
-        };
-        return this.entityGenerationFinishedConsumer;
+    private void commit() {
+        log.info("'{}': ENTITY GENERATION FINISHED message received, calling doCommit", entityClass);
+        this.doCommit();
+        this.eventBus.notify(GeneratorEvent.PERSISTENCE_FINISHED, new GeneratorEventMessage<>(entityClass, null));
     }
 }

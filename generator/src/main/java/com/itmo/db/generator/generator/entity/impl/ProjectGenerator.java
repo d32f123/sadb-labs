@@ -9,9 +9,9 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Set;
 
 @Slf4j
-public class ProjectGenerator extends AbstractEntityGenerator<Project> {
+public class ProjectGenerator extends AbstractEntityGenerator<Project, Integer> {
 
-    public ProjectGenerator(Set<DependencyDefinition> dependencies, Generator generator) {
+    public ProjectGenerator(Set<DependencyDefinition<?, ?>> dependencies, Generator generator) {
         super(Project.class, dependencies, generator);
     }
 

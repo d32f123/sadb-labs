@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Publication implements AbstractEntity<Long> {
+public class Publication implements NumericallyIdentifiableEntity {
 
-    private Long id;
+    private Integer id;
 
 }

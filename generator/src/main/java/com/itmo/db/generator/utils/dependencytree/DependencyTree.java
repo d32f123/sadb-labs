@@ -11,23 +11,23 @@ import static java.util.Collections.EMPTY_SET;
 import static java.util.Collections.emptySet;
 
 public class DependencyTree {
-    private final List<Set<EntityDefinition>> leveledEntities;
+    private final List<Set<EntityDefinition<?, ?>>> leveledEntities;
 
-    public DependencyTree(Set<EntityDefinition> entities) {
+    public DependencyTree(Set<EntityDefinition<?, ?>> entities) {
         this.leveledEntities = new ArrayList<>();
 
-        Map<Class<? extends AbstractEntity>, EntityDefinition> entitiesMap = new HashMap<>();
-        entities.forEach(entity -> {
-            entitiesMap.put(entity.getEntityClass(), new EntityDefinition(
+        Map<Class<? extends AbstractEntity<?>>, EntityDefinition<?, ?>> entitiesMap = new HashMap<>();
+        entities.forEach(entity ->
+            entitiesMap.put(entity.getEntityClass(), new EntityDefinition<>(
                     entity.getEntityClass(),
                     entity.getAmount(),
                     entity.getDependencies() != null ? new HashSet<>(entity.getDependencies()) : emptySet()
-            ));
-        });
+            ))
+        );
         this.buildDependencyLevels(entitiesMap);
     }
 
-    public Set<EntityDefinition> getDependencyLevel(int index) {
+    public Set<EntityDefinition<?, ?>> getDependencyLevel(int index) {
         return this.leveledEntities.get(index);
     }
 
@@ -35,24 +35,24 @@ public class DependencyTree {
         return this.leveledEntities.size();
     }
 
-    private void buildDependencyLevels(Map<Class<? extends AbstractEntity>, EntityDefinition> entities) {
-        Map<Class<? extends AbstractEntity>, EntityDefinition> modifiableMap = new HashMap<>(entities.size());
-        entities.values().forEach(entity -> {
-            modifiableMap.put(entity.getEntityClass(), new EntityDefinition(
+    private void buildDependencyLevels(Map<Class<? extends AbstractEntity<?>>, EntityDefinition<?, ?>> entities) {
+        Map<Class<? extends AbstractEntity<?>>, EntityDefinition<?, ?>> modifiableMap = new HashMap<>(entities.size());
+        entities.values().forEach(entity ->
+            modifiableMap.put(entity.getEntityClass(), new EntityDefinition<>(
                     entity.getEntityClass(),
                     entity.getAmount(),
                     new HashSet<>(entity.getDependencies())
-            ));
-        });
+            ))
+        );
         this.buildDependencyLevel(modifiableMap, entities);
     }
 
-    private void buildDependencyLevel(Map<Class<? extends AbstractEntity>, EntityDefinition> entities,
-                                      Map<Class<? extends AbstractEntity>, EntityDefinition> baseEntities) {
+    private void buildDependencyLevel(Map<Class<? extends AbstractEntity<?>>, EntityDefinition<?, ?>> entities,
+                                      Map<Class<? extends AbstractEntity<?>>, EntityDefinition<?, ?>> baseEntities) {
         if (entities == null || entities.isEmpty()) {
             return;
         }
-        Set<Class<? extends AbstractEntity>> currentLevel = new HashSet<>(entities.size() / 2);
+        Set<Class<? extends AbstractEntity<?>>> currentLevel = new HashSet<>(entities.size() / 2);
 
         // deps
         entities.values().stream()

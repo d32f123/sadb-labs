@@ -9,9 +9,9 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Set;
 
 @Slf4j
-public class FacultyGenerator extends AbstractEntityGenerator<Faculty> {
+public class FacultyGenerator extends AbstractEntityGenerator<Faculty, Integer> {
     
-    public FacultyGenerator(Set<DependencyDefinition> deps, Generator generator) {
+    public FacultyGenerator(Set<DependencyDefinition<?, ?>> deps, Generator generator) {
         super(Faculty.class, deps, generator);
     }
 

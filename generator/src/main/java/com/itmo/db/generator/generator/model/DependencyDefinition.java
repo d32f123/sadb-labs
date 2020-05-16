@@ -10,7 +10,7 @@ import java.io.Serializable;
 @Builder
 @Data
 @AllArgsConstructor
-public class DependencyDefinition implements Serializable {
-    private Class<? extends AbstractEntity> dependencyClass;
+public class DependencyDefinition<T extends AbstractEntity<TId>, TId> implements Serializable {
+    private Class<T> dependencyClass;
     private int amountPerInstance;
 }

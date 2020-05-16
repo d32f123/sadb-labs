@@ -1,6 +1,7 @@
 package com.itmo.db.generator.generator.model;
 
 import com.itmo.db.generator.generator.entity.EntityGenerator;
+import com.itmo.db.generator.mapper.EntityToDAOMapper;
 import com.itmo.db.generator.model.entity.AbstractEntity;
 import com.itmo.db.generator.persistence.PersistenceWorker;
 import com.itmo.db.generator.pool.EntityPool;
@@ -10,11 +11,13 @@ import lombok.RequiredArgsConstructor;
 
 @Data
 @RequiredArgsConstructor
-public class GeneratableEntity<T extends AbstractEntity> {
+public class GeneratableEntity<T extends AbstractEntity<TId>, TId> {
     @NonNull
-    private Class<? extends AbstractEntity> entityClass;
+    private Class<T> entityClass;
     @NonNull
-    private EntityPool<T> pool;
+    private EntityPool<T, TId> pool;
+    @NonNull
+    private EntityToDAOMapper<T, TId> mapper;
     private EntityGenerator generator;
     private Thread generatorThread;
     private PersistenceWorker persistenceWorker;

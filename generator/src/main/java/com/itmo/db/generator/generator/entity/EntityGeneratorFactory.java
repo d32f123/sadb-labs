@@ -24,8 +24,8 @@ public class EntityGeneratorFactory {
 
     public EntityGeneratorFactory() {}
 
-    public <T extends AbstractEntity> EntityGenerator getGenerator(Class<T> entityClass,
-                                                                   Set<DependencyDefinition> deps) {
+    public <T extends AbstractEntity<TId>, TId> EntityGenerator getGenerator(Class<T> entityClass,
+                                                                      Set<DependencyDefinition<?, ?>> deps) {
         if (entityClass.equals(Person.class)) {
             return new PersonGenerator(deps, generator);
         } else if (entityClass.equals(Project.class)) {

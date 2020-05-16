@@ -4,7 +4,7 @@ import com.itmo.db.generator.model.entity.AbstractEntity;
 
 import java.util.List;
 
-public interface EntityPool<T extends AbstractEntity> {
+public interface EntityPool<T extends AbstractEntity<TId>, TId> {
     int getRequestedAmount();
     void setRequestedAmount(int amount);
 
@@ -14,5 +14,5 @@ public interface EntityPool<T extends AbstractEntity> {
 
     void add(T entity);
     List<T> getPool();
-    EntityPoolInstance<T> getInstance(Class<?> requester);
+    EntityPoolInstance<T, TId> getInstance(Class<?> requester);
 }

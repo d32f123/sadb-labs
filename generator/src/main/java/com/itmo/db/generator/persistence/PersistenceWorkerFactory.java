@@ -29,7 +29,7 @@ public class PersistenceWorkerFactory {
 
     public PersistenceWorkerFactory() {}
 
-    public <T extends AbstractEntity> PersistenceWorker getWorker(Class<T> entityClass) {
+    public <T extends AbstractEntity<TId>, TId> PersistenceWorker getWorker(Class<T> entityClass) {
         if (entityClass.equals(Person.class)) {
             return new PersonPersistenceWorker(generator, personRepository);
         } else if (entityClass.equals(Project.class)) {

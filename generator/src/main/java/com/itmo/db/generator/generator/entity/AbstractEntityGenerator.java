@@ -3,6 +3,7 @@ package com.itmo.db.generator.generator.entity;
 import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.generator.model.DependencyDefinition;
 import com.itmo.db.generator.model.entity.AbstractEntity;
+import com.itmo.db.generator.model.entity.NumericallyIdentifiableEntity;
 import com.itmo.db.generator.pool.EntityPool;
 import com.itmo.db.generator.pool.EntityPoolInstance;
 import lombok.AllArgsConstructor;
@@ -14,13 +15,15 @@ import java.util.*;
 
 // WARN: Generator MUST NOT modify dependency instances
 @Slf4j
-public abstract class AbstractEntityGenerator<T extends AbstractEntity> implements EntityGenerator {
+public abstract class AbstractEntityGenerator<T extends AbstractEntity<TId>, TId> implements EntityGenerator {
+
+    private static int currentId;
 
     protected final Generator generator;
-    protected EntityPool<T> pool;
+    protected EntityPool<T, TId> pool;
     private final Class<T> entityClass;
-    private final Set<DependencyDefinition> dependencies;
-    protected final Map<Class<? extends AbstractEntity>, DependencyWithMeta> dependenciesMetaMap;
+    private final Set<DependencyDefinition<?, ?>> dependencies;
+    protected final Map<Class<? extends AbstractEntity<?>>, DependencyWithMeta<?, ?>> dependenciesMetaMap;
     private int instancesCreated;
     private final Object instanceCreationMonitor;
     private final Object runMonitor;
@@ -28,16 +31,15 @@ public abstract class AbstractEntityGenerator<T extends AbstractEntity> implemen
 
     @Data
     @AllArgsConstructor
-    protected static class DependencyWithMeta implements Serializable {
-        private Class<? extends AbstractEntity> entityClass;
-        private List<? extends AbstractEntity> entityValues;
-        private EntityPoolInstance<? extends AbstractEntity> poolInstance;
+    protected static class DependencyWithMeta<T extends AbstractEntity<TId>, TId> implements Serializable {
+        private Class<T> entityClass;
+        private List<T> entityValues;
+        private EntityPoolInstance<T, TId> poolInstance;
         private int amount;
     }
 
-
     public AbstractEntityGenerator(Class<T> entityClass,
-                                   Set<DependencyDefinition> dependencies,
+                                   Set<DependencyDefinition<?, ?>> dependencies,
                                    Generator generator) {
         log.debug("Creating AbstractEntityGenerator for '{}' with deps: '{}'", entityClass, dependencies);
         this.generator = generator;
@@ -70,8 +72,7 @@ public abstract class AbstractEntityGenerator<T extends AbstractEntity> implemen
                 this.shouldContinue = true;
                 log.trace("No deps for '{}'", entityClass);
                 log.trace("'{}': Passing control to implementation", entityClass);
-                T entity = this.getEntity();
-                pool.add(entity);
+                this.doGenerate();
                 continue;
             }
 
@@ -84,7 +85,7 @@ public abstract class AbstractEntityGenerator<T extends AbstractEntity> implemen
                         depWithMeta.getPoolInstance().request(depWithMeta.getAmount(), (entities) -> {
                             log.trace("Got entities for '{}'", depWithMeta.entityClass);
                             synchronized (this.instanceCreationMonitor) {
-                                depWithMeta.setEntityValues(entities);
+                                depWithMeta.setEntityValues((List) entities);
                                 this.instancesCreated += 1;
                                 if (!this.checkIfAllDependenciesInstantiated()) {
                                     log.trace("'{}': Still waiting for some entities...", entityClass);
@@ -92,8 +93,7 @@ public abstract class AbstractEntityGenerator<T extends AbstractEntity> implemen
                                 }
                             }
                             log.debug("'{}': Got all entities, passing control to implementation", entityClass);
-                            T entity = this.getEntity();
-                            pool.add(entity);
+                            this.doGenerate();
                             synchronized (this.runMonitor) {
                                 log.trace("'{}': Acquired lock, notifying main runner", entityClass);
                                 this.shouldContinue = true;
@@ -117,9 +117,26 @@ public abstract class AbstractEntityGenerator<T extends AbstractEntity> implemen
         return this.instancesCreated == this.dependencies.size();
     }
 
-    protected <TDep extends AbstractEntity> List<TDep> getDependencyInstances(Class<TDep> dependencyClass) {
+    protected <TDep extends AbstractEntity<TDepId>, TDepId> List<TDep> getDependencyInstances(Class<TDep> dependencyClass) {
         return (List<TDep>) this.dependenciesMetaMap.get(dependencyClass).getEntityValues();
     }
 
+    private void doGenerate() {
+        T entity = this.getEntity();
+        if (entity instanceof NumericallyIdentifiableEntity) {
+            NumericallyIdentifiableEntity numericallyIdentifiableEntity = (NumericallyIdentifiableEntity) entity;
+            int id = getEntityId();
+            log.debug("'{}': Generated id for numerically identifiable entity", id);
+            numericallyIdentifiableEntity.setId(id);
+        }
+        pool.add(entity);
+    }
+
     protected abstract T getEntity();
+
+    private synchronized static int getEntityId() {
+        int returnValue = currentId;
+        currentId += 1;
+        return returnValue;
+    }
 }

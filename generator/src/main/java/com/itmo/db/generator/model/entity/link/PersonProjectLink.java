@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 @Data
 public class PersonProjectLink implements AbstractEntity<PersonProjectLink.PersonProjectLinkPK> {
 
@@ -17,5 +19,6 @@ public class PersonProjectLink implements AbstractEntity<PersonProjectLink.Perso
     }
 
     private PersonProjectLinkPK id;
-
+    public Date participationStart;
+    public Date participationEnd;
 }

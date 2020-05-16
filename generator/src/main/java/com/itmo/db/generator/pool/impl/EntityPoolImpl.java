@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
-public class EntityPoolImpl<T extends AbstractEntity> implements EntityPool<T> {
+public class EntityPoolImpl<T extends AbstractEntity<TId>, TId> implements EntityPool<T, TId> {
 
     private int requestedAmount;
     private int actualAmount;
@@ -23,7 +23,7 @@ public class EntityPoolImpl<T extends AbstractEntity> implements EntityPool<T> {
     private final EventBus eventBus;
     private final List<T> entities;
 
-    private final Map<Class<?>, EntityPoolInstanceImpl<T>> poolInstances;
+    private final Map<Class<?>, EntityPoolInstanceImpl<T, TId>> poolInstances;
 
     private final Class<T> entityClass;
 
@@ -90,7 +90,7 @@ public class EntityPoolImpl<T extends AbstractEntity> implements EntityPool<T> {
     }
 
     @Override
-    public EntityPoolInstance<T> getInstance(Class<?> requester) {
+    public EntityPoolInstance<T, TId> getInstance(Class<?> requester) {
         if (this.poolInstances.containsKey(requester)) {
             return this.poolInstances.get(requester);
         }

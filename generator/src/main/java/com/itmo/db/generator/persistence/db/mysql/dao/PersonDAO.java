@@ -1,5 +1,6 @@
 package com.itmo.db.generator.persistence.db.mysql.dao;
 
+import com.itmo.db.generator.persistence.db.IdentifiableDAO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,7 +12,7 @@ import javax.persistence.*;
 @Table(name = "persons")
 @NoArgsConstructor
 @AllArgsConstructor
-public class PersonDAO {
+public class PersonDAO implements IdentifiableDAO<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

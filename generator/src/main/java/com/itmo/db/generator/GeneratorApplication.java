@@ -29,12 +29,12 @@ public class GeneratorApplication implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        Set<EntityDefinition> entities = Set.of(
-                new EntityDefinition(Person.class, 2, null),
-                new EntityDefinition(Project.class, 2, null),
-                new EntityDefinition(PersonProjectLink.class, 2, Set.of(
-                        new DependencyDefinition(Person.class, 1),
-                        new DependencyDefinition(Project.class, 1)
+        Set<EntityDefinition<?, ?>> entities = Set.of(
+                new EntityDefinition<>(Person.class, 2, null),
+                new EntityDefinition<>(Project.class, 2, null),
+                new EntityDefinition<>(PersonProjectLink.class, 2, Set.of(
+                        new DependencyDefinition<>(Person.class, 1),
+                        new DependencyDefinition<>(Project.class, 1)
                 ))
         );
         this.generator.generate(entities);
