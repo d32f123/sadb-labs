@@ -39,7 +39,7 @@ create table publications
 create table issues
 (
     issue_id SERIAL,
-    name     VARCHAR(60)  NOT NULL,
+    name     VARCHAR(255)  NOT NULL,
     language VARCHAR(3)   NOT NULL DEFAULT 'RU',
     location VARCHAR(255) NOT NULL,
     length   INT          NOT NULL,
