@@ -1,16 +1,11 @@
 package com.itmo.db.generator.generator.entity;
 
 import com.itmo.db.generator.generator.Generator;
-import com.itmo.db.generator.generator.entity.impl.FacultyGenerator;
-import com.itmo.db.generator.generator.entity.impl.PersonGenerator;
-import com.itmo.db.generator.generator.entity.impl.ProjectGenerator;
-import com.itmo.db.generator.generator.entity.impl.link.PersonProjectLinkGenerator;
+import com.itmo.db.generator.generator.entity.impl.*;
+import com.itmo.db.generator.generator.entity.impl.link.*;
 import com.itmo.db.generator.generator.model.DependencyDefinition;
-import com.itmo.db.generator.model.entity.AbstractEntity;
-import com.itmo.db.generator.model.entity.Faculty;
-import com.itmo.db.generator.model.entity.Person;
-import com.itmo.db.generator.model.entity.Project;
-import com.itmo.db.generator.model.entity.link.PersonProjectLink;
+import com.itmo.db.generator.model.entity.*;
+import com.itmo.db.generator.model.entity.link.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -34,6 +29,8 @@ public class EntityGeneratorFactory {
             return new PersonProjectLinkGenerator(deps, generator);
         } else if (entityClass.equals(Faculty.class)) {
             return new FacultyGenerator(deps, generator);
+        } else if (entityClass.equals(Issue.class)) {
+            return new IssueGenerator(deps, generator);
         }
 
         throw new NullPointerException();

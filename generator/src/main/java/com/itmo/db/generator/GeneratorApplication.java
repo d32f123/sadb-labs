@@ -1,11 +1,8 @@
 package com.itmo.db.generator;
 
 import com.itmo.db.generator.generator.Generator;
-import com.itmo.db.generator.generator.model.DependencyDefinition;
 import com.itmo.db.generator.generator.model.EntityDefinition;
-import com.itmo.db.generator.model.entity.Person;
-import com.itmo.db.generator.model.entity.Project;
-import com.itmo.db.generator.model.entity.link.PersonProjectLink;
+import com.itmo.db.generator.model.entity.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;

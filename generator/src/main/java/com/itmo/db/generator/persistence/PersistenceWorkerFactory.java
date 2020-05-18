@@ -1,17 +1,11 @@
 package com.itmo.db.generator.persistence;
 
 import com.itmo.db.generator.generator.Generator;
-import com.itmo.db.generator.model.entity.AbstractEntity;
-import com.itmo.db.generator.model.entity.Faculty;
-import com.itmo.db.generator.model.entity.Person;
-import com.itmo.db.generator.model.entity.Project;
+import com.itmo.db.generator.model.entity.*;
 import com.itmo.db.generator.model.entity.link.PersonProjectLink;
+import com.itmo.db.generator.persistence.db.mysql.repository.*;
 import com.itmo.db.generator.persistence.db.postgres.repository.FacultyRepository;
-import com.itmo.db.generator.persistence.impl.FacultyPersistenceWorker;
-import com.itmo.db.generator.persistence.impl.PersonPersistenceWorker;
-import com.itmo.db.generator.persistence.impl.PersonProjectLinkPersistenceWorker;
-import com.itmo.db.generator.persistence.impl.ProjectPersistenceWorker;
-import com.itmo.db.generator.persistence.db.mysql.repository.PersonRepository;
+import com.itmo.db.generator.persistence.impl.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -27,6 +21,9 @@ public class PersistenceWorkerFactory {
     @Autowired
     private FacultyRepository facultyRepository;
 
+    @Autowired
+    private IssueRepository issueRepository;
+
     public PersistenceWorkerFactory() {}
 
     public <T extends AbstractEntity<TId>, TId> PersistenceWorker getWorker(Class<T> entityClass) {
@@ -38,6 +35,8 @@ public class PersistenceWorkerFactory {
             return new PersonProjectLinkPersistenceWorker(generator);
         } else if (entityClass.equals(Faculty.class)) {
             return new FacultyPersistenceWorker(generator, facultyRepository);
+        } else if (entityClass.equals(Issue.class)) {
+            return new IssuePersistenceWorker(generator, issueRepository);
         }
 
         throw new NullPointerException();
