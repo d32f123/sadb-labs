@@ -47,8 +47,8 @@ public class PersonGenerator extends AbstractEntityGenerator<Person, Integer> {
     }
 
     String getRole(Random random) {
-        String[] roles = new String[] {"student", "teacher"};
-        return roles[random.nextInt(roles.length)];
+        int studentTeacherRatio = 80;
+        return random.nextInt(100) < studentTeacherRatio ? "student" : "teacher";
     }
 
     public PersonGenerator(Set<DependencyDefinition<?, ?>> deps, Generator generator) {
