@@ -24,13 +24,13 @@ create table persons
 create table projects
 (
     project_id SERIAL,
-    name       VARCHAR(60) NOT NULL
+    name       VARCHAR(127) NOT NULL
 );
 
 create table publications
 (
     publication_id SERIAL,
-    name           VARCHAR(60) NOT NULL,
+    name           VARCHAR(15) NOT NULL,
     language       VARCHAR(3)  NOT NULL DEFAULT 'RU',
     citation_index INT         NOT NULL DEFAULT 0,
     date           TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -39,7 +39,7 @@ create table publications
 create table issues
 (
     issue_id SERIAL,
-    name     VARCHAR(255)  NOT NULL,
+    name     VARCHAR(127)  NOT NULL,
     language VARCHAR(3)   NOT NULL DEFAULT 'RU',
     location VARCHAR(255) NOT NULL,
     length   INT          NOT NULL,
@@ -49,7 +49,7 @@ create table issues
 create table conferences
 (
     conference_id SERIAL,
-    name          VARCHAR(60)  NOT NULL,
+    name          VARCHAR(127)  NOT NULL,
     location      VARCHAR(255) NOT NULL,
     date          TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
