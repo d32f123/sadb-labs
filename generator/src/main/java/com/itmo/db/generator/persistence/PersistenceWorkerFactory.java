@@ -16,10 +16,16 @@ public class PersistenceWorkerFactory {
     private Generator generator;
 
     @Autowired
+    private ConferenceRepository conferenceRepository;
+
+    @Autowired
     private PersonRepository personRepository;
 
     @Autowired
     private ProjectRepository projectRepository;
+
+    @Autowired
+    private PublicationRepository publicationRepository;
 
     @Autowired
     private FacultyRepository facultyRepository;
@@ -40,6 +46,10 @@ public class PersistenceWorkerFactory {
             return new FacultyPersistenceWorker(generator, facultyRepository);
         } else if (entityClass.equals(Issue.class)) {
             return new IssuePersistenceWorker(generator, issueRepository);
+        } else if (entityClass.equals(Conference.class)) {
+            return new ConferencePersistenceWorker(generator, conferenceRepository);
+        } else if (entityClass.equals(Publication.class)) {
+            return new PublicationPersistenceWorker(generator, publicationRepository);
         }
 
         throw new NullPointerException();

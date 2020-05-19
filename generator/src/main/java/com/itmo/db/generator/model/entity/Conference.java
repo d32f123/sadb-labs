@@ -9,11 +9,11 @@ import java.sql.Timestamp;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Publication implements NumericallyIdentifiableEntity {
+public class Conference implements NumericallyIdentifiableEntity {
 
     private Integer id;
     private String name;
-    private String language;
-    private Integer citation_index;
+    private String location;
     private Timestamp date;
+
 }
