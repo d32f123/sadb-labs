@@ -18,8 +18,7 @@ public class ProjectGenerator extends AbstractEntityGenerator<Project, Integer> 
     @Override
     protected Project getEntity() {
         log.debug("Creating Project");
-        Project project = new Project();
 
-        return project;
+        return new Project(null, "projectName");
     }
 }

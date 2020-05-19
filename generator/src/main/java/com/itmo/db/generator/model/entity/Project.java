@@ -10,5 +10,6 @@ import lombok.NoArgsConstructor;
 public class Project implements NumericallyIdentifiableEntity {
 
     private Integer id;
+    private String name;
 
 }
