@@ -25,6 +25,9 @@ public class PersistenceWorkerFactory {
     private ProjectRepository projectRepository;
 
     @Autowired
+    private PersonProjectLinkRepository personProjectRepository;
+
+    @Autowired
     private PublicationRepository publicationRepository;
 
     @Autowired
@@ -47,7 +50,7 @@ public class PersistenceWorkerFactory {
         } else if (entityClass.equals(Project.class)) {
             return new ProjectPersistenceWorker(generator, projectRepository);
         } else if (entityClass.equals(PersonProjectLink.class)) {
-            return new PersonProjectLinkPersistenceWorker(generator);
+            return new PersonProjectLinkPersistenceWorker(generator, personProjectRepository);
         } else if (entityClass.equals(Faculty.class)) {
             return new FacultyPersistenceWorker(generator, facultyRepository);
         } else if (entityClass.equals(Issue.class)) {

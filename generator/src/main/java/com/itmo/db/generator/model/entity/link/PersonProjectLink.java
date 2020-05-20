@@ -5,20 +5,26 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.sql.Timestamp;
 
 @Data
 public class PersonProjectLink implements AbstractEntity<PersonProjectLink.PersonProjectLinkPK> {
+
+    public PersonProjectLink(Long person_id, Long project_id, Timestamp participationStart, Timestamp participationEnd){
+        this.id = new PersonProjectLinkPK(person_id, project_id);
+        this.participationStart = participationStart;
+        this.participationEnd = participationEnd;
+    }
 
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
     public static class PersonProjectLinkPK {
-        private Long personId;
-        private Long projectId;
+        public Long personId;
+        public Long projectId;
     }
 
     private PersonProjectLinkPK id;
-    public Date participationStart;
-    public Date participationEnd;
+    private Timestamp participationStart;
+    private Timestamp participationEnd;
 }

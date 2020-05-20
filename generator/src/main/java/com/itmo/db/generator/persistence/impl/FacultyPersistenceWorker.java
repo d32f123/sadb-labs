@@ -21,13 +21,13 @@ public class FacultyPersistenceWorker extends AbstractPersistenceWorker<Faculty,
 
     @Override
     protected List<? extends IdentifiableDAO<?>> doPersist(Faculty entity) {
-        FacultyDAO personDAO = new FacultyDAO(
+        FacultyDAO facultyDAO = new FacultyDAO(
                 entity.getId(),
                 entity.getFacultyName()
         );
 
-        this.facultyRepository.save(personDAO);
-        return Collections.singletonList(personDAO);
+        this.facultyRepository.save(facultyDAO);
+        return Collections.singletonList(facultyDAO);
     }
 
     @Override
