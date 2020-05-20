@@ -10,13 +10,21 @@ drop table if exists disciplines;
 drop table if exists persons;
 drop table if exists specialties;
 drop table if exists faculties;
+drop table if exists universities;
+
+create table universities
+(
+    university_id   serial primary key,
+    name            text unique not null,
+    creation_date   timestamp not null default current_timestamp
+);
 
 create table faculties
 (
-    faculty_id   serial primary key,
-    faculty_name text unique not null
+    faculty_id    serial primary key,
+    university_id int not null references universities (university_id),
+    faculty_name  text unique not null
 );
-
 
 create table specialties
 (
@@ -28,11 +36,11 @@ create table specialties
 
 create table persons
 (
-    person_id       serial primary key,
+    person_id       bigint primary key,
     last_name       text not null,
     first_name      text not null,
     patronymic_name text,
-    university_role text not null
+    role            text not null
 );
 
 create table students
@@ -51,6 +59,7 @@ create table professors
 create table disciplines
 (
     discipline_id  serial primary key,
+    name           text not null,
     control_form   text not null,
     lecture_hours  int  not null,
     practice_hours int  not null,
