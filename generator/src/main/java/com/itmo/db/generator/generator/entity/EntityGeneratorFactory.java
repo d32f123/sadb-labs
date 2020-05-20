@@ -35,6 +35,8 @@ public class EntityGeneratorFactory {
             return new ConferenceGenerator(deps, generator);
         } else if (entityClass.equals(Publication.class)) {
             return new PublicationGenerator(deps, generator);
+        } else if (entityClass.equals(Discipline.class)) {
+            return new DisciplineGenerator(deps, generator);
         }
 
         throw new NullPointerException();

@@ -4,7 +4,7 @@ import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.model.entity.*;
 import com.itmo.db.generator.model.entity.link.PersonProjectLink;
 import com.itmo.db.generator.persistence.db.mysql.repository.*;
-import com.itmo.db.generator.persistence.db.postgres.repository.FacultyRepository;
+import com.itmo.db.generator.persistence.db.postgres.repository.*;
 import com.itmo.db.generator.persistence.impl.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -31,6 +31,9 @@ public class PersistenceWorkerFactory {
     private FacultyRepository facultyRepository;
 
     @Autowired
+    private DisciplineRepository disciplineRepository;
+
+    @Autowired
     private IssueRepository issueRepository;
 
     public PersistenceWorkerFactory() {}
@@ -50,6 +53,8 @@ public class PersistenceWorkerFactory {
             return new ConferencePersistenceWorker(generator, conferenceRepository);
         } else if (entityClass.equals(Publication.class)) {
             return new PublicationPersistenceWorker(generator, publicationRepository);
+        } else if (entityClass.equals(Discipline.class)) {
+            return new DisciplinePersistenceWorker(generator, disciplineRepository);
         }
 
         throw new NullPointerException();
