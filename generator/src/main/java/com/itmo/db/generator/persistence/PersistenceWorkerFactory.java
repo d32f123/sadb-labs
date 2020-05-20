@@ -36,6 +36,9 @@ public class PersistenceWorkerFactory {
     @Autowired
     private IssueRepository issueRepository;
 
+    @Autowired
+    private UniversityRepository universityRepository;
+
     public PersistenceWorkerFactory() {}
 
     public <T extends AbstractEntity<TId>, TId> PersistenceWorker getWorker(Class<T> entityClass) {
@@ -55,6 +58,8 @@ public class PersistenceWorkerFactory {
             return new PublicationPersistenceWorker(generator, publicationRepository);
         } else if (entityClass.equals(Discipline.class)) {
             return new DisciplinePersistenceWorker(generator, disciplineRepository);
+        } else if (entityClass.equals(University.class)) {
+            return new UniversityPersistenceWorker(generator, universityRepository);
         }
 
         throw new NullPointerException();

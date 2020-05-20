@@ -15,8 +15,8 @@ drop table if exists universities;
 create table universities
 (
     university_id   serial primary key,
-    name            text unique not null,
-    creation_date   timestamp not null default current_timestamp
+    name            text not null,
+    creation_date   date not null default current_date
 );
 
 create table faculties
