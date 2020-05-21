@@ -11,10 +11,10 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 public class PersonProjectLink implements AbstractEntity<PersonProjectLink.PersonProjectLinkPK> {
 
-    public PersonProjectLink(Integer person_id, Integer project_id, Timestamp participationStart, Timestamp participationEnd){
+    public PersonProjectLink(Integer person_id, Integer project_id, Timestamp participationStart, Timestamp endDate){
         this.id = new PersonProjectLinkPK(person_id, project_id);
-        this.participationStart = participationStart;
-        this.participationEnd = participationEnd;
+        this.startDate = participationStart;
+        this.endDate = endDate;
     }
 
     @Data
@@ -26,6 +26,6 @@ public class PersonProjectLink implements AbstractEntity<PersonProjectLink.Perso
     }
 
     private PersonProjectLinkPK id;
-    private Timestamp participationStart;
-    private Timestamp participationEnd;
+    private Timestamp startDate;
+    private Timestamp endDate;
 }

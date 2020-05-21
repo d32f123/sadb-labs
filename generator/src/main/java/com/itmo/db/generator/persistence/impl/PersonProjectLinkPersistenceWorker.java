@@ -28,8 +28,8 @@ public class PersonProjectLinkPersistenceWorker extends AbstractPersistenceWorke
         PersonProjectLinkDAO personProjectLinkDAO = new PersonProjectLinkDAO(
                 personDAO,
                 projectDAO,
-                entity.getParticipationStart(),
-                entity.getParticipationEnd()
+                entity.getStartDate(),
+                entity.getEndDate()
         );
 
         this.personProjectRepository.save(personProjectLinkDAO);

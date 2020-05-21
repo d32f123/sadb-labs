@@ -7,10 +7,6 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Faculty implements NumericallyIdentifiableEntity {
-
+public class Semester implements NumericallyIdentifiableEntity {
     private Integer id;
-    private String facultyName;
-    private Integer universityId;
-
 }
