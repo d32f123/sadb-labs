@@ -4,23 +4,24 @@ import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.model.entity.Discipline;
 import com.itmo.db.generator.persistence.AbstractPersistenceWorker;
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
-import com.itmo.db.generator.persistence.db.postgres.dao.DisciplineDAO;
-import com.itmo.db.generator.persistence.db.postgres.repository.DisciplineRepository;
+import com.itmo.db.generator.persistence.db.postgres.dao.DisciplinePostgresDAO;
+import com.itmo.db.generator.persistence.db.postgres.repository.DisciplinePostgresRepository;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
 
 public class DisciplinePersistenceWorker extends AbstractPersistenceWorker<Discipline, Integer> {
 
-    private final DisciplineRepository disciplineRepository;
+    private final DisciplinePostgresRepository disciplinePostgresRepository;
 
-    public DisciplinePersistenceWorker(Generator generator, DisciplineRepository disciplineRepository) {
+    public DisciplinePersistenceWorker(Generator generator, DisciplinePostgresRepository disciplinePostgresRepository) {
         super(Discipline.class, generator);
-        this.disciplineRepository = disciplineRepository;
+        this.disciplinePostgresRepository = disciplinePostgresRepository;
     }
 
     @Override
     protected List<? extends IdentifiableDAO<?>> doPersist(Discipline entity) {
-        DisciplineDAO disciplineDAO = new DisciplineDAO(
+        DisciplinePostgresDAO disciplinePostgresDAO = new DisciplinePostgresDAO(
                 null,
                 entity.getName(),
                 entity.getControlForm(),
@@ -29,12 +30,12 @@ public class DisciplinePersistenceWorker extends AbstractPersistenceWorker<Disci
                 entity.getLabHours()
         );
 
-        this.disciplineRepository.save(disciplineDAO);
-        return Collections.singletonList(disciplineDAO);
+        this.disciplinePostgresRepository.save(disciplinePostgresDAO);
+        return Collections.singletonList(disciplinePostgresDAO);
     }
 
     @Override
     protected void doCommit() {
-        this.disciplineRepository.flush();
+        this.disciplinePostgresRepository.flush();
     }
 }

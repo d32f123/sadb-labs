@@ -7,8 +7,8 @@ import com.itmo.db.generator.model.entity.Person;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
-import java.util.Set;
 import java.util.Random;
+import java.util.Set;
 
 @Slf4j
 public class PersonGenerator extends AbstractEntityGenerator<Person, Integer> {
@@ -71,7 +71,7 @@ public class PersonGenerator extends AbstractEntityGenerator<Person, Integer> {
 
         return List.of(new Person(
                 null, getFirstName(random, isMale), getSurname(random, isMale),
-                getPatronymic(random, isMale), getRole(random), null, null, null, null, null, null
+                getPatronymic(random, isMale), getRole(random), null, null, false, (short) 0
         ));
     }
 }

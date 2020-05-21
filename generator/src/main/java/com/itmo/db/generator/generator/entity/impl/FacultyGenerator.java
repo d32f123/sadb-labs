@@ -7,8 +7,8 @@ import com.itmo.db.generator.model.entity.Faculty;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
-import java.util.Set;
 import java.util.Random;
+import java.util.Set;
 
 @Slf4j
 public class FacultyGenerator extends AbstractEntityGenerator<Faculty, Integer> {
@@ -39,7 +39,7 @@ public class FacultyGenerator extends AbstractEntityGenerator<Faculty, Integer> 
         log.debug("Creating Faculty");
         Random random = new Random();
 
-        return List.of(new Faculty(null, faculties[random.nextInt(faculties.length)]));
+        return List.of(new Faculty(null, faculties[random.nextInt(faculties.length)], null));
     }
 
 }

@@ -4,34 +4,35 @@ import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.model.entity.University;
 import com.itmo.db.generator.persistence.AbstractPersistenceWorker;
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
-import com.itmo.db.generator.persistence.db.postgres.dao.UniversityDAO;
-import com.itmo.db.generator.persistence.db.postgres.repository.UniversityRepository;
+import com.itmo.db.generator.persistence.db.postgres.dao.UniversityPostgresDAO;
+import com.itmo.db.generator.persistence.db.postgres.repository.UniversityPostgresRepository;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
 
 public class UniversityPersistenceWorker extends AbstractPersistenceWorker<University, Integer> {
 
-    private final UniversityRepository universityRepository;
+    private final UniversityPostgresRepository universityPostgresRepository;
 
-    public UniversityPersistenceWorker(Generator generator, UniversityRepository universityRepository) {
+    public UniversityPersistenceWorker(Generator generator, UniversityPostgresRepository universityPostgresRepository) {
         super(University.class, generator);
-        this.universityRepository = universityRepository;
+        this.universityPostgresRepository = universityPostgresRepository;
     }
 
     @Override
     protected List<? extends IdentifiableDAO<?>> doPersist(University entity) {
-        UniversityDAO universityDAO = new UniversityDAO(
+        UniversityPostgresDAO universityPostgresDAO = new UniversityPostgresDAO(
                 null,
                 entity.getName(),
                 entity.getCreationDate()
         );
 
-        this.universityRepository.save(universityDAO);
-        return Collections.singletonList(universityDAO);
+        this.universityPostgresRepository.save(universityPostgresDAO);
+        return Collections.singletonList(universityPostgresDAO);
     }
 
     @Override
     protected void doCommit() {
-        this.universityRepository.flush();
+        this.universityPostgresRepository.flush();
     }
 }

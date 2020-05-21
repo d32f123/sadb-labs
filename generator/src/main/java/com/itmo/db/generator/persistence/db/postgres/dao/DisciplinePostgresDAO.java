@@ -6,24 +6,32 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.sql.Date;
 
 @Entity
 @Data
-@Table(name = "universities")
+@Table(name = "disciplines")
 @NoArgsConstructor
 @AllArgsConstructor
-public class UniversityDAO implements IdentifiableDAO<Integer> {
+public class DisciplinePostgresDAO implements IdentifiableDAO<Integer> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "university_id")
+    @Column(name = "discipline_id")
     private Integer id;
 
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "creation_date")
-    private Date creationDate;
+    @Column(name = "control_form", nullable = false)
+    private String controlForm;
+
+    @Column(name = "lecture_hours")
+    private Integer lectureHours;
+
+    @Column(name = "practice_hours")
+    private Integer practiceHours;
+
+    @Column(name = "lab_hours")
+    private Integer labHours;
 
 }
