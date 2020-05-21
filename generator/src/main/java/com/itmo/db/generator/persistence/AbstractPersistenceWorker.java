@@ -21,7 +21,7 @@ public abstract class AbstractPersistenceWorker<T extends AbstractEntity<TId>, T
     protected final Generator generator;
     private final Class<T> entityClass;
     private final EntityPoolInstance<T, TId> pool;
-    protected final EntityToDAOMapper<T, TId> mapper;
+    private final EntityToDAOMapper<T, TId> mapper;
     private final EventBus eventBus;
     private boolean shouldContinue;
 
@@ -52,8 +52,9 @@ public abstract class AbstractPersistenceWorker<T extends AbstractEntity<TId>, T
                     }
                     return;
                 }
-                log.debug("PersistenceWorker '{}' got entity '{}', persisting", entityClass, entities.get(0));
-                this.persistEntity(entities.get(0));
+                T entity = entities.get(0);
+                log.debug("PersistenceWorker '{}' got entity '{}', persisting", entityClass, entity);
+                this.persistEntity(entity);
                 synchronized (this) {
                     this.notify();
                 }
@@ -65,6 +66,12 @@ public abstract class AbstractPersistenceWorker<T extends AbstractEntity<TId>, T
             }
         }
         this.commit();
+    }
+
+    protected <TEntity extends AbstractEntity<TEntityId>, TEntityId,
+            TDAO extends IdentifiableDAO<TDAOId>, TDAOId>
+    TDAOId getDependencyDAOId(Class<TEntity> entityClass, TEntityId entityId, Class<TDAO> daoClass) {
+        return (TDAOId) this.generator.getEntityToDAOMapper(entityClass).getDAOs(entityId).get(daoClass);
     }
 
     private void persistEntity(T entity) {
