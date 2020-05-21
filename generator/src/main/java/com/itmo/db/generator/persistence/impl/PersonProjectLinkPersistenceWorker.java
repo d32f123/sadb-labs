@@ -1,6 +1,8 @@
 package com.itmo.db.generator.persistence.impl;
 
 import com.itmo.db.generator.generator.Generator;
+import com.itmo.db.generator.model.entity.Person;
+import com.itmo.db.generator.model.entity.Project;
 import com.itmo.db.generator.model.entity.link.PersonProjectLink;
 import com.itmo.db.generator.persistence.AbstractPersistenceWorker;
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
@@ -20,8 +22,8 @@ public class PersonProjectLinkPersistenceWorker extends AbstractPersistenceWorke
 
     @Override
     protected List<? extends IdentifiableDAO<?>> doPersist(PersonProjectLink entity) {
-        PersonDAO personDAO = new PersonDAO(entity.getId().personId, null, null, null, null);
-        ProjectDAO projectDAO = new ProjectDAO(entity.getId().projectId, null);
+        PersonDAO personDAO = new PersonDAO(this.getDependencyDAOId(Person.class, entity.getId().getPersonId(), PersonDAO.class), null, null, null, null);
+        ProjectDAO projectDAO = new ProjectDAO(this.getDependencyDAOId(Project.class, entity.getId().getProjectId(), ProjectDAO.class), null);
 
         PersonProjectLinkDAO personProjectLinkDAO = new PersonProjectLinkDAO(
                 personDAO,
