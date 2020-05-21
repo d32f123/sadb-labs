@@ -19,6 +19,11 @@ create table universities
     creation_date   date not null default current_date
 );
 
+create table semesters
+(
+    semester_id     serial primary key
+);
+
 create table faculties
 (
     faculty_id    serial primary key,
@@ -73,14 +78,14 @@ create table specialty_disciplines
     primary key (specialty_id, discipline_id)
 );
 
-create table professor_student_disciplines
+create table student_semester_disciplines
 (
     student_id       int       not null references students (person_id),
+    semester_id      int       not null references semesters (semester_id),
     discipline_id    int       not null references disciplines (discipline_id),
     professor_id     int       not null references professors (person_id),
-    semester         int       not null,
     semester_counter int       not null,
     score            int       not null,
     score_date       timestamp not null default current_timestamp,
-    primary key (student_id, professor_id, discipline_id)
+    primary key (student_id, semester_id, discipline_id)
 );
