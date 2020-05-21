@@ -41,7 +41,7 @@ create table specialties
 
 create table persons
 (
-    person_id       bigint primary key,
+    person_id       serial primary key,
     last_name       text not null,
     first_name      text not null,
     patronymic_name text,
