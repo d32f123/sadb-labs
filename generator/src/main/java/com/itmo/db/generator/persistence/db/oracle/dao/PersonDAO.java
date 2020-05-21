@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @Data
@@ -28,7 +29,9 @@ public class PersonDAO implements IdentifiableDAO<Long> {
     @Column(name = "patronymic_name")
     private String patronymicName;
 
-    @Column(name = "role", nullable = false)
-    private String role;
+    @Column(name = "birth_date", nullable = false)
+    private Date birthDate;
 
+    @Column(name = "birth_place")
+    private String birthPlace;
 }

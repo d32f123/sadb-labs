@@ -4,11 +4,10 @@ import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.generator.entity.AbstractEntityGenerator;
 import com.itmo.db.generator.generator.model.DependencyDefinition;
 import com.itmo.db.generator.model.entity.Person;
+import com.itmo.db.generator.pool.EntityPool;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.List;
-import java.util.Set;
-import java.util.Random;
+import java.util.*;
 
 @Slf4j
 public class PersonGenerator extends AbstractEntityGenerator<Person, Integer> {
@@ -59,6 +58,28 @@ public class PersonGenerator extends AbstractEntityGenerator<Person, Integer> {
         return roles[0];
     }
 
+    public Date getBirthDate(Random random) {
+        Calendar date = new GregorianCalendar(1900, Calendar.JANUARY,0);
+        int MAX_DAYS_SINCE_START_DATE = 37600;
+        date.add(Calendar.DAY_OF_MONTH, random.nextInt(MAX_DAYS_SINCE_START_DATE));
+        return date.getTime();
+    }
+
+    public String getBirthPlace(Random random) {
+        String[] cities = new String[] {
+                "Moscow","Saint-Petersburg", "Abakan","Azov","Aleksandrov","Aleksin","Al'met'evsk","Anapa","Angarsk",
+                "Anzhero-Sudzhensk","Apatity","Arzamas","Armavir","Arsen'ev","Artem","Arhangel'sk","Asbest","Astrahan'",
+                "Achinsk","Balakovo","Balahna","Balashiha","Balashov","Barnaul","Batajsk","Belgorod","Belebej","Belovo",
+                "Belogorsk","Beloreck","Belorechensk","Berdsk","Berezniki",
+                "Berezovskij","Bijsk","Birobidzhan","Blagoveshchensk",
+                "Bor","Borisoglebsk","Borovichi","Bratsk","Bryansk","Bugul'ma","Budennovsk","Buzuluk","Bujnaksk",
+                "Velikie Luki","Velikij Novgorod","Verhnyaya Pyshma","Vidnoe","Vladivostok","Vladikavkaz","Vladimir",
+                "Volgograd","Volgodonsk","Volzhsk","Volzhskij","Vologda","Vol'sk","Vorkuta","Voronezh","Voskresensk",
+                "Votkinsk","Vsevolozhsk","Vyborg","Vyksa","Vyaz'ma","Gatchina","Gelendzhik"
+        };
+        return cities[random.nextInt(cities.length)];
+    }
+
     public PersonGenerator(Set<DependencyDefinition<?, ?>> deps, Generator generator) {
         super(Person.class, deps, generator);
     }
@@ -70,8 +91,13 @@ public class PersonGenerator extends AbstractEntityGenerator<Person, Integer> {
         Boolean isMale = random.nextInt(100) <= maleFemaleRatio;
 
         return List.of(new Person(
-                null, getFirstName(random, isMale), getSurname(random, isMale),
-                getPatronymic(random, isMale), getRole(random), null, null, null, null, null, null
+                null,
+                getFirstName(random, isMale),
+                getSurname(random, isMale),
+                getPatronymic(random, isMale),
+                getRole(random),
+                getBirthDate(random),
+                getBirthPlace(random)
         ));
     }
 }
