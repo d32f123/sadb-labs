@@ -16,7 +16,7 @@ public class PersonProjectLinkGenerator extends AbstractEntityGenerator<PersonPr
     Timestamp getDate(Random random) {
         String y = "201" + random.nextInt(10);
 
-        Integer i = 1 + random.nextInt(12);
+        int i = 1 + random.nextInt(12);
         String m = (i > 9) ? String.valueOf(i) : ("0" + i);
 
         i = 1 + random.nextInt(28);
@@ -38,7 +38,7 @@ public class PersonProjectLinkGenerator extends AbstractEntityGenerator<PersonPr
         Project project = this.getDependencyInstances(Project.class).get(0);
 
         return new PersonProjectLink(
-                person.getId().longValue(), project.getId().longValue(), getDate(random), getDate(random)
+                person.getId(), project.getId(), getDate(random), getDate(random)
         );
     }
 }

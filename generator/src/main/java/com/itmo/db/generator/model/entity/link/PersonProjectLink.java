@@ -8,9 +8,10 @@ import lombok.NoArgsConstructor;
 import java.sql.Timestamp;
 
 @Data
+@NoArgsConstructor
 public class PersonProjectLink implements AbstractEntity<PersonProjectLink.PersonProjectLinkPK> {
 
-    public PersonProjectLink(Long person_id, Long project_id, Timestamp participationStart, Timestamp participationEnd){
+    public PersonProjectLink(Integer person_id, Integer project_id, Timestamp participationStart, Timestamp participationEnd){
         this.id = new PersonProjectLinkPK(person_id, project_id);
         this.participationStart = participationStart;
         this.participationEnd = participationEnd;
@@ -20,8 +21,8 @@ public class PersonProjectLink implements AbstractEntity<PersonProjectLink.Perso
     @AllArgsConstructor
     @NoArgsConstructor
     public static class PersonProjectLinkPK {
-        public Long personId;
-        public Long projectId;
+        public Integer personId;
+        public Integer projectId;
     }
 
     private PersonProjectLinkPK id;
