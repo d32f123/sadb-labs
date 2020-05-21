@@ -4,24 +4,24 @@ import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.model.entity.Issue;
 import com.itmo.db.generator.persistence.AbstractPersistenceWorker;
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
-import com.itmo.db.generator.persistence.db.mysql.dao.IssueDAO;
-import com.itmo.db.generator.persistence.db.mysql.repository.IssueRepository;
+import com.itmo.db.generator.persistence.db.mysql.dao.IssueMySQLDAO;
+import com.itmo.db.generator.persistence.db.mysql.repository.IssueMySQLRepository;
 
 import java.util.Collections;
 import java.util.List;
 
 public class IssuePersistenceWorker extends AbstractPersistenceWorker<Issue, Integer> {
 
-    private final IssueRepository issueRepository;
+    private final IssueMySQLRepository issueMySQLRepository;
 
-    public IssuePersistenceWorker(Generator generator, IssueRepository issueRepository) {
+    public IssuePersistenceWorker(Generator generator, IssueMySQLRepository issueMySQLRepository) {
         super(Issue.class, generator);
-        this.issueRepository = issueRepository;
+        this.issueMySQLRepository = issueMySQLRepository;
     }
 
     @Override
     protected List<? extends IdentifiableDAO<?>> doPersist(Issue entity) {
-        IssueDAO issueDAO = new IssueDAO(
+        IssueMySQLDAO issueMySQLDAO = new IssueMySQLDAO(
                 null,
                 entity.getName(),
                 entity.getLanguage(),
@@ -30,12 +30,12 @@ public class IssuePersistenceWorker extends AbstractPersistenceWorker<Issue, Int
                 entity.getFormat()
         );
 
-        this.issueRepository.save(issueDAO);
-        return Collections.singletonList(issueDAO);
+        this.issueMySQLRepository.save(issueMySQLDAO);
+        return Collections.singletonList(issueMySQLDAO);
     }
 
     @Override
     protected void doCommit() {
-        this.issueRepository.flush();
+        this.issueMySQLRepository.flush();
     }
 }

@@ -12,7 +12,7 @@ import javax.persistence.*;
 @Table(name = "projects")
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProjectDAO implements IdentifiableDAO<Long> {
+public class ProjectMySQLDAO implements IdentifiableDAO<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

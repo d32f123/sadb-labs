@@ -18,4 +18,7 @@ public class Person implements NumericallyIdentifiableEntity {
     private String role;
     private Date birthDate;
     private String birthPlace;
+    private boolean isInDormitory;
+    private short warningCount;
+
 }

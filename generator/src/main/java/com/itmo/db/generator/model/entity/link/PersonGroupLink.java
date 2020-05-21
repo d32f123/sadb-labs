@@ -12,6 +12,7 @@ import java.sql.Timestamp;
 public class PersonGroupLink implements AbstractEntity<PersonGroupLink.PersonGroupLinkPK> {
 
     public PersonGroupLink(Integer person_id, Integer group_id){
+        this.id = new PersonGroupLink.PersonGroupLinkPK(person_id, group_id);
         this.id = new PersonGroupLinkPK(person_id, group_id);
     }
 
@@ -23,5 +24,5 @@ public class PersonGroupLink implements AbstractEntity<PersonGroupLink.PersonGro
         public Integer groupId;
     }
 
-    private PersonGroupLinkPK id;
+    private PersonGroupLink.PersonGroupLinkPK id;
 }
