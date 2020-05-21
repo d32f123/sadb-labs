@@ -1,7 +1,6 @@
 package com.itmo.db.generator.persistence;
 
 import com.itmo.db.generator.generator.Generator;
-import com.itmo.db.generator.mapper.EntityToDAOMapper;
 import com.itmo.db.generator.model.entity.AbstractEntity;
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
 import com.itmo.db.generator.pool.EntityPoolInstance;
@@ -21,7 +20,6 @@ public abstract class AbstractPersistenceWorker<T extends AbstractEntity<TId>, T
     protected final Generator generator;
     private final Class<T> entityClass;
     private final EntityPoolInstance<T, TId> pool;
-    private final EntityToDAOMapper<T, TId> mapper;
     private final EventBus eventBus;
     private boolean shouldContinue;
 
@@ -31,7 +29,6 @@ public abstract class AbstractPersistenceWorker<T extends AbstractEntity<TId>, T
         this.entityClass = entityClass;
         this.eventBus = EventBus.getInstance();
         this.pool = this.generator.getEntityPool(entityClass).getInstance(entityClass);
-        this.mapper = this.generator.getEntityToDAOMapper(entityClass);
     }
 
     // Return map of DAOs
@@ -71,7 +68,7 @@ public abstract class AbstractPersistenceWorker<T extends AbstractEntity<TId>, T
     protected <TEntity extends AbstractEntity<TEntityId>, TEntityId,
             TDAO extends IdentifiableDAO<TDAOId>, TDAOId>
     TDAOId getDependencyDAOId(Class<TEntity> entityClass, TEntityId entityId, Class<TDAO> daoClass) {
-        return (TDAOId) this.generator.getEntityToDAOMapper(entityClass).getDAOs(entityId).get(daoClass);
+        return this.generator.getEntityToDAOMapper(entityClass).getDAOId(entityId, daoClass);
     }
 
     private void persistEntity(T entity) {

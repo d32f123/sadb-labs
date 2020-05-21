@@ -38,6 +38,10 @@ public class EntityToDAOMapper<TEntity extends AbstractEntity<TEntityId>, TEntit
         return this.entityToDAOMap.get(id);
     }
 
+    public <TDAO extends IdentifiableDAO<TDAOId>, TDAOId> TDAOId getDAOId(TEntityId id, Class<TDAO> daoClass) {
+        return (TDAOId) this.entityToDAOMap.get(id).get(daoClass);
+    }
+
     private Consumer<GeneratorEventMessage<TEntity, TEntityId, TEntity>> getEntityGeneratedConsumer() {
         if (this.entityGeneratedConsumer != null) {
             return this.entityGeneratedConsumer;
