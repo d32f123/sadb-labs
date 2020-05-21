@@ -4,36 +4,36 @@ import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.model.entity.Conference;
 import com.itmo.db.generator.persistence.AbstractPersistenceWorker;
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
-import com.itmo.db.generator.persistence.db.mysql.dao.ConferenceDAO;
-import com.itmo.db.generator.persistence.db.mysql.repository.ConferenceRepository;
+import com.itmo.db.generator.persistence.db.mysql.dao.ConferenceMySQLDAO;
+import com.itmo.db.generator.persistence.db.mysql.repository.ConferenceMySQLRepository;
 
 import java.util.Collections;
 import java.util.List;
 
 public class ConferencePersistenceWorker extends AbstractPersistenceWorker<Conference, Integer> {
 
-    private final ConferenceRepository conferenceRepository;
+    private final ConferenceMySQLRepository conferenceMySQLRepository;
 
-    public ConferencePersistenceWorker(Generator generator, ConferenceRepository projectRepository) {
+    public ConferencePersistenceWorker(Generator generator, ConferenceMySQLRepository projectRepository) {
         super(Conference.class, generator);
-        this.conferenceRepository = projectRepository;
+        this.conferenceMySQLRepository = projectRepository;
     }
 
     @Override
     protected List<? extends IdentifiableDAO<?>> doPersist(Conference entity) {
-        ConferenceDAO conferenceDAO = new ConferenceDAO(
+        ConferenceMySQLDAO conferenceMySQLDAO = new ConferenceMySQLDAO(
                 null,
                 entity.getName(),
                 entity.getLocation(),
                 entity.getDate()
         );
 
-        this.conferenceRepository.save(conferenceDAO);
-        return Collections.singletonList(conferenceDAO);
+        this.conferenceMySQLRepository.save(conferenceMySQLDAO);
+        return Collections.singletonList(conferenceMySQLDAO);
     }
 
     @Override
     protected void doCommit() {
-        this.conferenceRepository.flush();
+        this.conferenceMySQLRepository.flush();
     }
 }

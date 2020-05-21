@@ -12,10 +12,10 @@ import java.sql.Timestamp;
 @Entity
 @Data
 @Table(name = "person_projects")
-@IdClass(PersonProjectLinkDAO.PersonProjectLinkPK.class)
+@IdClass(PersonProjectLinkMySQLDAO.PersonProjectLinkPK.class)
 @AllArgsConstructor
 @NoArgsConstructor
-public class PersonProjectLinkDAO implements IdentifiableDAO<PersonProjectLinkDAO.PersonProjectLinkPK> {
+public class PersonProjectLinkMySQLDAO implements IdentifiableDAO<PersonProjectLinkMySQLDAO.PersonProjectLinkPK> {
 
     @Data
     @AllArgsConstructor
@@ -28,12 +28,12 @@ public class PersonProjectLinkDAO implements IdentifiableDAO<PersonProjectLinkDA
     @Id
     @ManyToOne
     @JoinColumn(name = "person_id", referencedColumnName = "person_id")
-    private PersonDAO person;
+    private PersonMySQLDAO person;
 
     @Id
     @ManyToOne
     @JoinColumn(name = "project_id", referencedColumnName = "project_id")
-    private ProjectDAO project;
+    private ProjectMySQLDAO project;
 
     @Column(name = "participation_start")
     private Timestamp participationStart;

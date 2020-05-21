@@ -10,24 +10,21 @@ import java.sql.Timestamp;
 
 @Entity
 @Data
-@Table(name = "publications")
+@Table(name = "conferences")
 @NoArgsConstructor
 @AllArgsConstructor
-public class PublicationDAO implements IdentifiableDAO<Long> {
+public class ConferenceMySQLDAO implements IdentifiableDAO<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "publication_id")
+    @Column(name = "conference_id")
     private Long id;
 
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "language", nullable = false)
-    private String language;
-
-    @Column(name = "citation_index")
-    private Integer citation_index;
+    @Column(name = "location", nullable = false)
+    private String location;
 
     @Column(name = "date")
     private Timestamp date;

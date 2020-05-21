@@ -13,27 +13,27 @@ import java.util.*;
 
 public class PersonProjectLinkPersistenceWorker extends AbstractPersistenceWorker<PersonProjectLink, PersonProjectLink.PersonProjectLinkPK> {
 
-    private final PersonProjectLinkRepository personProjectRepository;
+    private final PersonProjectLinkMySQLRepository personProjectRepository;
 
-    public PersonProjectLinkPersistenceWorker(Generator generator, PersonProjectLinkRepository personProjectRepository) {
+    public PersonProjectLinkPersistenceWorker(Generator generator, PersonProjectLinkMySQLRepository personProjectRepository) {
         super(PersonProjectLink.class, generator);
         this.personProjectRepository = personProjectRepository;
     }
 
     @Override
     protected List<? extends IdentifiableDAO<?>> doPersist(PersonProjectLink entity) {
-        PersonDAO personDAO = new PersonDAO(this.getDependencyDAOId(Person.class, entity.getId().getPersonId(), PersonDAO.class), null, null, null, null);
-        ProjectDAO projectDAO = new ProjectDAO(this.getDependencyDAOId(Project.class, entity.getId().getProjectId(), ProjectDAO.class), null);
+        PersonMySQLDAO personMySQLDAO = new PersonMySQLDAO(this.getDependencyDAOId(Person.class, entity.getId().getPersonId(), PersonMySQLDAO.class), null, null, null, null);
+        ProjectMySQLDAO projectMySQLDAO = new ProjectMySQLDAO(this.getDependencyDAOId(Project.class, entity.getId().getProjectId(), ProjectMySQLDAO.class), null);
 
-        PersonProjectLinkDAO personProjectLinkDAO = new PersonProjectLinkDAO(
-                personDAO,
-                projectDAO,
+        PersonProjectLinkMySQLDAO personProjectLinkMySQLDAO = new PersonProjectLinkMySQLDAO(
+                personMySQLDAO,
+                projectMySQLDAO,
                 entity.getStartDate(),
                 entity.getEndDate()
         );
 
-        this.personProjectRepository.save(personProjectLinkDAO);
-        return Collections.singletonList(personProjectLinkDAO);
+        this.personProjectRepository.save(personProjectLinkMySQLDAO);
+        return Collections.singletonList(personProjectLinkMySQLDAO);
     }
 
     @Override

@@ -4,24 +4,24 @@ import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.model.entity.Person;
 import com.itmo.db.generator.persistence.AbstractPersistenceWorker;
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
-import com.itmo.db.generator.persistence.db.mysql.dao.PersonDAO;
-import com.itmo.db.generator.persistence.db.mysql.repository.PersonRepository;
+import com.itmo.db.generator.persistence.db.mysql.dao.PersonMySQLDAO;
+import com.itmo.db.generator.persistence.db.mysql.repository.PersonMySQLRepository;
 
 import java.util.Collections;
 import java.util.List;
 
 public class PersonPersistenceWorker extends AbstractPersistenceWorker<Person, Integer> {
 
-    private final PersonRepository personRepository;
+    private final PersonMySQLRepository personMySQLRepository;
 
-    public PersonPersistenceWorker(Generator generator, PersonRepository personRepository) {
+    public PersonPersistenceWorker(Generator generator, PersonMySQLRepository personMySQLRepository) {
         super(Person.class, generator);
-        this.personRepository = personRepository;
+        this.personMySQLRepository = personMySQLRepository;
     }
 
     @Override
     protected List<? extends IdentifiableDAO<?>> doPersist(Person entity) {
-        PersonDAO personDAO = new PersonDAO(
+        PersonMySQLDAO personMySQLDAO = new PersonMySQLDAO(
                 null,
                 entity.getLastName(),
                 entity.getFirstName(),
@@ -29,12 +29,12 @@ public class PersonPersistenceWorker extends AbstractPersistenceWorker<Person, I
                 entity.getRole()
         );
 
-        this.personRepository.save(personDAO);
-        return Collections.singletonList(personDAO);
+        this.personMySQLRepository.save(personMySQLDAO);
+        return Collections.singletonList(personMySQLDAO);
     }
 
     @Override
     protected void doCommit() {
-        this.personRepository.flush();
+        this.personMySQLRepository.flush();
     }
 }

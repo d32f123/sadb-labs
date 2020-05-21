@@ -12,7 +12,7 @@ import javax.persistence.*;
 @Table(name = "persons")
 @NoArgsConstructor
 @AllArgsConstructor
-public class PersonDAO implements IdentifiableDAO<Long> {
+public class PersonMySQLDAO implements IdentifiableDAO<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

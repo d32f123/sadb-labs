@@ -6,17 +6,18 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 
 @Entity
 @Data
-@Table(name = "issues")
+@Table(name = "publications")
 @NoArgsConstructor
 @AllArgsConstructor
-public class IssueDAO implements IdentifiableDAO<Long> {
+public class PublicationMySQLDAO implements IdentifiableDAO<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "issue_id")
+    @Column(name = "publication_id")
     private Long id;
 
     @Column(name = "name", nullable = false)
@@ -25,12 +26,10 @@ public class IssueDAO implements IdentifiableDAO<Long> {
     @Column(name = "language", nullable = false)
     private String language;
 
-    @Column(name = "location")
-    private String location;
+    @Column(name = "citation_index")
+    private Integer citation_index;
 
-    @Column(name = "length", nullable = false)
-    private Integer length;
+    @Column(name = "date")
+    private Timestamp date;
 
-    @Column(name = "format", nullable = false)
-    private String format;
 }

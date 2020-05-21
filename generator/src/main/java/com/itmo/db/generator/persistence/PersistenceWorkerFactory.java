@@ -16,19 +16,19 @@ public class PersistenceWorkerFactory {
     private Generator generator;
 
     @Autowired
-    private ConferenceRepository conferenceRepository;
+    private ConferenceMySQLRepository conferenceMySQLRepository;
 
     @Autowired
-    private PersonRepository personRepository;
+    private PersonMySQLRepository personMySQLRepository;
 
     @Autowired
-    private ProjectRepository projectRepository;
+    private ProjectMySQLRepository projectMySQLRepository;
 
     @Autowired
-    private PersonProjectLinkRepository personProjectRepository;
+    private PersonProjectLinkMySQLRepository personProjectRepository;
 
     @Autowired
-    private PublicationRepository publicationRepository;
+    private PublicationMySQLRepository publicationMySQLRepository;
 
     @Autowired
     private FacultyRepository facultyRepository;
@@ -37,7 +37,7 @@ public class PersistenceWorkerFactory {
     private DisciplineRepository disciplineRepository;
 
     @Autowired
-    private IssueRepository issueRepository;
+    private IssueMySQLRepository issueMySQLRepository;
 
     @Autowired
     private UniversityRepository universityRepository;
@@ -46,19 +46,19 @@ public class PersistenceWorkerFactory {
 
     public <T extends AbstractEntity<TId>, TId> PersistenceWorker getWorker(Class<T> entityClass) {
         if (entityClass.equals(Person.class)) {
-            return new PersonPersistenceWorker(generator, personRepository);
+            return new PersonPersistenceWorker(generator, personMySQLRepository);
         } else if (entityClass.equals(Project.class)) {
-            return new ProjectPersistenceWorker(generator, projectRepository);
+            return new ProjectPersistenceWorker(generator, projectMySQLRepository);
         } else if (entityClass.equals(PersonProjectLink.class)) {
             return new PersonProjectLinkPersistenceWorker(generator, personProjectRepository);
         } else if (entityClass.equals(Faculty.class)) {
             return new FacultyPersistenceWorker(generator, facultyRepository);
         } else if (entityClass.equals(Issue.class)) {
-            return new IssuePersistenceWorker(generator, issueRepository);
+            return new IssuePersistenceWorker(generator, issueMySQLRepository);
         } else if (entityClass.equals(Conference.class)) {
-            return new ConferencePersistenceWorker(generator, conferenceRepository);
+            return new ConferencePersistenceWorker(generator, conferenceMySQLRepository);
         } else if (entityClass.equals(Publication.class)) {
-            return new PublicationPersistenceWorker(generator, publicationRepository);
+            return new PublicationPersistenceWorker(generator, publicationMySQLRepository);
         } else if (entityClass.equals(Discipline.class)) {
             return new DisciplinePersistenceWorker(generator, disciplineRepository);
         } else if (entityClass.equals(University.class)) {
