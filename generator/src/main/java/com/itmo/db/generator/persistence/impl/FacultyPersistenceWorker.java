@@ -22,7 +22,7 @@ public class FacultyPersistenceWorker extends AbstractPersistenceWorker<Faculty,
     @Override
     protected List<? extends IdentifiableDAO<?>> doPersist(Faculty entity) {
         FacultyDAO facultyDAO = new FacultyDAO(
-                entity.getId(),
+                null,
                 entity.getFacultyName()
         );
 

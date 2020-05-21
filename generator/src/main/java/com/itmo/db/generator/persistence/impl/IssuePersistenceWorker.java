@@ -22,7 +22,7 @@ public class IssuePersistenceWorker extends AbstractPersistenceWorker<Issue, Int
     @Override
     protected List<? extends IdentifiableDAO<?>> doPersist(Issue entity) {
         IssueDAO issueDAO = new IssueDAO(
-                entity.getId().longValue(),
+                null,
                 entity.getName(),
                 entity.getLanguage(),
                 entity.getLocation(),

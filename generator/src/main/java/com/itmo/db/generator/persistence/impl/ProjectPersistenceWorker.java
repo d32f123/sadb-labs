@@ -22,7 +22,7 @@ public class ProjectPersistenceWorker extends AbstractPersistenceWorker<Project,
     @Override
     protected List<? extends IdentifiableDAO<?>> doPersist(Project entity) {
         ProjectDAO projectDAO = new ProjectDAO(
-                entity.getId().longValue(),
+                null,
                 entity.getName()
         );
 

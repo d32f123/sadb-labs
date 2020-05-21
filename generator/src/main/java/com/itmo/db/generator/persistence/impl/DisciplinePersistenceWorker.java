@@ -21,7 +21,7 @@ public class DisciplinePersistenceWorker extends AbstractPersistenceWorker<Disci
     @Override
     protected List<? extends IdentifiableDAO<?>> doPersist(Discipline entity) {
         DisciplineDAO disciplineDAO = new DisciplineDAO(
-                entity.getId(),
+                null,
                 entity.getName(),
                 entity.getControlForm(),
                 entity.getLectureHours(),

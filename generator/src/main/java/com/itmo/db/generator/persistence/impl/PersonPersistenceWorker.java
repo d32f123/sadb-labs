@@ -22,7 +22,7 @@ public class PersonPersistenceWorker extends AbstractPersistenceWorker<Person, I
     @Override
     protected List<? extends IdentifiableDAO<?>> doPersist(Person entity) {
         PersonDAO personDAO = new PersonDAO(
-                entity.getId().longValue(),
+                null,
                 entity.getLastName(),
                 entity.getFirstName(),
                 entity.getPatronymicName(),

@@ -21,7 +21,7 @@ public class UniversityPersistenceWorker extends AbstractPersistenceWorker<Unive
     @Override
     protected List<? extends IdentifiableDAO<?>> doPersist(University entity) {
         UniversityDAO universityDAO = new UniversityDAO(
-                entity.getId(),
+                null,
                 entity.getName(),
                 entity.getCreationDate()
         );

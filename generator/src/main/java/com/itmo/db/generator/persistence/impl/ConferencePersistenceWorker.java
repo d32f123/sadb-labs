@@ -22,7 +22,7 @@ public class ConferencePersistenceWorker extends AbstractPersistenceWorker<Confe
     @Override
     protected List<? extends IdentifiableDAO<?>> doPersist(Conference entity) {
         ConferenceDAO conferenceDAO = new ConferenceDAO(
-                entity.getId().longValue(),
+                null,
                 entity.getName(),
                 entity.getLocation(),
                 entity.getDate()

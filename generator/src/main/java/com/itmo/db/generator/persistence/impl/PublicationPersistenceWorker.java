@@ -22,7 +22,7 @@ public class PublicationPersistenceWorker extends AbstractPersistenceWorker<Publ
     @Override
     protected List<? extends IdentifiableDAO<?>> doPersist(Publication entity) {
         PublicationDAO publicationDAO = new PublicationDAO(
-                entity.getId().longValue(),
+                null,
                 entity.getName(),
                 entity.getLanguage(),
                 entity.getCitation_index(),
