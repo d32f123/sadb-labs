@@ -19,13 +19,22 @@ public class PersistenceWorkerFactory {
     private ConferenceMySQLRepository conferenceMySQLRepository;
 
     @Autowired
+    private ConferencePublicationLinkMySQLRepository conferencePublicationLinkMySQLRepository;
+
+    @Autowired
+    private IssueMySQLRepository issueMySQLRepository;
+
+    @Autowired
+    private IssuePublicationLinkMySQLRepository issuePublicationLinkMySQLRepository;
+
+    @Autowired
     private PersonMySQLRepository personMySQLRepository;
 
     @Autowired
-    private ProjectMySQLRepository projectMySQLRepository;
+    private PersonProjectLinkMySQLRepository personProjectRepository;
 
     @Autowired
-    private PersonProjectLinkMySQLRepository personProjectRepository;
+    private ProjectMySQLRepository projectMySQLRepository;
 
     @Autowired
     private PublicationMySQLRepository publicationMySQLRepository;
@@ -36,8 +45,6 @@ public class PersistenceWorkerFactory {
     @Autowired
     private DisciplineRepository disciplineRepository;
 
-    @Autowired
-    private IssueMySQLRepository issueMySQLRepository;
 
     @Autowired
     private UniversityRepository universityRepository;
