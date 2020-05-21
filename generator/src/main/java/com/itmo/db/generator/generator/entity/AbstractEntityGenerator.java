@@ -122,17 +122,23 @@ public abstract class AbstractEntityGenerator<T extends AbstractEntity<TId>, TId
     }
 
     private void doGenerate() {
-        T entity = this.getEntity();
-        if (entity instanceof NumericallyIdentifiableEntity) {
-            NumericallyIdentifiableEntity numericallyIdentifiableEntity = (NumericallyIdentifiableEntity) entity;
-            int id = getEntityId();
-            log.debug("'{}': Generated id for numerically identifiable entity", id);
-            numericallyIdentifiableEntity.setId(id);
+        List<T> entities = this.getEntities();
+        if (entities == null || entities.isEmpty()) {
+            return;
         }
-        pool.add(entity);
+
+        entities.forEach(entity -> {
+            if (entity instanceof NumericallyIdentifiableEntity) {
+                NumericallyIdentifiableEntity numericallyIdentifiableEntity = (NumericallyIdentifiableEntity) entity;
+                int id = getEntityId();
+                log.debug("'{}': Generated id for numerically identifiable entity", id);
+                numericallyIdentifiableEntity.setId(id);
+            }
+            pool.add(entity);
+        });
     }
 
-    protected abstract T getEntity();
+    protected abstract List<T> getEntities();
 
     private synchronized static int getEntityId() {
         int returnValue = currentId;

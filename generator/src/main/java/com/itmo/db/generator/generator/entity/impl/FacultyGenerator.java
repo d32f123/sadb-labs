@@ -6,6 +6,7 @@ import com.itmo.db.generator.generator.model.DependencyDefinition;
 import com.itmo.db.generator.model.entity.Faculty;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
 import java.util.Set;
 import java.util.Random;
 
@@ -34,11 +35,11 @@ public class FacultyGenerator extends AbstractEntityGenerator<Faculty, Integer> 
     }
 
     @Override
-    protected Faculty getEntity() {
+    protected List<Faculty> getEntities() {
         log.debug("Creating Faculty");
         Random random = new Random();
 
-        return new Faculty(null, faculties[random.nextInt(faculties.length)]);
+        return List.of(new Faculty(null, faculties[random.nextInt(faculties.length)]));
     }
 
 }

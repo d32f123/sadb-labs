@@ -65,10 +65,10 @@ public class ConferenceGenerator extends AbstractEntityGenerator<Conference, Int
     }
 
     @Override
-    protected Conference getEntity() {
+    protected List<Conference> getEntities() {
         log.debug("Creating Conference");
         Random random = new Random();
 
-        return new Conference(null, getName(random), getLocation(random), getDate(random));
+        return List.of(new Conference(null, getName(random), getLocation(random), getDate(random)));
     }
 }

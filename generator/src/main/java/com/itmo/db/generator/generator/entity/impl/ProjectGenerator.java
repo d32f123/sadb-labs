@@ -34,9 +34,9 @@ public class ProjectGenerator extends AbstractEntityGenerator<Project, Integer> 
     }
 
     @Override
-    protected Project getEntity() {
+    protected List<Project> getEntities() {
         log.debug("Creating Project");
 
-        return new Project(null, getName(new Random()));
+        return List.of(new Project(null, getName(new Random())));
     }
 }

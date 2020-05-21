@@ -30,15 +30,15 @@ public class PersonProjectLinkGenerator extends AbstractEntityGenerator<PersonPr
     }
 
     @Override
-    protected PersonProjectLink getEntity() {
+    protected List<PersonProjectLink> getEntities() {
         log.debug("Generating PersonProjectLink");
         Random random = new Random();
 
         Person person = this.getDependencyInstances(Person.class).get(0);
         Project project = this.getDependencyInstances(Project.class).get(0);
 
-        return new PersonProjectLink(
+        return List.of(new PersonProjectLink(
                 person.getId(), project.getId(), getDate(random), getDate(random)
-        );
+        ));
     }
 }

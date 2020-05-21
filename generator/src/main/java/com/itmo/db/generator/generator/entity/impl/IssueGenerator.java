@@ -6,6 +6,7 @@ import com.itmo.db.generator.generator.model.DependencyDefinition;
 import com.itmo.db.generator.model.entity.Issue;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
@@ -64,10 +65,10 @@ public class IssueGenerator extends AbstractEntityGenerator<Issue, Integer> {
     }
 
     @Override
-    protected Issue getEntity() {
+    protected List<Issue> getEntities() {
         log.debug("Creating Issue");
         Random random = new Random();
 
-        return new Issue(null, getName(random), getLanguage(random), getLocation(random), getLength(random), getFormat(random));
+        return List.of(new Issue(null, getName(random), getLanguage(random), getLocation(random), getLength(random), getFormat(random)));
     }
 }

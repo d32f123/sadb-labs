@@ -50,10 +50,10 @@ public class UniversityGenerator extends AbstractEntityGenerator<University, Int
     }
 
     @Override
-    protected University getEntity() {
+    protected List<University> getEntities() {
         log.debug("Creating University");
         Random random = new Random();
 
-        return new University(null, getName(random), getDate(random));
+        return List.of(new University(null, getName(random), getDate(random)));
     }
 }

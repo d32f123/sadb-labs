@@ -4,9 +4,9 @@ import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.generator.entity.AbstractEntityGenerator;
 import com.itmo.db.generator.generator.model.DependencyDefinition;
 import com.itmo.db.generator.model.entity.Person;
-import com.itmo.db.generator.pool.EntityPool;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
 import java.util.Set;
 import java.util.Random;
 
@@ -64,14 +64,14 @@ public class PersonGenerator extends AbstractEntityGenerator<Person, Integer> {
     }
 
     @Override
-    protected Person getEntity() {
+    protected List<Person> getEntities() {
         log.debug("Creating Person");
         Random random = new Random();
         Boolean isMale = random.nextInt(100) <= maleFemaleRatio;
 
-        return new Person(
+        return List.of(new Person(
                 null, getFirstName(random, isMale), getSurname(random, isMale),
-                getPatronymic(random, isMale), getRole(random)
-        );
+                getPatronymic(random, isMale), getRole(random), null, null, null, null, null, null
+        ));
     }
 }
