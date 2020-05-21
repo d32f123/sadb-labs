@@ -13,7 +13,7 @@ import java.util.Date;
 @Table(name = "persons")
 @NoArgsConstructor
 @AllArgsConstructor
-public class PersonDAO implements IdentifiableDAO<Long> {
+public class PersonOracleDAO implements IdentifiableDAO<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

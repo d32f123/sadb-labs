@@ -4,6 +4,9 @@ import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.model.entity.*;
 import com.itmo.db.generator.model.entity.link.PersonProjectLink;
 import com.itmo.db.generator.persistence.db.mysql.repository.*;
+import com.itmo.db.generator.persistence.db.oracle.dao.PersonOracleDAO;
+import com.itmo.db.generator.persistence.db.oracle.repository.GroupOracleRepository;
+import com.itmo.db.generator.persistence.db.oracle.repository.PersonOracleRepository;
 import com.itmo.db.generator.persistence.db.postgres.repository.*;
 import com.itmo.db.generator.persistence.impl.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +23,12 @@ public class PersistenceWorkerFactory {
 
     @Autowired
     private PersonRepository personRepository;
+
+    @Autowired
+    private PersonOracleRepository personOracleRepository;
+
+    @Autowired
+    private GroupOracleRepository groupOracleRepository;
 
     @Autowired
     private ProjectRepository projectRepository;
@@ -42,11 +51,12 @@ public class PersistenceWorkerFactory {
     @Autowired
     private UniversityRepository universityRepository;
 
-    public PersistenceWorkerFactory() {}
+    public PersistenceWorkerFactory() {
+    }
 
     public <T extends AbstractEntity<TId>, TId> PersistenceWorker getWorker(Class<T> entityClass) {
         if (entityClass.equals(Person.class)) {
-            return new PersonPersistenceWorker(generator, personRepository);
+            return new PersonPersistenceWorker(generator, personRepository, personOracleRepository);
         } else if (entityClass.equals(Project.class)) {
             return new ProjectPersistenceWorker(generator, projectRepository);
         } else if (entityClass.equals(PersonProjectLink.class)) {
@@ -63,6 +73,8 @@ public class PersistenceWorkerFactory {
             return new DisciplinePersistenceWorker(generator, disciplineRepository);
         } else if (entityClass.equals(University.class)) {
             return new UniversityPersistenceWorker(generator, universityRepository);
+        } else if (entityClass.equals(Group.class)) {
+            return new GroupPersistenceWorker(generator, groupOracleRepository);
         }
 
         throw new NullPointerException();
