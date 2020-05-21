@@ -131,3 +131,9 @@ dmypy.json
 # Visual Paradigm project backups
 *.vpp.bak*
 *.vpp.lck*
+
+# MySQLWorkbench model backups
+*.mwb.bak*
+
+# MacOS DS_STORE
+.DS_Store/
