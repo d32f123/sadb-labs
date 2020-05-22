@@ -1,10 +1,10 @@
 package com.itmo.db.generator.persistence.impl;
 
 import com.itmo.db.generator.generator.Generator;
-import com.itmo.db.generator.model.entity.Faculty;
+import com.itmo.db.generator.model.entity.*;
 import com.itmo.db.generator.persistence.AbstractPersistenceWorker;
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
-import com.itmo.db.generator.persistence.db.postgres.dao.FacultyPostgresDAO;
+import com.itmo.db.generator.persistence.db.postgres.dao.*;
 import com.itmo.db.generator.persistence.db.postgres.repository.FacultyPostgresRepository;
 
 import java.util.Collections;
@@ -21,10 +21,14 @@ public class FacultyPersistenceWorker extends AbstractPersistenceWorker<Faculty,
 
     @Override
     protected List<? extends IdentifiableDAO<?>> doPersist(Faculty entity) {
+        UniversityPostgresDAO universityPostgresDAO = new UniversityPostgresDAO(
+                this.getDependencyDAOId(University.class, entity.getUniversityId(), UniversityPostgresDAO.class), null, null
+        );
+
         FacultyPostgresDAO facultyPostgresDAO = new FacultyPostgresDAO(
                 null,
                 entity.getFacultyName(),
-                null
+                universityPostgresDAO
         );
 
         this.facultyPostgresRepository.save(facultyPostgresDAO);

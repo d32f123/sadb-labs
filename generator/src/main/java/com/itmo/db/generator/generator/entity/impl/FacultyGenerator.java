@@ -3,12 +3,10 @@ package com.itmo.db.generator.generator.entity.impl;
 import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.generator.entity.AbstractEntityGenerator;
 import com.itmo.db.generator.generator.model.DependencyDefinition;
-import com.itmo.db.generator.model.entity.Faculty;
+import com.itmo.db.generator.model.entity.*;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 public class FacultyGenerator extends AbstractEntityGenerator<Faculty, Integer> {
@@ -38,8 +36,9 @@ public class FacultyGenerator extends AbstractEntityGenerator<Faculty, Integer> 
     protected List<Faculty> getEntities() {
         log.debug("Creating Faculty");
         Random random = new Random();
+        University university = this.getDependencyInstances(University.class).get(0);
 
-        return List.of(new Faculty(null, faculties[random.nextInt(faculties.length)], null));
+        return List.of(new Faculty(null, faculties[random.nextInt(faculties.length)], university.getId()));
     }
 
 }
