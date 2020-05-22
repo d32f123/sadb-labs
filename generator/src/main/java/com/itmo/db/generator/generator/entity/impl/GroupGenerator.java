@@ -12,29 +12,13 @@ import java.util.*;
 @Slf4j
 public class GroupGenerator extends AbstractEntityGenerator<Group, Integer> {
 
-    String getName(Random random) {
-        String[] maleNames = new String[] {
-                "Aleksandr", "Andrew", "Boris", "Vadim", "Georgy", "Daniil", "Egor", "Zahar", "Ivan", "Kirill", "Lev",
-                "Konstantin", "Maxim", "Mikhail", "Nikita", "Oleg", "Petr", "Sergey", "Stepan", "Fedor", "Yaroslav",
-        };
-        String[] femaleNames = new String[] {
-                "Anna", "Alina", "Valentina", "Vera", "Galina", "Darya", "Yana", "Elena", "Zhanna", "Irina", "Lyubov",
-                "Lyudmila", "Margarita", "Maria", "Nadezhda", "Natalya", "Polina", "Svetlana", "Sofia", "Tatiana",
-        };
-        return maleNames[random.nextInt(maleNames.length)];
+    String getName(Random random, int course) {
+        String letter = String.valueOf((char)((int)'A' + random.nextInt(20)));
+        return (letter + course) + (100 + random.nextInt(900));
     }
 
-    String getCourse(Random random) {
-        String[] roles = new String[] {"docent", "master", "bachelor"};
-        int[] ratios = new int[] {10, 40, 100}; // 10%, 30%, 60%
-        int role = random.nextInt(100);
-
-        for (int i = 0; i < roles.length; i++) {
-            if (role < ratios[i]) {
-                return roles[i];
-            }
-        }
-        return roles[0];
+    int getCourse(Random random) {
+        return 1 + random.nextInt(4);
     }
 
     public Calendar getStartDate(Random random) {
@@ -55,17 +39,13 @@ public class GroupGenerator extends AbstractEntityGenerator<Group, Integer> {
 
     @Override
     protected List<Group> getEntities() {
-        log.debug("Creating Person");
+        log.debug("Creating Group");
         Random random = new Random();
+
+        int course = getCourse(random);
         Calendar startDate = getStartDate(random);
         Calendar endDate = getEndDate(startDate);
 
-        return List.of(new Group(
-                null,
-                getName(random),
-                getCourse(random),
-                startDate.getTime(),
-                endDate.getTime()
-        ));
+        return List.of(new Group(null, getName(random, course), course, startDate.getTime(), endDate.getTime()));
     }
 }

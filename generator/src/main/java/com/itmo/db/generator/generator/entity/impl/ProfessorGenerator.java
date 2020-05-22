@@ -3,7 +3,7 @@ package com.itmo.db.generator.generator.entity.impl;
 import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.generator.entity.AbstractEntityGenerator;
 import com.itmo.db.generator.generator.model.DependencyDefinition;
-import com.itmo.db.generator.model.entity.Professor;
+import com.itmo.db.generator.model.entity.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -19,7 +19,11 @@ public class ProfessorGenerator extends AbstractEntityGenerator<Professor, Integ
     @Override
     protected List<Professor> getEntities() {
         log.debug("Creating Professor");
-        return null;
+
+        Person person = this.getDependencyInstances(Person.class).get(0);
+        Faculty faculty = this.getDependencyInstances(Faculty.class).get(0);
+
+        return List.of(new Professor(person.getId(), faculty.getId()));
     }
 }
 
