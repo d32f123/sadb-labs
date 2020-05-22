@@ -21,13 +21,12 @@ import javax.sql.DataSource;
         transactionManagerRef = "postgresTransactionManager"
 )
 @EntityScan(basePackages = "com.itmo.db.generator.persistence.db.postgres.dao.*")
-
-public class PostgreSQLProvider {
+public class PostgresProvider {
 
     @Autowired
     private final Environment env;
 
-    public PostgreSQLProvider(@Autowired Environment env) {
+    public PostgresProvider(@Autowired Environment env) {
         this.env = env;
     }
 
