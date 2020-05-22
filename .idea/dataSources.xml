@@ -16,5 +16,11 @@
         <property name="serverTimezone" value="UTC" />
       </driver-properties>
     </data-source>
+    <data-source source="LOCAL" name="mongo@localhost" uuid="e774cf33-d06b-42b6-8a39-3f45e7c29c48">
+      <driver-ref>mongo</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.dbschema.MongoJdbcDriver</jdbc-driver>
+      <jdbc-url>mongodb://localhost:27017/db_itmo</jdbc-url>
+    </data-source>
   </component>
 </project>
