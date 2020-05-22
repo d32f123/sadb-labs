@@ -24,13 +24,13 @@ public class ScheduleRecordOracleDAO implements IdentifiableDAO<Long> {
     @JoinColumn(name = "person_id", referencedColumnName = "person_id")
     private PersonOracleDAO person_id;
 
-    @ManyToOne
-    @JoinColumn(name = "discipline_id", referencedColumnName = "discipline_id")
-    private PersonDisciplineDAO discipline_id;
-
-    @ManyToOne
-    @JoinColumn(name = "semester_id", referencedColumnName = "semester_id")
-    private PersonsDisciplinesOracleDAO semester_id;
+//    @ManyToOne
+//    @JoinColumn(name = "discipline_id", referencedColumnName = "discipline_id")
+//    private Discipline discipline_id;
+//
+//    @ManyToOne
+//    @JoinColumn(name = "semester_id", referencedColumnName = "semester_id")
+//    private PersonsDisciplinesOracleDAO semester_id;
 
     @Column(name = "start_time", nullable = false)
     private Date startTime;

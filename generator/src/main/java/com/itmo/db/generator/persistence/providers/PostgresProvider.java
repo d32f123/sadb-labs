@@ -23,7 +23,6 @@ import javax.sql.DataSource;
 @EntityScan(basePackages = "com.itmo.db.generator.persistence.db.postgres.dao.*")
 public class PostgresProvider {
 
-    @Autowired
     private final Environment env;
 
     public PostgresProvider(@Autowired Environment env) {

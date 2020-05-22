@@ -29,12 +29,12 @@ public class GroupPersistenceWorker extends AbstractPersistenceWorker<Group, Int
                 entity.getEndDate()
         );
 
-        this.groupOracleRepository.save(groupOracleDAO);
+//        this.groupOracleRepository.save(groupOracleDAO);
         return List.of(groupOracleDAO);
     }
 
     @Override
     protected void doCommit() {
-        this.groupOracleRepository.flush();
+//        this.groupOracleRepository.flush();
     }
 }

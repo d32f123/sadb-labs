@@ -23,24 +23,24 @@ public class AcademicRecordPersistenceWorker extends AbstractPersistenceWorker<A
         AcademicRecordOracleDAO academicRecordOracleDAO = new AcademicRecordOracleDAO(
                 null,
                 null,
-                entity.getAcademicYear(),
-                entity.getDegree(),
+                null,
                 entity.isBudget(),
                 entity.isFullTime(),
                 entity.getDirection(),
                 entity.getSpecialty(),
                 entity.getPosition(),
                 entity.getSubdivision(),
+                entity.getAcademicYear(),
                 entity.getStartDate(),
                 entity.getEndDate()
         );
 
-        this.academicRecordOracleRepository.save(academicRecordOracleDAO);
+//        this.academicRecordOracleRepository.save(academicRecordOracleDAO);
         return List.of(academicRecordOracleDAO);
     }
 
     @Override
     protected void doCommit() {
-        this.academicRecordOracleRepository.flush();
+//        this.academicRecordOracleRepository.flush();
     }
 }

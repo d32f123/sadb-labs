@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 // TODO: When entity is persisted, return ID which should be set to base entity
 @Slf4j
@@ -75,7 +76,10 @@ public abstract class AbstractPersistenceWorker<T extends AbstractEntity<TId>, T
         log.info("'{}': ENTITY GENERATED message received, calling doPersist", entityClass);
         List<? extends IdentifiableDAO<?>> daoValues = this.doPersist(entity);
         Map<Class<? extends IdentifiableDAO<?>>, Object> daoMap = new HashMap<>();
-        daoValues.forEach(value -> daoMap.put((Class) value.getClass(), value.getId()));
+        daoValues.stream()
+                .filter(Objects::nonNull)
+                .filter(value -> value.getId() != null)
+                .forEach(value -> daoMap.put((Class) value.getClass(), value.getId()));
 
         this.eventBus.notify(GeneratorEvent.ENTITY_PERSISTED, new GeneratorEventMessage<>(
                 this.entityClass,

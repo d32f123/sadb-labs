@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 @Slf4j
@@ -18,7 +19,7 @@ public class EntityToDAOMapper<TEntity extends AbstractEntity<TEntityId>, TEntit
 
     private final EventBus eventBus;
     private final Class<TEntity> entityClass;
-    private final Map<TEntityId, Map<Class<? extends IdentifiableDAO<?>>, ?>> entityToDAOMap = new HashMap<>();
+    private final Map<TEntityId, Map<Class<? extends IdentifiableDAO<?>>, ?>> entityToDAOMap = new ConcurrentHashMap<>();
 
     private Consumer<GeneratorEventMessage<TEntity, TEntityId, TEntity>> entityGeneratedConsumer;
     private Consumer<GeneratorEventMessage<TEntity, TEntityId, EntityPersistedEventMessage<TEntityId>>> entityPersistedConsumer;
@@ -63,7 +64,12 @@ public class EntityToDAOMapper<TEntity extends AbstractEntity<TEntityId>, TEntit
         this.entityPersistedConsumer = (message) -> {
             log.debug("Mapper '{}' got entity persisted with id: '{}'. Map: '{}'",
                     entityClass, message.getMessage().getEntityId(), message.getMessage().getDaoValuesMap());
-            this.entityToDAOMap.put(message.getMessage().getEntityId(), Map.copyOf(message.getMessage().getDaoValuesMap()));
+            this.entityToDAOMap.put(
+                    message.getMessage().getEntityId(),
+                    message.getMessage().getDaoValuesMap() != null
+                            ? Map.copyOf(message.getMessage().getDaoValuesMap())
+                            : Collections.emptyMap()
+            );
         };
         return this.entityPersistedConsumer;
     }

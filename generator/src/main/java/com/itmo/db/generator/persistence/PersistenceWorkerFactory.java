@@ -2,12 +2,11 @@ package com.itmo.db.generator.persistence;
 
 import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.model.entity.*;
-import com.itmo.db.generator.model.entity.link.PersonProjectLink;
+import com.itmo.db.generator.model.entity.link.*;
 import com.itmo.db.generator.persistence.db.mysql.repository.*;
-import com.itmo.db.generator.persistence.db.oracle.dao.AcademicRecordOracleDAO;
-import com.itmo.db.generator.persistence.db.oracle.dao.PersonOracleDAO;
 import com.itmo.db.generator.persistence.db.oracle.repository.AcademicRecordOracleRepository;
 import com.itmo.db.generator.persistence.db.oracle.repository.GroupOracleRepository;
+import com.itmo.db.generator.persistence.db.oracle.repository.PersonGroupLinkOracleRepository;
 import com.itmo.db.generator.persistence.db.oracle.repository.PersonOracleRepository;
 import com.itmo.db.generator.persistence.db.postgres.repository.*;
 import com.itmo.db.generator.persistence.impl.*;
@@ -47,14 +46,18 @@ public class PersistenceWorkerFactory {
     //MySQL section END
 
     //Oracle section START
-    @Autowired
+    // TODO: Redo with ObjectRepository and ParamsRepository
+//    @Autowired
     private PersonOracleRepository personOracleRepository;
 
-    @Autowired
+    //    @Autowired
     private GroupOracleRepository groupOracleRepository;
 
-    @Autowired
+    //    @Autowired
     private AcademicRecordOracleRepository academicRecordOracleRepository;
+
+    //    @Autowired
+    private PersonGroupLinkOracleRepository personGroupLinkOracleRepository;
     //Oracle section END
 
     //Postgres section START
@@ -94,30 +97,77 @@ public class PersistenceWorkerFactory {
     }
 
     public <T extends AbstractEntity<TId>, TId> PersistenceWorker getWorker(Class<T> entityClass) {
+        if (entityClass.equals(AcademicRecord.class)) {
+            return new AcademicRecordPersistenceWorker(generator, academicRecordOracleRepository);
+        }
+        if (entityClass.equals(AccommodationRecord.class)) {
+            return new AccommodationRecordPersistenceWorker(generator);
+        }
+        if (entityClass.equals(Conference.class)) {
+            return new ConferencePersistenceWorker(generator, conferenceMySQLRepository);
+        }
+        if (entityClass.equals(ConferencePublicationLink.class)) {
+            return new ConferencePublicationLinkPersistenceWorker(generator);
+        }
+        if (entityClass.equals(Discipline.class)) {
+            return new DisciplinePersistenceWorker(generator, disciplinePostgresRepository);
+        }
+        if (entityClass.equals(Dormitory.class)) {
+            return new DormitoryPersistenceWorker(generator);
+        }
+        if (entityClass.equals(Faculty.class)) {
+            return new FacultyPersistenceWorker(generator, facultyPostgresRepository);
+        }
+        if (entityClass.equals(Group.class)) {
+            return new GroupPersistenceWorker(generator, groupOracleRepository);
+        }
+        if (entityClass.equals(Issue.class)) {
+            return new IssuePersistenceWorker(generator, issueMySQLRepository);
+        }
+        if (entityClass.equals(IssuePublicationLink.class)) {
+            return new IssuePublicationLinkPersistenceWorker(generator);
+        }
+        if (entityClass.equals(PersonGroupLink.class)) {
+            return new PersonGroupLinkPersistenceWorker(generator, personGroupLinkOracleRepository);
+        }
         if (entityClass.equals(Person.class)) {
             return new PersonPersistenceWorker(generator, personMySQLRepository, personOracleRepository);
-        } else if (entityClass.equals(Project.class)) {
-            return new ProjectPersistenceWorker(generator, projectMySQLRepository);
-        } else if (entityClass.equals(PersonProjectLink.class)) {
+        }
+        if (entityClass.equals(PersonProjectLink.class)) {
             return new PersonProjectLinkPersistenceWorker(generator, personProjectRepository);
-        } else if (entityClass.equals(Faculty.class)) {
-            return new FacultyPersistenceWorker(generator, facultyPostgresRepository);
-
-        } else if (entityClass.equals(Issue.class)) {
-            return new IssuePersistenceWorker(generator, issueMySQLRepository);
-        } else if (entityClass.equals(Conference.class)) {
-            return new ConferencePersistenceWorker(generator, conferenceMySQLRepository);
-        } else if (entityClass.equals(Publication.class)) {
+        }
+        if (entityClass.equals(Professor.class)) {
+            return new ProfessorPersistenceWorker(generator);
+        }
+        if (entityClass.equals(Project.class)) {
+            return new ProjectPersistenceWorker(generator, projectMySQLRepository);
+        }
+        if (entityClass.equals(Publication.class)) {
             return new PublicationPersistenceWorker(generator, publicationMySQLRepository);
-        } else if (entityClass.equals(Discipline.class)) {
-            return new DisciplinePersistenceWorker(generator, disciplinePostgresRepository);
-        } else if (entityClass.equals(University.class)) {
+        }
+        if (entityClass.equals(Room.class)) {
+            return new RoomPersistenceWorker(generator);
+        }
+        if (entityClass.equals(ScheduleRecord.class)) {
+            return new ScheduleRecordPersistenceWorker(generator);
+        }
+        if (entityClass.equals(Semester.class)) {
+            return new SemesterPersistenceWorker(generator);
+        }
+        if (entityClass.equals(SpecialtyDisciplineLink.class)) {
+            return new SpecialtyDisciplineLinkPersistenceWorker(generator);
+        }
+        if (entityClass.equals(Specialty.class)) {
+            return new SpecialtyPersistenceWorker(generator);
+        }
+        if (entityClass.equals(Student.class)) {
+            return new StudentPersistenceWorker(generator);
+        }
+        if (entityClass.equals(StudentSemesterDiscipline.class)) {
+            return new StudentSemesterDisciplinePersistenceWorker(generator);
+        }
+        if (entityClass.equals(University.class)) {
             return new UniversityPersistenceWorker(generator, universityPostgresRepository);
-
-        } else if (entityClass.equals(Group.class)) {
-            return new GroupPersistenceWorker(generator, groupOracleRepository);
-        } else if (entityClass.equals(AcademicRecord.class)) {
-            return new AcademicRecordPersistenceWorker(generator, academicRecordOracleRepository);
         }
 
         throw new NullPointerException();

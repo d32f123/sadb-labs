@@ -28,12 +28,12 @@ public class ConferencePersistenceWorker extends AbstractPersistenceWorker<Confe
                 entity.getDate()
         );
 
-        this.conferenceMySQLRepository.save(conferenceMySQLDAO);
+//        this.conferenceMySQLRepository.save(conferenceMySQLDAO);
         return Collections.singletonList(conferenceMySQLDAO);
     }
 
     @Override
     protected void doCommit() {
-        this.conferenceMySQLRepository.flush();
+//        this.conferenceMySQLRepository.flush();
     }
 }

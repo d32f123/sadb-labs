@@ -6,18 +6,21 @@ import com.itmo.db.generator.model.entity.Project;
 import com.itmo.db.generator.model.entity.link.PersonProjectLink;
 import com.itmo.db.generator.persistence.AbstractPersistenceWorker;
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
-import com.itmo.db.generator.persistence.db.mysql.dao.*;
-import com.itmo.db.generator.persistence.db.mysql.repository.*;
+import com.itmo.db.generator.persistence.db.mysql.dao.PersonMySQLDAO;
+import com.itmo.db.generator.persistence.db.mysql.dao.PersonProjectLinkMySQLDAO;
+import com.itmo.db.generator.persistence.db.mysql.dao.ProjectMySQLDAO;
+import com.itmo.db.generator.persistence.db.mysql.repository.PersonProjectLinkMySQLRepository;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
 
 public class PersonProjectLinkPersistenceWorker extends AbstractPersistenceWorker<PersonProjectLink, PersonProjectLink.PersonProjectLinkPK> {
 
-    private final PersonProjectLinkMySQLRepository personProjectRepository;
+    private final PersonProjectLinkMySQLRepository personProjectLinkMySQLRepository;
 
-    public PersonProjectLinkPersistenceWorker(Generator generator, PersonProjectLinkMySQLRepository personProjectRepository) {
+    public PersonProjectLinkPersistenceWorker(Generator generator, PersonProjectLinkMySQLRepository personProjectLinkMySQLRepository) {
         super(PersonProjectLink.class, generator);
-        this.personProjectRepository = personProjectRepository;
+        this.personProjectLinkMySQLRepository = personProjectLinkMySQLRepository;
     }
 
     @Override
@@ -32,12 +35,12 @@ public class PersonProjectLinkPersistenceWorker extends AbstractPersistenceWorke
                 entity.getEndDate()
         );
 
-        this.personProjectRepository.save(personProjectLinkMySQLDAO);
+        this.personProjectLinkMySQLRepository.save(personProjectLinkMySQLDAO);
         return Collections.singletonList(personProjectLinkMySQLDAO);
     }
 
     @Override
     protected void doCommit() {
-        this.personProjectRepository.flush();
+        this.personProjectLinkMySQLRepository.flush();
     }
 }

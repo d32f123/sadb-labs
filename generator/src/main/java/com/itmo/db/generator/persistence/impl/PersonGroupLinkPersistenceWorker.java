@@ -9,7 +9,6 @@ import com.itmo.db.generator.persistence.db.IdentifiableDAO;
 import com.itmo.db.generator.persistence.db.oracle.dao.GroupOracleDAO;
 import com.itmo.db.generator.persistence.db.oracle.dao.PersonGroupLinkOracleDAO;
 import com.itmo.db.generator.persistence.db.oracle.dao.PersonOracleDAO;
-import com.itmo.db.generator.persistence.db.oracle.repository.GroupOracleRepository;
 import com.itmo.db.generator.persistence.db.oracle.repository.PersonGroupLinkOracleRepository;
 
 import java.util.List;
@@ -33,12 +32,12 @@ public class PersonGroupLinkPersistenceWorker extends AbstractPersistenceWorker<
                 groupOracleDAO
         );
 
-        this.personGroupLinkOracleRepository.save(personGroupLinkOracleDAO);
+//        this.personGroupLinkOracleRepository.save(personGroupLinkOracleDAO);
         return List.of(personGroupLinkOracleDAO);
     }
 
     @Override
     protected void doCommit() {
-        this.personGroupLinkOracleRepository.flush();
+//        this.personGroupLinkOracleRepository.flush();
     }
 }

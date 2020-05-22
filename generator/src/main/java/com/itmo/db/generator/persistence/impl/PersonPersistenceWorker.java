@@ -4,10 +4,10 @@ import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.model.entity.Person;
 import com.itmo.db.generator.persistence.AbstractPersistenceWorker;
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
-import com.itmo.db.generator.persistence.db.oracle.dao.PersonOracleDAO;
-import com.itmo.db.generator.persistence.db.oracle.repository.PersonOracleRepository;
 import com.itmo.db.generator.persistence.db.mysql.dao.PersonMySQLDAO;
 import com.itmo.db.generator.persistence.db.mysql.repository.PersonMySQLRepository;
+import com.itmo.db.generator.persistence.db.oracle.dao.PersonOracleDAO;
+import com.itmo.db.generator.persistence.db.oracle.repository.PersonOracleRepository;
 
 import java.util.List;
 
@@ -41,13 +41,13 @@ public class PersonPersistenceWorker extends AbstractPersistenceWorker<Person, I
         );
 
         this.personMySQLRepository.save(personMySQLDAO);
-        this.personOracleRepository.save(personOracleDAO);
+//        this.personOracleRepository.save(personOracleDAO);
         return List.of(personMySQLDAO, personOracleDAO);
     }
 
     @Override
     protected void doCommit() {
-        this.personOracleRepository.flush();
+//        this.personOracleRepository.flush();
         this.personMySQLRepository.flush();
     }
 }

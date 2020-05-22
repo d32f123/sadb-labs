@@ -12,6 +12,7 @@ import java.util.Date;
 @Entity
 @Data
 @Table(name = "student_semester_disciplines")
+@IdClass(StudentSemesterDisciplinePostgresDAO.StudentSemesterDisciplinePostgresPK.class)
 @NoArgsConstructor
 @AllArgsConstructor
 public class StudentSemesterDisciplinePostgresDAO implements IdentifiableDAO<StudentSemesterDisciplinePostgresDAO.StudentSemesterDisciplinePostgresPK> {
