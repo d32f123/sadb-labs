@@ -46,6 +46,8 @@ public class GroupGenerator extends AbstractEntityGenerator<Group, Integer> {
         Calendar startDate = getStartDate(random);
         Calendar endDate = getEndDate(startDate);
 
-        return List.of(new Group(null, getName(random, course), course, startDate.getTime(), endDate.getTime()));
+        return List.of(new Group(
+                null, getName(random, course), String.valueOf(course) + " курс", startDate.getTime(), endDate.getTime()
+        ));
     }
 }

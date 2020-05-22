@@ -3,14 +3,30 @@ package com.itmo.db.generator.generator.entity.impl;
 import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.generator.entity.AbstractEntityGenerator;
 import com.itmo.db.generator.generator.model.DependencyDefinition;
-import com.itmo.db.generator.model.entity.AccommodationRecord;
+import com.itmo.db.generator.model.entity.*;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 public class AccommodationRecordGenerator extends AbstractEntityGenerator<AccommodationRecord, Integer> {
+
+    String getCourse(Random random) {
+        return String.valueOf(1 + random.nextInt(4)) + "курс";
+    }
+
+    public Calendar getLivingStartDate(Random random) {
+        Calendar startDate = new GregorianCalendar(2015, Calendar.SEPTEMBER,1);
+        int MAX_YEARS_SINCE_START_DATE = 4;
+        startDate.add(Calendar.DAY_OF_MONTH, random.nextInt(MAX_YEARS_SINCE_START_DATE));
+        return startDate;
+    }
+
+    public Calendar getLivingEndDate(Calendar startDate) {
+        Calendar endDate = new GregorianCalendar(2015, Calendar.AUGUST,31);
+        endDate.set(Calendar.YEAR, endDate.get(Calendar.YEAR) + 1);
+        return endDate;
+    }
 
     public AccommodationRecordGenerator(Set<DependencyDefinition<?, ?>> deps, Generator generator) {
         super(AccommodationRecord.class, deps, generator);
@@ -19,7 +35,16 @@ public class AccommodationRecordGenerator extends AbstractEntityGenerator<Accomm
     @Override
     protected List<AccommodationRecord> getEntities() {
         log.debug("Creating AccommodationRecord");
-        return null;
+        Random random = new Random();
+
+        Person person = this.getDependencyInstances(Person.class).get(0);
+        Room room = this.getDependencyInstances(Room.class).get(0);
+        Calendar startDate = getLivingStartDate(random);
+
+        return List.of(new AccommodationRecord(
+                null, person.getId(), room.getId(), random.nextBoolean(), random.nextBoolean(), random.nextBoolean(),
+                startDate.getTime(), getLivingEndDate(startDate).getTime(), getCourse(random)
+        ));
     }
 }
 
