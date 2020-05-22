@@ -73,11 +73,19 @@ public class PersonGenerator extends AbstractEntityGenerator<Person, Integer> {
                 "Belogorsk","Beloreck","Belorechensk","Berdsk","Berezniki",
                 "Berezovskij","Bijsk","Birobidzhan","Blagoveshchensk",
                 "Bor","Borisoglebsk","Borovichi","Bratsk","Bryansk","Bugul'ma","Budennovsk","Buzuluk","Bujnaksk",
-                "Velikie Luki","Velikij Novgorod","Verhnyaya Pyshma","Vidnoe","Vladivostok","Vladikavkaz","Vladimir",
+                "Velikie Luki","Ve[likij Novgorod","Verhnyaya Pyshma","Vidnoe","Vladivostok","Vladikavkaz","Vladimir",
                 "Volgograd","Volgodonsk","Volzhsk","Volzhskij","Vologda","Vol'sk","Vorkuta","Voronezh","Voskresensk",
                 "Votkinsk","Vsevolozhsk","Vyborg","Vyksa","Vyaz'ma","Gatchina","Gelendzhik"
         };
         return cities[random.nextInt(cities.length)];
+    }
+
+    public boolean getIsInDormitory(Random random) {
+        return random.nextBoolean();
+    }
+
+    public short getWarningCount(Random random) {
+        return (short) random.nextInt(5);
     }
 
     public PersonGenerator(Set<DependencyDefinition<?, ?>> deps, Generator generator) {
@@ -97,7 +105,9 @@ public class PersonGenerator extends AbstractEntityGenerator<Person, Integer> {
                 getPatronymic(random, isMale),
                 getRole(random),
                 getBirthDate(random),
-                getBirthPlace(random)
+                getBirthPlace(random),
+                getIsInDormitory(random),
+                getWarningCount(random)
         ));
     }
 }

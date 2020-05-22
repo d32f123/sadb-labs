@@ -54,18 +54,18 @@ public class GroupGenerator extends AbstractEntityGenerator<Group, Integer> {
     }
 
     @Override
-    protected Group getEntity() {
+    protected List<Group> getEntities() {
         log.debug("Creating Person");
         Random random = new Random();
         Calendar startDate = getStartDate(random);
         Calendar endDate = getEndDate(startDate);
 
-        return new Group(
+        return List.of(new Group(
                 null,
                 getName(random),
                 getCourse(random),
                 startDate.getTime(),
                 endDate.getTime()
-        );
+        ));
     }
 }
