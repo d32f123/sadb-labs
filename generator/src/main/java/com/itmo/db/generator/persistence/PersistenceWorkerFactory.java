@@ -49,14 +49,36 @@ public class PersistenceWorkerFactory {
     private PublicationMySQLRepository publicationMySQLRepository;
 
     @Autowired
-    private FacultyRepository facultyRepository;
+    private DisciplinePostgresRepository disciplinePostgresRepository;
 
     @Autowired
-    private DisciplineRepository disciplineRepository;
-
+    private FacultyPostgresRepository facultyPostgresRepository;
 
     @Autowired
-    private UniversityRepository universityRepository;
+    private PersonPostgresRepository personPostgresRepository;
+
+    @Autowired
+    private ProfessorPostgresRepository professorPostgresRepository;
+
+    @Autowired
+    private SemesterPostgresRepository semesterPostgresRepository;
+
+    @Autowired
+    private SpecialtyDisciplineLinkPostgresRepository specialtyDisciplineLinkPostgresRepository;
+
+    @Autowired
+    private SpecialtyPostgresRepository specialtyPostgresRepository;
+
+    @Autowired
+    private StudentPostgresRepository studentPostgresRepository;
+
+    @Autowired
+    private StudentSemesterDisciplinePostgresRepository studentSemesterDisciplinePostgresRepository;
+
+    public PersistenceWorkerFactory() {
+    }
+    @Autowired
+    private UniversityPostgresRepository universityPostgresRepository;
 
     public PersistenceWorkerFactory() {
     }
@@ -69,7 +91,7 @@ public class PersistenceWorkerFactory {
         } else if (entityClass.equals(PersonProjectLink.class)) {
             return new PersonProjectLinkPersistenceWorker(generator, personProjectRepository);
         } else if (entityClass.equals(Faculty.class)) {
-            return new FacultyPersistenceWorker(generator, facultyRepository);
+            return new FacultyPersistenceWorker(generator, facultyPostgresRepository);
         } else if (entityClass.equals(Issue.class)) {
             return new IssuePersistenceWorker(generator, issueMySQLRepository);
         } else if (entityClass.equals(Conference.class)) {
@@ -77,8 +99,9 @@ public class PersistenceWorkerFactory {
         } else if (entityClass.equals(Publication.class)) {
             return new PublicationPersistenceWorker(generator, publicationMySQLRepository);
         } else if (entityClass.equals(Discipline.class)) {
-            return new DisciplinePersistenceWorker(generator, disciplineRepository);
+            return new DisciplinePersistenceWorker(generator, disciplinePostgresRepository);
         } else if (entityClass.equals(University.class)) {
+            return new UniversityPersistenceWorker(generator, universityPostgresRepository);
             return new UniversityPersistenceWorker(generator, universityRepository);
         } else if (entityClass.equals(Group.class)) {
             return new GroupPersistenceWorker(generator, groupOracleRepository);

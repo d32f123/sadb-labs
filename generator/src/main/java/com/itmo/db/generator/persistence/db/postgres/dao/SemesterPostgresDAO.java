@@ -9,18 +9,14 @@ import javax.persistence.*;
 
 @Entity
 @Data
-@Table(name = "faculties")
+@Table(name = "semesters")
 @NoArgsConstructor
 @AllArgsConstructor
-public class FacultyDAO implements IdentifiableDAO<Integer> {
+public class SemesterPostgresDAO implements IdentifiableDAO<Integer> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "faculty_id")
+    @Column(name = "semester_id")
     private Integer id;
-
-    @Column(name = "faculty_name", nullable = false, unique = true)
-    private String facultyName;
-
 
 }

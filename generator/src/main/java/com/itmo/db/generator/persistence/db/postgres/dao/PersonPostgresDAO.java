@@ -12,12 +12,12 @@ import javax.persistence.*;
 @Table(name = "persons")
 @NoArgsConstructor
 @AllArgsConstructor
-public class PersonDAO implements IdentifiableDAO<Long> {
+public class PersonPostgresDAO implements IdentifiableDAO<Integer> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "person_id")
-    private Long id;
+    private Integer id;
 
     @Column(name = "last_name", nullable = false)
     private String lastName;

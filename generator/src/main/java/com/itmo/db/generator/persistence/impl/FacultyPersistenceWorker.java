@@ -4,30 +4,31 @@ import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.model.entity.Faculty;
 import com.itmo.db.generator.persistence.AbstractPersistenceWorker;
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
-import com.itmo.db.generator.persistence.db.postgres.dao.FacultyDAO;
-import com.itmo.db.generator.persistence.db.postgres.repository.FacultyRepository;
+import com.itmo.db.generator.persistence.db.postgres.dao.FacultyPostgresDAO;
+import com.itmo.db.generator.persistence.db.postgres.repository.FacultyPostgresRepository;
 
 import java.util.Collections;
 import java.util.List;
 
 public class FacultyPersistenceWorker extends AbstractPersistenceWorker<Faculty, Integer> {
 
-    private final FacultyRepository facultyRepository;
+    private final FacultyPostgresRepository facultyPostgresRepository;
 
-    public FacultyPersistenceWorker(Generator generator, FacultyRepository facultyRepository) {
+    public FacultyPersistenceWorker(Generator generator, FacultyPostgresRepository facultyPostgresRepository) {
         super(Faculty.class, generator);
-        this.facultyRepository = facultyRepository;
+        this.facultyPostgresRepository = facultyPostgresRepository;
     }
 
     @Override
     protected List<? extends IdentifiableDAO<?>> doPersist(Faculty entity) {
-        FacultyDAO facultyDAO = new FacultyDAO(
+        FacultyPostgresDAO facultyPostgresDAO = new FacultyPostgresDAO(
                 null,
-                entity.getFacultyName()
+                entity.getFacultyName(),
+                null
         );
 
-        this.facultyRepository.save(facultyDAO);
-        return Collections.singletonList(facultyDAO);
+        this.facultyPostgresRepository.save(facultyPostgresDAO);
+        return Collections.singletonList(facultyPostgresDAO);
     }
 
     @Override
