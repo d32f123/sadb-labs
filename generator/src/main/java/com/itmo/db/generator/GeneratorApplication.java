@@ -40,7 +40,8 @@ public class GeneratorApplication implements ApplicationRunner {
                 new EntityDefinition<>(PersonGroupLink.class, 2, Set.of(
                         new DependencyDefinition<>(Person.class, 1),
                         new DependencyDefinition<>(Group.class, 1)
-                ))
+                )),
+                new EntityDefinition<>(AcademicRecord.class, 2, null)
 
         );
         this.generator.generate(entities);

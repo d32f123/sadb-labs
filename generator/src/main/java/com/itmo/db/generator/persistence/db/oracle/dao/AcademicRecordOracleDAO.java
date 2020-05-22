@@ -1,6 +1,7 @@
 package com.itmo.db.generator.persistence.db.oracle.dao;
 
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
+import com.itmo.db.generator.persistence.db.postgres.dao.FacultyPostgresDAO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,10 @@ public class AcademicRecordOracleDAO implements IdentifiableDAO<Long> {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "academic_record_id")
     private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "person_id", referencedColumnName = "person_id")
+    private PersonOracleDAO person_id;
 
     @Column(name = "degree", nullable = false)
     private String name;
