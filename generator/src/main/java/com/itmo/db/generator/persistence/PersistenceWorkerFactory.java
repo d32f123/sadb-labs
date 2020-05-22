@@ -131,13 +131,13 @@ public class PersistenceWorkerFactory {
             return new PersonGroupLinkPersistenceWorker(generator, personGroupLinkOracleRepository);
         }
         if (entityClass.equals(Person.class)) {
-            return new PersonPersistenceWorker(generator, personMySQLRepository, personOracleRepository);
+            return new PersonPersistenceWorker(generator, personMySQLRepository, personOracleRepository, personPostgresRepository);
         }
         if (entityClass.equals(PersonProjectLink.class)) {
             return new PersonProjectLinkPersistenceWorker(generator, personProjectRepository);
         }
         if (entityClass.equals(Professor.class)) {
-            return new ProfessorPersistenceWorker(generator);
+            return new ProfessorPersistenceWorker(generator, professorPostgresRepository);
         }
         if (entityClass.equals(Project.class)) {
             return new ProjectPersistenceWorker(generator, projectMySQLRepository);
