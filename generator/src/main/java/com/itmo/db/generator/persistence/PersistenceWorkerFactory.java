@@ -42,6 +42,9 @@ public class PersistenceWorkerFactory {
 
     @Autowired
     private PublicationMySQLRepository publicationMySQLRepository;
+
+    @Autowired
+    private LibraryRecordMySQLRepository libraryRecordMySQLRepository;
     //MySQL section END
 
     //Oracle section START
@@ -137,8 +140,7 @@ public class PersistenceWorkerFactory {
         }
         if (entityClass.equals(Person.class)) {
             //return new PersonPersistenceWorker(generator, personMySQLRepository, new Itmo);
-            return null;
-            return new PersonPersistenceWorker(generator, personMySQLRepository, personOracleRepository, personPostgresRepository);
+            return new PersonPersistenceWorker(generator, personMySQLRepository, personPostgresRepository);
         }
         if (entityClass.equals(PersonProjectLink.class)) {
             return new PersonProjectLinkPersistenceWorker(generator, personProjectRepository);

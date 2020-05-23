@@ -6,8 +6,6 @@ import com.itmo.db.generator.persistence.AbstractPersistenceWorker;
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
 import com.itmo.db.generator.persistence.db.mysql.dao.PersonMySQLDAO;
 import com.itmo.db.generator.persistence.db.mysql.repository.PersonMySQLRepository;
-import com.itmo.db.generator.persistence.db.oracle.dao.PersonOracleDAO;
-import com.itmo.db.generator.persistence.db.oracle.repository.PersonOracleRepository;
 import com.itmo.db.generator.persistence.db.postgres.dao.PersonPostgresDAO;
 import com.itmo.db.generator.persistence.db.postgres.repository.PersonPostgresRepository;
 
@@ -18,10 +16,8 @@ public class PersonPersistenceWorker extends AbstractPersistenceWorker<Person, I
     private final PersonMySQLRepository personMySQLRepository;
     private final PersonPostgresRepository personPostgresRepository;
 
-    public PersonPersistenceWorker(Generator generator, PersonMySQLRepository personMySQLRepository) {
     public PersonPersistenceWorker(
-            Generator generator, PersonMySQLRepository personMySQLRepository,
-            PersonOracleRepository personOracleRepository, PersonPostgresRepository personPostgresRepository
+            Generator generator, PersonMySQLRepository personMySQLRepository, PersonPostgresRepository personPostgresRepository
     ) {
         super(Person.class, generator);
         this.personMySQLRepository = personMySQLRepository;
@@ -37,14 +33,6 @@ public class PersonPersistenceWorker extends AbstractPersistenceWorker<Person, I
                 entity.getPatronymicName(),
                 entity.getRole()
         );
-        PersonOracleDAO personOracleDAO = new PersonOracleDAO(
-                null,
-                entity.getLastName(),
-                entity.getFirstName(),
-                entity.getPatronymicName(),
-                entity.getBirthDate(),
-                entity.getBirthPlace()
-        );
         PersonPostgresDAO personPostgresDAO = new PersonPostgresDAO(
                 null,
                 entity.getLastName(),
@@ -56,9 +44,8 @@ public class PersonPersistenceWorker extends AbstractPersistenceWorker<Person, I
 
         this.personMySQLRepository.save(personMySQLDAO);
 //        this.personOracleRepository.save(personOracleDAO);
-        return List.of(personMySQLDAO);
         this.personPostgresRepository.save(personPostgresDAO);
-        return List.of(personMySQLDAO, personOracleDAO, personPostgresDAO);
+        return List.of(personMySQLDAO, personPostgresDAO);
     }
 
     @Override
