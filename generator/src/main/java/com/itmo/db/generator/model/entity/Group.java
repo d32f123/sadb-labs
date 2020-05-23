@@ -12,7 +12,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Description(value = "Group of students")
-public class Group implements NumericallyIdentifiableEntity, OracleEntity {
+public class Group implements NumericallyIdentifiableEntity {
 
     private Integer id;
     @ItmoAttribute

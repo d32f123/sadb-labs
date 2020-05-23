@@ -4,7 +4,6 @@ import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.model.entity.*;
 import com.itmo.db.generator.model.entity.link.*;
 import com.itmo.db.generator.persistence.db.mysql.repository.*;
-import com.itmo.db.generator.persistence.db.oracle.dao.ItmoObjectOracleDAO;
 import com.itmo.db.generator.persistence.db.oracle.repository.*;
 import com.itmo.db.generator.persistence.db.postgres.repository.*;
 import com.itmo.db.generator.persistence.impl.*;
@@ -32,6 +31,9 @@ public class PersistenceWorkerFactory {
     private IssuePublicationLinkMySQLRepository issuePublicationLinkMySQLRepository;
 
     @Autowired
+    private LibraryRecordMySQLRepository libraryRecordMySQLRepository;
+
+    @Autowired
     private PersonMySQLRepository personMySQLRepository;
 
     @Autowired
@@ -42,9 +44,6 @@ public class PersistenceWorkerFactory {
 
     @Autowired
     private PublicationMySQLRepository publicationMySQLRepository;
-
-    @Autowired
-    private LibraryRecordMySQLRepository libraryRecordMySQLRepository;
     //MySQL section END
 
     //Oracle section START
@@ -139,7 +138,6 @@ public class PersistenceWorkerFactory {
             return new PersonGroupLinkPersistenceWorker(generator);
         }
         if (entityClass.equals(Person.class)) {
-            //return new PersonPersistenceWorker(generator, personMySQLRepository, new Itmo);
             return new PersonPersistenceWorker(generator, personMySQLRepository, personPostgresRepository);
         }
         if (entityClass.equals(PersonProjectLink.class)) {
