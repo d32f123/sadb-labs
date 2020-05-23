@@ -22,5 +22,12 @@
       <jdbc-driver>com.dbschema.MongoJdbcDriver</jdbc-driver>
       <jdbc-url>mongodb://localhost:27017/db_itmo</jdbc-url>
     </data-source>
+    <data-source source="LOCAL" name="oracle@localhost" uuid="22086cb3-60b1-4b86-aa46-9fc10b1f056e">
+      <driver-ref>oracle</driver-ref>
+      <synchronize>true</synchronize>
+      <auto-commit>false</auto-commit>
+      <jdbc-driver>oracle.jdbc.OracleDriver</jdbc-driver>
+      <jdbc-url>jdbc:oracle:thin:@localhost:5435:orcl</jdbc-url>
+    </data-source>
   </component>
 </project>
