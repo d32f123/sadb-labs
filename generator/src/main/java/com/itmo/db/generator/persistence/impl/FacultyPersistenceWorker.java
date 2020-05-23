@@ -37,7 +37,7 @@ public class FacultyPersistenceWorker extends AbstractPersistenceWorker<Faculty,
 
     @Override
     protected void doCommit() {
-
+        this.facultyPostgresRepository.flush();
     }
 
 
