@@ -45,6 +45,9 @@ public class EntityGeneratorFactory {
         if (entityClass.equals(Issue.class)) {
             return new IssueGenerator(deps, generator);
         }
+        if (entityClass.equals(LibraryRecordGenerator.class)) {
+            return new LibraryRecordGenerator(deps, generator);
+        }
         if (entityClass.equals(Person.class)) {
             return new PersonGenerator(deps, generator);
         }

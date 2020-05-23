@@ -2,6 +2,7 @@ create database if not exists db_itmo;
 
 use db_itmo;
 
+drop table if exists library_records;
 drop table if exists conference_publications;
 drop table if exists person_projects;
 drop table if exists person_publications;
@@ -39,7 +40,7 @@ create table publications
 create table issues
 (
     issue_id SERIAL,
-    name     VARCHAR(127)  NOT NULL,
+    name     VARCHAR(127) NOT NULL,
     language VARCHAR(3)   NOT NULL DEFAULT 'RU',
     location VARCHAR(255) NOT NULL,
     length   INT          NOT NULL,
@@ -49,7 +50,7 @@ create table issues
 create table conferences
 (
     conference_id SERIAL,
-    name          VARCHAR(127)  NOT NULL,
+    name          VARCHAR(127) NOT NULL,
     location      VARCHAR(255) NOT NULL,
     date          TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -91,4 +92,13 @@ create table conference_publications
     PRIMARY KEY (conference_id, publication_id),
     FOREIGN KEY conpub_conference_fk (conference_id) REFERENCES conferences (conference_id),
     FOREIGN KEY conpub_publication_fk (publication_id) REFERENCES publications (publication_id)
+);
+
+create table library_records
+(
+    library_record_id SERIAL,
+    person_id         BIGINT UNSIGNED NOT NULL,
+    book_id           BIGINT UNSIGNED NOT NULL,
+    action            VARCHAR(10)     NOT NULL,
+    action_date       TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

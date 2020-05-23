@@ -33,6 +33,9 @@ public class PersistenceWorkerFactory {
     private IssuePublicationLinkMySQLRepository issuePublicationLinkMySQLRepository;
 
     @Autowired
+    private LibraryRecordMySQLRepository libraryRecordMySQLRepository;
+
+    @Autowired
     private PersonMySQLRepository personMySQLRepository;
 
     @Autowired
@@ -126,6 +129,9 @@ public class PersistenceWorkerFactory {
         }
         if (entityClass.equals(IssuePublicationLink.class)) {
             return new IssuePublicationLinkPersistenceWorker(generator);
+        }
+        if (entityClass.equals(LibraryRecord.class)) {
+            return new LibraryRecordPersistenceWorker(generator, libraryRecordMySQLRepository);
         }
         if (entityClass.equals(PersonGroupLink.class)) {
             return new PersonGroupLinkPersistenceWorker(generator, personGroupLinkOracleRepository);
