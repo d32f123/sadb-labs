@@ -4,37 +4,32 @@ import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.model.entity.Group;
 import com.itmo.db.generator.persistence.AbstractPersistenceWorker;
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
-import com.itmo.db.generator.persistence.db.oracle.dao.GroupOracleDAO;
-import com.itmo.db.generator.persistence.db.oracle.repository.GroupOracleRepository;
+import com.itmo.db.generator.persistence.db.oracle.dao.ItmoObjectOracleDAO;
+import com.itmo.db.generator.persistence.impl.itmo.ItmoGroupPersistenceWorker;
 
 import java.util.List;
 
 public class GroupPersistenceWorker extends AbstractPersistenceWorker<Group, Integer> {
 
-    private final GroupOracleRepository groupOracleRepository;
+    private final ItmoGroupPersistenceWorker itmoGroupPersistenceWorker;
 
-    public GroupPersistenceWorker(Generator generator, GroupOracleRepository groupOracleRepository) {
+    public GroupPersistenceWorker(Generator generator, ItmoGroupPersistenceWorker itmoGroupPersistenceWorker) {
         super(Group.class, generator);
-        this.groupOracleRepository = groupOracleRepository;
+        this.itmoGroupPersistenceWorker = itmoGroupPersistenceWorker;
     }
 
     @Override
     protected List<? extends IdentifiableDAO<?>> doPersist(Group entity) {
 
-        GroupOracleDAO groupOracleDAO = new GroupOracleDAO(
-                null,
-                entity.getName(),
-                entity.getCourse(),
-                entity.getStartDate(),
-                entity.getEndDate()
-        );
+        ItmoObjectOracleDAO savedOracleGroup = this.itmoGroupPersistenceWorker.persist(entity);
 
 //        this.groupOracleRepository.save(groupOracleDAO);
-        return List.of(groupOracleDAO);
+        return List.of(savedOracleGroup);
     }
 
     @Override
     protected void doCommit() {
+        this.itmoGroupPersistenceWorker.commit();
 //        this.groupOracleRepository.flush();
     }
 }

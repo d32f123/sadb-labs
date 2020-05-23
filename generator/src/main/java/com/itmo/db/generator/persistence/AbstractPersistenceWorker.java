@@ -9,10 +9,7 @@ import com.itmo.db.generator.utils.eventbus.GeneratorEvent;
 import com.itmo.db.generator.utils.eventbus.GeneratorEventMessage;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 // TODO: When entity is persisted, return ID which should be set to base entity
 @Slf4j
@@ -75,6 +72,10 @@ public abstract class AbstractPersistenceWorker<T extends AbstractEntity<TId>, T
     private void persistEntity(T entity) {
         log.info("'{}': ENTITY GENERATED message received, calling doPersist", entityClass);
         List<? extends IdentifiableDAO<?>> daoValues = this.doPersist(entity);
+        if (daoValues == null) {
+            daoValues = Collections.emptyList();
+        }
+
         Map<Class<? extends IdentifiableDAO<?>>, Object> daoMap = new HashMap<>();
         daoValues.stream()
                 .filter(Objects::nonNull)

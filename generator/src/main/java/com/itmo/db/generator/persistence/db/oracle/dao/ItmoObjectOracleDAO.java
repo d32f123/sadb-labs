@@ -2,33 +2,33 @@ package com.itmo.db.generator.persistence.db.oracle.dao;
 
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.Date;
 
 @Entity
 @Data
-@Table(name = "persons")
+@Table(name = "itmo_objects")
 @NoArgsConstructor
 @AllArgsConstructor
-public class GroupOracleDAO implements IdentifiableDAO<Long> {
+@Builder
+public class ItmoObjectOracleDAO implements IdentifiableDAO<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "group_id")
+    @Column(name = "id")
     private Long id;
 
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "course", nullable = false)
-    private String course;
+    @ManyToOne
+    @JoinColumn(name = "object_type_id", referencedColumnName = "id")
+    private ItmoObjectTypeOracleDAO itmoObjectTypeOracleDAO;
 
-    @Column(name = "start_date", nullable = false)
-    private Date startDate;
-
-    @Column(name = "end_date", nullable = false)
-    private Date endDate;
+    @ManyToOne
+    @JoinColumn(name = "parent_id", referencedColumnName = "id")
+    private ItmoObjectOracleDAO parent;
 }

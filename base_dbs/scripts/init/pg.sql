@@ -1,3 +1,7 @@
+create database db_itmo;
+
+\c db_itmo;
+
 drop table if exists student_semester_disciplines;
 drop table if exists student_infos;
 drop table if exists semesters;

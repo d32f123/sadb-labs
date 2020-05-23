@@ -15,16 +15,15 @@ import java.util.List;
 
 public class PersonPersistenceWorker extends AbstractPersistenceWorker<Person, Integer> {
 
-    private final PersonOracleRepository personOracleRepository;
     private final PersonMySQLRepository personMySQLRepository;
     private final PersonPostgresRepository personPostgresRepository;
 
+    public PersonPersistenceWorker(Generator generator, PersonMySQLRepository personMySQLRepository) {
     public PersonPersistenceWorker(
             Generator generator, PersonMySQLRepository personMySQLRepository,
             PersonOracleRepository personOracleRepository, PersonPostgresRepository personPostgresRepository
     ) {
         super(Person.class, generator);
-        this.personOracleRepository = personOracleRepository;
         this.personMySQLRepository = personMySQLRepository;
         this.personPostgresRepository = personPostgresRepository;
     }
@@ -54,8 +53,10 @@ public class PersonPersistenceWorker extends AbstractPersistenceWorker<Person, I
                 entity.getRole()
         );
 
+
         this.personMySQLRepository.save(personMySQLDAO);
 //        this.personOracleRepository.save(personOracleDAO);
+        return List.of(personMySQLDAO);
         this.personPostgresRepository.save(personPostgresDAO);
         return List.of(personMySQLDAO, personOracleDAO, personPostgresDAO);
     }

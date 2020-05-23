@@ -4,12 +4,11 @@ import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.model.entity.*;
 import com.itmo.db.generator.model.entity.link.*;
 import com.itmo.db.generator.persistence.db.mysql.repository.*;
-import com.itmo.db.generator.persistence.db.oracle.repository.AcademicRecordOracleRepository;
-import com.itmo.db.generator.persistence.db.oracle.repository.GroupOracleRepository;
-import com.itmo.db.generator.persistence.db.oracle.repository.PersonGroupLinkOracleRepository;
-import com.itmo.db.generator.persistence.db.oracle.repository.PersonOracleRepository;
+import com.itmo.db.generator.persistence.db.oracle.dao.ItmoObjectOracleDAO;
+import com.itmo.db.generator.persistence.db.oracle.repository.*;
 import com.itmo.db.generator.persistence.db.postgres.repository.*;
 import com.itmo.db.generator.persistence.impl.*;
+import com.itmo.db.generator.persistence.impl.itmo.ItmoGroupPersistenceWorker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -33,9 +32,6 @@ public class PersistenceWorkerFactory {
     private IssuePublicationLinkMySQLRepository issuePublicationLinkMySQLRepository;
 
     @Autowired
-    private LibraryRecordMySQLRepository libraryRecordMySQLRepository;
-
-    @Autowired
     private PersonMySQLRepository personMySQLRepository;
 
     @Autowired
@@ -50,17 +46,20 @@ public class PersistenceWorkerFactory {
 
     //Oracle section START
     // TODO: Redo with ObjectRepository and ParamsRepository
-//    @Autowired
-    private PersonOracleRepository personOracleRepository;
+    @Autowired
+    private ItmoObjectOracleRepository itmoObjectOracleRepository;
 
-    //    @Autowired
-    private GroupOracleRepository groupOracleRepository;
+    @Autowired
+    private ItmoObjectTypeOracleRepository itmoObjectTypeOracleRepository;
 
-    //    @Autowired
-    private AcademicRecordOracleRepository academicRecordOracleRepository;
+    @Autowired
+    private ItmoAttributeOracleRepository itmoAttributeOracleRepository;
 
-    //    @Autowired
-    private PersonGroupLinkOracleRepository personGroupLinkOracleRepository;
+    @Autowired
+    private ItmoParamOracleRepository itmoParamOracleRepository;
+
+    @Autowired
+    private ItmoListValueOracleRepository itmoListValueOracleRepository;
     //Oracle section END
 
     //Postgres section START
@@ -101,7 +100,7 @@ public class PersistenceWorkerFactory {
 
     public <T extends AbstractEntity<TId>, TId> PersistenceWorker getWorker(Class<T> entityClass) {
         if (entityClass.equals(AcademicRecord.class)) {
-            return new AcademicRecordPersistenceWorker(generator, academicRecordOracleRepository);
+            return new AcademicRecordPersistenceWorker(generator);
         }
         if (entityClass.equals(AccommodationRecord.class)) {
             return new AccommodationRecordPersistenceWorker(generator);
@@ -122,7 +121,7 @@ public class PersistenceWorkerFactory {
             return new FacultyPersistenceWorker(generator, facultyPostgresRepository);
         }
         if (entityClass.equals(Group.class)) {
-            return new GroupPersistenceWorker(generator, groupOracleRepository);
+            return new GroupPersistenceWorker(generator, new ItmoGroupPersistenceWorker(Group.class, generator, itmoAttributeOracleRepository, itmoListValueOracleRepository, itmoObjectOracleRepository, itmoObjectTypeOracleRepository, itmoParamOracleRepository));
         }
         if (entityClass.equals(Issue.class)) {
             return new IssuePersistenceWorker(generator, issueMySQLRepository);
@@ -134,9 +133,11 @@ public class PersistenceWorkerFactory {
             return new LibraryRecordPersistenceWorker(generator, libraryRecordMySQLRepository);
         }
         if (entityClass.equals(PersonGroupLink.class)) {
-            return new PersonGroupLinkPersistenceWorker(generator, personGroupLinkOracleRepository);
+            return new PersonGroupLinkPersistenceWorker(generator);
         }
         if (entityClass.equals(Person.class)) {
+            //return new PersonPersistenceWorker(generator, personMySQLRepository, new Itmo);
+            return null;
             return new PersonPersistenceWorker(generator, personMySQLRepository, personOracleRepository, personPostgresRepository);
         }
         if (entityClass.equals(PersonProjectLink.class)) {

@@ -16,7 +16,7 @@ import java.util.Properties;
 @Slf4j
 public class ProviderHelper {
 
-    public static DataSource getDataSource(String prefix, Environment env) {
+    public static DriverManagerDataSource getDataSource(String prefix, Environment env) {
         log.debug("Url: '{}', username: '{}', password: '{}'",
                 env.getProperty(prefix + "spring.datasource.url"),
                 env.getProperty(prefix + "spring.datasource.username"),
@@ -26,7 +26,6 @@ public class ProviderHelper {
         dataSource.setUsername(env.getProperty(prefix + "spring.datasource.username"));
         dataSource.setPassword(env.getProperty(prefix + "spring.datasource.password"));
         dataSource.setDriverClassName(Objects.requireNonNull(env.getProperty(prefix + "spring.datasource.driver-class-name")));
-
         return dataSource;
     }
 
