@@ -57,7 +57,7 @@ public class PersonPersistenceWorker extends AbstractPersistenceWorker<Person, I
         this.personMySQLRepository.save(personMySQLDAO);
 //        this.personOracleRepository.save(personOracleDAO);
         this.personPostgresRepository.save(personPostgresDAO);
-        return List.of(personMySQLDAO, personOracleDAO);
+        return List.of(personMySQLDAO, personOracleDAO, personPostgresDAO);
     }
 
     @Override
