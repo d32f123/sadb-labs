@@ -35,5 +35,6 @@ public class ProfessorPersistenceWorker extends AbstractPersistenceWorker<Profes
 
     @Override
     protected void doCommit() {
+        this.professorPostgresRepository.flush();
     }
 }
