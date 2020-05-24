@@ -111,7 +111,7 @@ public class PersistenceWorkerFactory {
             return new ConferencePersistenceWorker(generator, conferenceMySQLRepository);
         }
         if (entityClass.equals(ConferencePublicationLink.class)) {
-            return new ConferencePublicationLinkPersistenceWorker(generator);
+            return new ConferencePublicationLinkPersistenceWorker(generator, conferencePublicationLinkMySQLRepository);
         }
         if (entityClass.equals(Discipline.class)) {
             return new DisciplinePersistenceWorker(generator, disciplinePostgresRepository);
