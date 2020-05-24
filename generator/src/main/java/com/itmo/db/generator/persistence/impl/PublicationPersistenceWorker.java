@@ -30,7 +30,7 @@ public class PublicationPersistenceWorker extends AbstractPersistenceWorker<Publ
         );
 
         this.publicationMySQLRepository.save(publicationMySQLDAO);
-        return Collections.singletonList(publicationMySQLDAO);
+        return List.of(publicationMySQLDAO);
     }
 
     @Override

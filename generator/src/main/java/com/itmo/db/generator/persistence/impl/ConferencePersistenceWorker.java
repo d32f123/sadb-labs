@@ -29,7 +29,7 @@ public class ConferencePersistenceWorker extends AbstractPersistenceWorker<Confe
         );
 
         this.conferenceMySQLRepository.save(conferenceMySQLDAO);
-        return Collections.singletonList(conferenceMySQLDAO);
+        return List.of(conferenceMySQLDAO);
     }
 
     @Override

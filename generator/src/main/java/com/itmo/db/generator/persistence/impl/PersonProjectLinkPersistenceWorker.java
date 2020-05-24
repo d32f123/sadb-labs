@@ -36,7 +36,7 @@ public class PersonProjectLinkPersistenceWorker extends AbstractPersistenceWorke
         );
 
         this.personProjectLinkMySQLRepository.save(personProjectLinkMySQLDAO);
-        return Collections.singletonList(personProjectLinkMySQLDAO);
+        return List.of(personProjectLinkMySQLDAO);
     }
 
     @Override

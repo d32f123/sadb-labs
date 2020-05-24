@@ -28,7 +28,7 @@ public class UniversityPersistenceWorker extends AbstractPersistenceWorker<Unive
         );
 
         this.universityPostgresRepository.save(universityPostgresDAO);
-        return Collections.singletonList(universityPostgresDAO);
+        return List.of(universityPostgresDAO);
     }
 
     @Override

@@ -27,7 +27,7 @@ public class ProjectPersistenceWorker extends AbstractPersistenceWorker<Project,
         );
 
         this.projectMySQLRepository.save(projectMySQLDAO);
-        return Collections.singletonList(projectMySQLDAO);
+        return List.of(projectMySQLDAO);
     }
 
     @Override

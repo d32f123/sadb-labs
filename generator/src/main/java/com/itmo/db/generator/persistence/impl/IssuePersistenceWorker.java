@@ -31,7 +31,7 @@ public class IssuePersistenceWorker extends AbstractPersistenceWorker<Issue, Int
         );
 
         this.issueMySQLRepository.save(issueMySQLDAO);
-        return Collections.singletonList(issueMySQLDAO);
+        return List.of(issueMySQLDAO);
     }
 
     @Override

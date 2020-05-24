@@ -30,7 +30,7 @@ public class ProfessorPersistenceWorker extends AbstractPersistenceWorker<Profes
         );
 
         this.professorPostgresRepository.save(professorPostgresDAO);
-        return Collections.singletonList(professorPostgresDAO);
+        return List.of(professorPostgresDAO);
     }
 
     @Override

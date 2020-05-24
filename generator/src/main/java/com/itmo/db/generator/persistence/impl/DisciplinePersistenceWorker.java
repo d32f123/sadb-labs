@@ -31,7 +31,7 @@ public class DisciplinePersistenceWorker extends AbstractPersistenceWorker<Disci
         );
 
         this.disciplinePostgresRepository.save(disciplinePostgresDAO);
-        return Collections.singletonList(disciplinePostgresDAO);
+        return List.of(disciplinePostgresDAO);
     }
 
     @Override
