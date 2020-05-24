@@ -3,6 +3,7 @@ package com.itmo.db.generator.persistence;
 import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.model.entity.*;
 import com.itmo.db.generator.model.entity.link.*;
+import com.itmo.db.generator.persistence.db.mongo.repository.*;
 import com.itmo.db.generator.persistence.db.mysql.repository.*;
 import com.itmo.db.generator.persistence.db.oracle.repository.*;
 import com.itmo.db.generator.persistence.db.postgres.repository.*;
@@ -99,6 +100,11 @@ public class PersistenceWorkerFactory {
     private UniversityPostgresRepository universityPostgresRepository;
     //Postgres section END
 
+    // MongoDB section START
+    @Autowired
+    private DormitoryMongoRepository dormitoryMongoRepository;
+    // MongoDB section END
+
 
     public PersistenceWorkerFactory() {
     }
@@ -120,7 +126,7 @@ public class PersistenceWorkerFactory {
             return new DisciplinePersistenceWorker(generator, disciplinePostgresRepository);
         }
         if (entityClass.equals(Dormitory.class)) {
-            return new DormitoryPersistenceWorker(generator);
+            return new DormitoryPersistenceWorker(generator, dormitoryMongoRepository);
         }
         if (entityClass.equals(Faculty.class)) {
             return new FacultyPersistenceWorker(generator, facultyPostgresRepository);
