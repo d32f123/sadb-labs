@@ -1,7 +1,7 @@
 package com.itmo.db.generator.model.entity;
 
-import com.itmo.db.generator.persistence.db.oracle.annotations.Description;
 import com.itmo.db.generator.persistence.db.oracle.annotations.ItmoAttribute;
+import com.itmo.db.generator.persistence.db.oracle.annotations.ItmoEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,7 +11,7 @@ import java.util.Date;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Description(value = "Group of students")
+@ItmoEntity(description = "Group of students")
 public class Group implements NumericallyIdentifiableEntity {
 
     private Integer id;

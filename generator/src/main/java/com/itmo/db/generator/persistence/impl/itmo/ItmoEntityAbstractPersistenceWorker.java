@@ -4,8 +4,8 @@ import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.model.entity.AbstractEntity;
 import com.itmo.db.generator.persistence.AbstractPersistenceWorker;
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
-import com.itmo.db.generator.persistence.db.oracle.annotations.Description;
 import com.itmo.db.generator.persistence.db.oracle.annotations.ItmoAttribute;
+import com.itmo.db.generator.persistence.db.oracle.annotations.ItmoEntity;
 import com.itmo.db.generator.persistence.db.oracle.dao.*;
 import com.itmo.db.generator.persistence.db.oracle.repository.*;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,7 @@ import java.util.List;
 
 
 @Slf4j
-public abstract class ItmoEntityAbstractPersistenceWorker<T extends AbstractEntity<TId>, TId> extends AbstractPersistenceWorker<T, TId> {
+public class ItmoEntityAbstractPersistenceWorker<T extends AbstractEntity<TId>, TId> extends AbstractPersistenceWorker<T, TId> {
 
 
     protected final ItmoAttributeOracleRepository itmoAttributeOracleRepository;
@@ -126,7 +126,7 @@ public abstract class ItmoEntityAbstractPersistenceWorker<T extends AbstractEnti
         itmoIdMap.put(entityClass.getName(), generatedObjectTypeId);
         itmoObjectTypeOracleDAO.setId(generatedObjectTypeId);
         itmoObjectTypeOracleDAO.setName(entityClass.getName());
-        itmoObjectTypeOracleDAO.setDescription(entityClass.getAnnotation(Description.class).value());
+        itmoObjectTypeOracleDAO.setDescription(entityClass.getAnnotation(ItmoEntity.class).description());
         itmoObjectTypeOracleRepository.save(itmoObjectTypeOracleDAO);
         log.trace("Generated itmoObjectType: '{}'", itmoObjectTypeOracleDAO);
 

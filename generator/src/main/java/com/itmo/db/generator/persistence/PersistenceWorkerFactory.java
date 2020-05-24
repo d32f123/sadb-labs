@@ -5,12 +5,16 @@ import com.itmo.db.generator.model.entity.*;
 import com.itmo.db.generator.model.entity.link.*;
 import com.itmo.db.generator.persistence.db.mongo.repository.*;
 import com.itmo.db.generator.persistence.db.mysql.repository.*;
+import com.itmo.db.generator.persistence.db.oracle.annotations.ItmoEntity;
 import com.itmo.db.generator.persistence.db.oracle.repository.*;
 import com.itmo.db.generator.persistence.db.postgres.repository.*;
 import com.itmo.db.generator.persistence.impl.*;
+import com.itmo.db.generator.persistence.impl.itmo.ItmoEntityAbstractPersistenceWorker;
 import com.itmo.db.generator.persistence.impl.itmo.ItmoGroupPersistenceWorker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import javax.transaction.Transactional;
 
 @Component
 public class PersistenceWorkerFactory {
@@ -130,8 +134,8 @@ public class PersistenceWorkerFactory {
         if (entityClass.equals(Faculty.class)) {
             return new FacultyPersistenceWorker(generator, facultyPostgresRepository);
         }
-        if (entityClass.equals(Group.class)) {
-            return new GroupPersistenceWorker(generator, new ItmoGroupPersistenceWorker(Group.class, generator, itmoAttributeOracleRepository, itmoListValueOracleRepository, itmoObjectOracleRepository, itmoObjectTypeOracleRepository, itmoParamOracleRepository));
+        if (entityClass.isAnnotationPresent(ItmoEntity.class)) {
+            return new ItmoEntityAbstractPersistenceWorker(entityClass, generator, itmoAttributeOracleRepository, itmoListValueOracleRepository, itmoObjectOracleRepository, itmoObjectTypeOracleRepository, itmoParamOracleRepository);
         }
         if (entityClass.equals(Issue.class)) {
             return new IssuePersistenceWorker(generator, issueMySQLRepository);
