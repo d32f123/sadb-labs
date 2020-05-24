@@ -40,6 +40,9 @@ public class PersistenceWorkerFactory {
     private PersonProjectLinkMySQLRepository personProjectRepository;
 
     @Autowired
+    private PersonPublicationLinkMySQLRepository personPublicationLinkMySQLRepository;
+
+    @Autowired
     private ProjectMySQLRepository projectMySQLRepository;
 
     @Autowired
@@ -151,6 +154,9 @@ public class PersistenceWorkerFactory {
         }
         if (entityClass.equals(Publication.class)) {
             return new PublicationPersistenceWorker(generator, publicationMySQLRepository);
+        }
+        if (entityClass.equals(PersonPublicationLink.class)) {
+            return new PersonPublicationLinkPersistenceWorker(generator, personPublicationLinkMySQLRepository);
         }
         if (entityClass.equals(Room.class)) {
             return new RoomPersistenceWorker(generator);

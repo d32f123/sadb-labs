@@ -93,6 +93,9 @@ public class EntityGeneratorFactory {
         if (entityClass.equals(PersonGroupLink.class)) {
             return new PersonGroupLinkGenerator(deps, generator);
         }
+        if (entityClass.equals(PersonPublicationLink.class)) {
+            return new PersonPublicationLinkGenerator(deps, generator);
+        }
         if (entityClass.equals(PersonProjectLink.class)) {
             return new PersonProjectLinkGenerator(deps, generator);
         }
