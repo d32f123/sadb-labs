@@ -129,7 +129,7 @@ public class PersistenceWorkerFactory {
             return new IssuePersistenceWorker(generator, issueMySQLRepository);
         }
         if (entityClass.equals(IssuePublicationLink.class)) {
-            return new IssuePublicationLinkPersistenceWorker(generator);
+            return new IssuePublicationLinkPersistenceWorker(generator, issuePublicationLinkMySQLRepository);
         }
         if (entityClass.equals(LibraryRecord.class)) {
             return new LibraryRecordPersistenceWorker(generator, libraryRecordMySQLRepository);
