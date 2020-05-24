@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
+import java.util.Date;
 
 @Entity
 @Data
@@ -31,6 +31,6 @@ public class LibraryRecordMySQLDAO implements IdentifiableDAO<Long> {
     private String action;
 
     @Column(name = "action_date")
-    private Timestamp actionDate;
+    private Date actionDate;
 
 }

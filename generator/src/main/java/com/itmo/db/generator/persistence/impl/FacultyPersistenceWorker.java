@@ -32,7 +32,7 @@ public class FacultyPersistenceWorker extends AbstractPersistenceWorker<Faculty,
         );
 
         this.facultyPostgresRepository.save(facultyPostgresDAO);
-        return Collections.singletonList(facultyPostgresDAO);
+        return List.of(facultyPostgresDAO);
     }
 
     @Override

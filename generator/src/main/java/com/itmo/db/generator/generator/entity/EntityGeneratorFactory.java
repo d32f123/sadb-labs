@@ -81,7 +81,9 @@ public class EntityGeneratorFactory {
         if (entityClass.equals(University.class)) {
             return new UniversityGenerator(deps, generator);
         }
-
+        if (entityClass.equals(LibraryRecord.class)) {
+            return new LibraryRecordGenerator(deps, generator);
+        }
         if (entityClass.equals(ConferencePublicationLink.class)) {
             return new ConferencePublicationLinkGenerator(deps, generator);
         }

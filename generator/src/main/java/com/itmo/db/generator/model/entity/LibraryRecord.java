@@ -15,12 +15,7 @@ public class LibraryRecord implements NumericallyIdentifiableEntity {
     private Integer id;
     private Integer personId;
     private String bookId;
-    private Action action;
+    private String action;
     private Date actionDate;
-
-    public enum Action {
-        RETURNED,
-        BORROWED
-    }
 
 }

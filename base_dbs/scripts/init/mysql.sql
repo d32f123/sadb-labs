@@ -98,7 +98,7 @@ create table library_records
 (
     library_record_id SERIAL,
     person_id         BIGINT UNSIGNED NOT NULL,
-    book_id           BIGINT UNSIGNED NOT NULL,
+    book_id           VARCHAR(255)    NOT NULL,
     action            VARCHAR(10)     NOT NULL,
-    action_date       TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP
+    action_date       DATE            NOT NULL
 );
