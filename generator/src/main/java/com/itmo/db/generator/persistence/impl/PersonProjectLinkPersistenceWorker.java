@@ -11,7 +11,6 @@ import com.itmo.db.generator.persistence.db.mysql.dao.PersonProjectLinkMySQLDAO;
 import com.itmo.db.generator.persistence.db.mysql.dao.ProjectMySQLDAO;
 import com.itmo.db.generator.persistence.db.mysql.repository.PersonProjectLinkMySQLRepository;
 
-import java.util.Collections;
 import java.util.List;
 
 public class PersonProjectLinkPersistenceWorker extends AbstractPersistenceWorker<PersonProjectLink, PersonProjectLink.PersonProjectLinkPK> {

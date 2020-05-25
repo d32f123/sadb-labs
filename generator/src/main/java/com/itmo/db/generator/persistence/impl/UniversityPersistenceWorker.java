@@ -7,7 +7,6 @@ import com.itmo.db.generator.persistence.db.IdentifiableDAO;
 import com.itmo.db.generator.persistence.db.postgres.dao.UniversityPostgresDAO;
 import com.itmo.db.generator.persistence.db.postgres.repository.UniversityPostgresRepository;
 
-import java.util.Collections;
 import java.util.List;
 
 public class UniversityPersistenceWorker extends AbstractPersistenceWorker<University, Integer> {

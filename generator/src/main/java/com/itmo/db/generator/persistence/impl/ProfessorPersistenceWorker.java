@@ -1,13 +1,17 @@
 package com.itmo.db.generator.persistence.impl;
 
 import com.itmo.db.generator.generator.Generator;
-import com.itmo.db.generator.model.entity.*;
+import com.itmo.db.generator.model.entity.Faculty;
+import com.itmo.db.generator.model.entity.Person;
+import com.itmo.db.generator.model.entity.Professor;
 import com.itmo.db.generator.persistence.AbstractPersistenceWorker;
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
-import com.itmo.db.generator.persistence.db.postgres.dao.*;
-import com.itmo.db.generator.persistence.db.postgres.repository.*;
+import com.itmo.db.generator.persistence.db.postgres.dao.FacultyPostgresDAO;
+import com.itmo.db.generator.persistence.db.postgres.dao.PersonPostgresDAO;
+import com.itmo.db.generator.persistence.db.postgres.dao.ProfessorPostgresDAO;
+import com.itmo.db.generator.persistence.db.postgres.repository.ProfessorPostgresRepository;
 
-import java.util.*;
+import java.util.List;
 
 public class ProfessorPersistenceWorker extends AbstractPersistenceWorker<Professor, Integer> {
     private final ProfessorPostgresRepository professorPostgresRepository;
@@ -19,14 +23,9 @@ public class ProfessorPersistenceWorker extends AbstractPersistenceWorker<Profes
 
     @Override
     protected List<? extends IdentifiableDAO<?>> doPersist(Professor entity) {
-        PersonPostgresDAO personPostgresDAO = new PersonPostgresDAO(
-                this.getDependencyDAOId(Person.class, entity.getId(), PersonPostgresDAO.class), null, null, null, null
-        );
-        FacultyPostgresDAO facultyPostgresDAO = new FacultyPostgresDAO(
-                this.getDependencyDAOId(Faculty.class, entity.getFacultyId(), FacultyPostgresDAO.class), null, null
-        );
         ProfessorPostgresDAO professorPostgresDAO = new ProfessorPostgresDAO(
-                personPostgresDAO.getId(), personPostgresDAO, facultyPostgresDAO
+                this.getDependencyDAOId(Person.class, entity.getId(), PersonPostgresDAO.class),
+                this.getDependencyDAOId(Faculty.class, entity.getFacultyId(), FacultyPostgresDAO.class)
         );
 
         this.professorPostgresRepository.save(professorPostgresDAO);

@@ -51,7 +51,6 @@ public class PersistenceWorkerFactory {
     //MySQL section END
 
     //Oracle section START
-    // TODO: Redo with ObjectRepository and ParamsRepository
     @Autowired
     private ItmoObjectOracleRepository itmoObjectOracleRepository;
 

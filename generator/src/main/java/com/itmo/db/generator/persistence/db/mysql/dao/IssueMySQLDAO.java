@@ -19,18 +19,18 @@ public class IssueMySQLDAO implements IdentifiableDAO<Long> {
     @Column(name = "issue_id")
     private Long id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name")
     private String name;
 
-    @Column(name = "language", nullable = false)
+    @Column(name = "language")
     private String language;
 
     @Column(name = "location")
     private String location;
 
-    @Column(name = "length", nullable = false)
+    @Column(name = "length")
     private Integer length;
 
-    @Column(name = "format", nullable = false)
+    @Column(name = "format")
     private String format;
 }

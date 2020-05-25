@@ -19,16 +19,16 @@ public class PersonPostgresDAO implements IdentifiableDAO<Integer> {
     @Column(name = "person_id")
     private Integer id;
 
-    @Column(name = "last_name", nullable = false)
+    @Column(name = "last_name")
     private String lastName;
 
-    @Column(name = "first_name", nullable = false)
+    @Column(name = "first_name")
     private String firstName;
 
     @Column(name = "patronymic_name")
     private String patronymicName;
 
-    @Column(name = "role", nullable = false)
+    @Column(name = "role")
     private String role;
 
 }

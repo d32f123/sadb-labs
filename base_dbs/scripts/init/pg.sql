@@ -1,6 +1,6 @@
-create database db_itmo;
+-- create database db_itmo;
 
-\c db_itmo;
+-- \c db_itmo;
 
 drop table if exists student_semester_disciplines;
 drop table if exists student_infos;
@@ -32,7 +32,7 @@ create table faculties
 (
     faculty_id    serial primary key,
     university_id int not null references universities (university_id),
-    faculty_name  text unique not null
+    faculty_name text not null
 );
 
 create table specialties
@@ -40,7 +40,7 @@ create table specialties
     specialty_id   serial primary key,
     faculty_id     int not null references faculties (faculty_id),
     study_standard text not null,
-    specialty_name text unique not null
+    specialty_name text not null
 );
 
 create table persons

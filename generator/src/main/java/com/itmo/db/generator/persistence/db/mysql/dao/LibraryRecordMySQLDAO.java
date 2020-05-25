@@ -25,7 +25,7 @@ public class LibraryRecordMySQLDAO implements IdentifiableDAO<Long> {
     private PersonMySQLDAO person;
 
     @Column(name = "book_id")
-    private String bookId;
+    private Long bookId;
 
     @Column(name = "action")
     private String action;

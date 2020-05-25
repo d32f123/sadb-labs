@@ -5,7 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity
 @Data
@@ -15,16 +18,10 @@ import javax.persistence.*;
 public class ProfessorPostgresDAO implements IdentifiableDAO<Integer> {
 
     @Id
-    @JoinColumn(name = "person_id", referencedColumnName = "person_id")
+    @Column(name = "person_id")
     private Integer id;
 
-    @OneToOne
-    @MapsId
-    @JoinColumn(name = "person_id", referencedColumnName = "person_id")
-    private PersonPostgresDAO person;
-
-    @ManyToOne
-    @JoinColumn(name = "faculty_id", referencedColumnName = "faculty_id")
-    private FacultyPostgresDAO faculty;
+    @Column(name = "faculty_id")
+    private Integer faculty;
 
 }

@@ -19,7 +19,7 @@ public class FacultyPostgresDAO implements IdentifiableDAO<Integer> {
     @Column(name = "faculty_id")
     private Integer id;
 
-    @Column(name = "faculty_name", nullable = false, unique = true)
+    @Column(name = "faculty_name")
     private String facultyName;
 
     @ManyToOne

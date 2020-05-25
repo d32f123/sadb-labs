@@ -28,6 +28,7 @@ public abstract class AbstractEntityGenerator<T extends AbstractEntity<TId>, TId
     private final Object instanceCreationMonitor;
     private final Object runMonitor;
     private boolean shouldContinue;
+    private boolean noDependantsLeft;
 
     @Data
     @AllArgsConstructor
@@ -84,6 +85,15 @@ public abstract class AbstractEntityGenerator<T extends AbstractEntity<TId>, TId
                                 entityClass, depWithMeta.amount, depWithMeta.entityClass);
                         depWithMeta.getPoolInstance().request(depWithMeta.getAmount(), (entities) -> {
                             log.trace("Got entities for '{}'", depWithMeta.entityClass);
+                            synchronized (this.runMonitor) {
+                                if (this.noDependantsLeft) {
+                                    return;
+                                }
+                                if (entities == null || entities.size() != depWithMeta.getAmount()) {
+                                    this.noDependantsLeft = true;
+                                    this.runMonitor.notify();
+                                }
+                            }
                             synchronized (this.instanceCreationMonitor) {
                                 depWithMeta.setEntityValues((List) entities);
                                 this.instancesCreated += 1;

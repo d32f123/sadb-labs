@@ -20,10 +20,10 @@ public class ConferenceMySQLDAO implements IdentifiableDAO<Long> {
     @Column(name = "conference_id")
     private Long id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name")
     private String name;
 
-    @Column(name = "location", nullable = false)
+    @Column(name = "location")
     private String location;
 
     @Column(name = "date")

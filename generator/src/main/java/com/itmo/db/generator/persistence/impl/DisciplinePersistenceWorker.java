@@ -7,7 +7,6 @@ import com.itmo.db.generator.persistence.db.IdentifiableDAO;
 import com.itmo.db.generator.persistence.db.postgres.dao.DisciplinePostgresDAO;
 import com.itmo.db.generator.persistence.db.postgres.repository.DisciplinePostgresRepository;
 
-import java.util.Collections;
 import java.util.List;
 
 public class DisciplinePersistenceWorker extends AbstractPersistenceWorker<Discipline, Integer> {

@@ -1,13 +1,14 @@
 package com.itmo.db.generator.persistence.impl;
 
 import com.itmo.db.generator.generator.Generator;
-import com.itmo.db.generator.model.entity.*;
+import com.itmo.db.generator.model.entity.Faculty;
+import com.itmo.db.generator.model.entity.University;
 import com.itmo.db.generator.persistence.AbstractPersistenceWorker;
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
-import com.itmo.db.generator.persistence.db.postgres.dao.*;
+import com.itmo.db.generator.persistence.db.postgres.dao.FacultyPostgresDAO;
+import com.itmo.db.generator.persistence.db.postgres.dao.UniversityPostgresDAO;
 import com.itmo.db.generator.persistence.db.postgres.repository.FacultyPostgresRepository;
 
-import java.util.Collections;
 import java.util.List;
 
 public class FacultyPersistenceWorker extends AbstractPersistenceWorker<Faculty, Integer> {

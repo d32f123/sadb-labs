@@ -19,7 +19,7 @@ public class ProjectMySQLDAO implements IdentifiableDAO<Long> {
     @Column(name = "project_id")
     private Long id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name")
     private String name;
 
 }

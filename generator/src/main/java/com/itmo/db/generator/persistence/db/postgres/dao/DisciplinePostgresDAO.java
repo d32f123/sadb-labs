@@ -19,10 +19,10 @@ public class DisciplinePostgresDAO implements IdentifiableDAO<Integer> {
     @Column(name = "discipline_id")
     private Integer id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name")
     private String name;
 
-    @Column(name = "control_form", nullable = false)
+    @Column(name = "control_form")
     private String controlForm;
 
     @Column(name = "lecture_hours")

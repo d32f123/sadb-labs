@@ -7,7 +7,6 @@ import com.itmo.db.generator.persistence.db.IdentifiableDAO;
 import com.itmo.db.generator.persistence.db.mysql.dao.PublicationMySQLDAO;
 import com.itmo.db.generator.persistence.db.mysql.repository.PublicationMySQLRepository;
 
-import java.util.Collections;
 import java.util.List;
 
 public class PublicationPersistenceWorker extends AbstractPersistenceWorker<Publication, Integer> {

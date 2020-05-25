@@ -20,10 +20,10 @@ public class PublicationMySQLDAO implements IdentifiableDAO<Long> {
     @Column(name = "publication_id")
     private Long id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name")
     private String name;
 
-    @Column(name = "language", nullable = false)
+    @Column(name = "language")
     private String language;
 
     @Column(name = "citation_index")

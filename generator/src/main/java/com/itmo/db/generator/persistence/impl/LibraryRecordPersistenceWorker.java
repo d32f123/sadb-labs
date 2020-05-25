@@ -1,11 +1,13 @@
 package com.itmo.db.generator.persistence.impl;
 
 import com.itmo.db.generator.generator.Generator;
-import com.itmo.db.generator.model.entity.*;
+import com.itmo.db.generator.model.entity.LibraryRecord;
+import com.itmo.db.generator.model.entity.Person;
 import com.itmo.db.generator.persistence.AbstractPersistenceWorker;
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
-import com.itmo.db.generator.persistence.db.mysql.dao.*;
-import com.itmo.db.generator.persistence.db.mysql.repository.*;
+import com.itmo.db.generator.persistence.db.mysql.dao.LibraryRecordMySQLDAO;
+import com.itmo.db.generator.persistence.db.mysql.dao.PersonMySQLDAO;
+import com.itmo.db.generator.persistence.db.mysql.repository.LibraryRecordMySQLRepository;
 
 import java.util.List;
 

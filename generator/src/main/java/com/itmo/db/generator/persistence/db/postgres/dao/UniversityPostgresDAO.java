@@ -20,7 +20,7 @@ public class UniversityPostgresDAO implements IdentifiableDAO<Integer> {
     @Column(name = "university_id")
     private Integer id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name")
     private String name;
 
     @Column(name = "creation_date")
