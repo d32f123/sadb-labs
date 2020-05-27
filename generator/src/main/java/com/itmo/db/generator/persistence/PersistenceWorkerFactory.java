@@ -174,7 +174,7 @@ public class PersistenceWorkerFactory {
             return new ScheduleRecordPersistenceWorker(generator);
         }
         if (entityClass.equals(Semester.class)) {
-            return new SemesterPersistenceWorker(generator);
+            return new SemesterPersistenceWorker(generator, semesterPostgresRepository);
         }
         if (entityClass.equals(SpecialtyDisciplineLink.class)) {
             return new SpecialtyDisciplineLinkPersistenceWorker(generator, specialtyDisciplineLinkPostgresRepository);
