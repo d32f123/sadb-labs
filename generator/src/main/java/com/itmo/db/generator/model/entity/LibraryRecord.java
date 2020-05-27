@@ -14,7 +14,7 @@ public class LibraryRecord implements NumericallyIdentifiableEntity {
 
     private Integer id;
     private Integer personId;
-    private Integer bookId;
+    private String bookId;
     private String action;
     private Date actionDate;
 
