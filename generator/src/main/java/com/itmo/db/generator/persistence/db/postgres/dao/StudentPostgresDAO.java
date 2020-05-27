@@ -15,17 +15,11 @@ import javax.persistence.*;
 public class StudentPostgresDAO implements IdentifiableDAO<Integer> {
 
     @Id
-    @JoinColumn(name = "person_id", referencedColumnName = "person_id")
+    @Column(name = "person_id")
     private Integer id;
 
-    @OneToOne
-    @MapsId
-    @JoinColumn(name = "person_id", referencedColumnName = "person_id")
-    private PersonPostgresDAO person;
-
-    @ManyToOne
-    @JoinColumn(name = "specialty_id", referencedColumnName = "specialty_id")
-    private SpecialtyPostgresDAO specialty;
+    @Column(name = "specialty_id")
+    private Integer specialty;
 
     @Column(name = "study_type")
     private String studyType;

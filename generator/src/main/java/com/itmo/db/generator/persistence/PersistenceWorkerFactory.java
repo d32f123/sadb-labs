@@ -183,7 +183,7 @@ public class PersistenceWorkerFactory {
             return new SpecialtyPersistenceWorker(generator, specialtyPostgresRepository);
         }
         if (entityClass.equals(Student.class)) {
-            return new StudentPersistenceWorker(generator);
+            return new StudentPersistenceWorker(generator, studentPostgresRepository);
         }
         if (entityClass.equals(StudentSemesterDiscipline.class)) {
             return new StudentSemesterDisciplinePersistenceWorker(generator);
