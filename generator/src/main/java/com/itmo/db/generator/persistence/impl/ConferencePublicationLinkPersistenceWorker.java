@@ -1,11 +1,14 @@
 package com.itmo.db.generator.persistence.impl;
 
 import com.itmo.db.generator.generator.Generator;
-import com.itmo.db.generator.model.entity.*;
-import com.itmo.db.generator.model.entity.link.*;
+import com.itmo.db.generator.model.entity.Conference;
+import com.itmo.db.generator.model.entity.Publication;
+import com.itmo.db.generator.model.entity.link.ConferencePublicationLink;
 import com.itmo.db.generator.persistence.AbstractPersistenceWorker;
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
-import com.itmo.db.generator.persistence.db.mysql.dao.*;
+import com.itmo.db.generator.persistence.db.mysql.dao.ConferenceMySQLDAO;
+import com.itmo.db.generator.persistence.db.mysql.dao.ConferencePublicationLinkMySQLDAO;
+import com.itmo.db.generator.persistence.db.mysql.dao.PublicationMySQLDAO;
 import com.itmo.db.generator.persistence.db.mysql.repository.ConferencePublicationLinkMySQLRepository;
 
 import java.util.List;
@@ -22,17 +25,9 @@ public class ConferencePublicationLinkPersistenceWorker
 
     @Override
     protected List<? extends IdentifiableDAO<?>> doPersist(ConferencePublicationLink entity) {
-        ConferenceMySQLDAO conferenceMySQLDAO = new ConferenceMySQLDAO(
-                this.getDependencyDAOId(Conference.class, entity.getId().getConferenceId(), ConferenceMySQLDAO.class),
-                null, null, null
-        );
-        PublicationMySQLDAO publicationMySQLDAO = new PublicationMySQLDAO(
-                this.getDependencyDAOId(Publication.class, entity.getId().getPublicationId(), PublicationMySQLDAO.class),
-                null, null, null, null
-        );
-
         ConferencePublicationLinkMySQLDAO conferencePublicationLinkMySQLDAO = new ConferencePublicationLinkMySQLDAO(
-                conferenceMySQLDAO, publicationMySQLDAO
+                this.getDependencyDAOId(Conference.class, entity.getId().getConferenceId(), ConferenceMySQLDAO.class),
+                this.getDependencyDAOId(Publication.class, entity.getId().getPublicationId(), PublicationMySQLDAO.class)
         );
 
         this.repository.save(conferencePublicationLinkMySQLDAO);

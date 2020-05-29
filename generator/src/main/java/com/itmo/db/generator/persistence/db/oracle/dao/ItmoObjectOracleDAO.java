@@ -24,11 +24,9 @@ public class ItmoObjectOracleDAO implements IdentifiableDAO<Long> {
     @Column(name = "name")
     private String name;
 
-    @ManyToOne
-    @JoinColumn(name = "object_type_id", referencedColumnName = "id")
-    private ItmoObjectTypeOracleDAO itmoObjectTypeOracleDAO;
+    @Column(name = "object_type_id")
+    private Long objectTypeId;
 
-    @ManyToOne
-    @JoinColumn(name = "parent_id", referencedColumnName = "id")
-    private ItmoObjectOracleDAO parent;
+    @Column(name = "parent_id")
+    private Long parentId;
 }

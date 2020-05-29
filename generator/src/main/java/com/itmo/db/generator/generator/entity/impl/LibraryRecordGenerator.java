@@ -3,17 +3,18 @@ package com.itmo.db.generator.generator.entity.impl;
 import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.generator.entity.AbstractEntityGenerator;
 import com.itmo.db.generator.generator.model.DependencyDefinition;
-import com.itmo.db.generator.model.entity.*;
+import com.itmo.db.generator.model.entity.LibraryRecord;
+import com.itmo.db.generator.model.entity.Person;
 
 import java.util.*;
 
 public class LibraryRecordGenerator extends AbstractEntityGenerator<LibraryRecord, Integer> {
-    public int getBookId(Random random) {
-        int bookId = 0;
+    public String getBookId(Random random) {
+        StringBuilder bookId = new StringBuilder();
         for (int i = 0; i < 8; i++) {
-            bookId += ((char)((int)'A' + random.nextInt(20)));
+            bookId.append((char) ((int) 'A' + random.nextInt(20)));
         }
-        return bookId;
+        return bookId.toString();
     }
 
     public String getAction(Random random) {

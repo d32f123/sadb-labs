@@ -20,9 +20,8 @@ public class LibraryRecordMySQLDAO implements IdentifiableDAO<Long> {
     @Column(name = "library_record_id")
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "person_id", referencedColumnName = "person_id")
-    private PersonMySQLDAO person;
+    @Column(name = "person_id")
+    private Long personId;
 
     @Column(name = "book_id")
     private String bookId;

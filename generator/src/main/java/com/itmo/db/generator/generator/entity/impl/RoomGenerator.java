@@ -3,7 +3,8 @@ package com.itmo.db.generator.generator.entity.impl;
 import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.generator.entity.AbstractEntityGenerator;
 import com.itmo.db.generator.generator.model.DependencyDefinition;
-import com.itmo.db.generator.model.entity.*;
+import com.itmo.db.generator.model.entity.Dormitory;
+import com.itmo.db.generator.model.entity.Room;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
@@ -39,7 +40,7 @@ public class RoomGenerator extends AbstractEntityGenerator<Room, Integer> {
         Random random = new Random();
 
         short capacity = getCapacity(random);
-        Boolean bugs = random.nextBoolean();
+        boolean bugs = random.nextBoolean();
         Dormitory dormitory = this.getDependencyInstances(Dormitory.class).get(0);
 
         return List.of(new Room(

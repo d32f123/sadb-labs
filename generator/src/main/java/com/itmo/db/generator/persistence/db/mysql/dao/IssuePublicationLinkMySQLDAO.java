@@ -25,19 +25,17 @@ public class IssuePublicationLinkMySQLDAO implements IdentifiableDAO<IssuePublic
     }
 
     @Id
-    @ManyToOne
-    @JoinColumn(name = "issue_id", referencedColumnName = "issue_id")
-    private IssueMySQLDAO issue;
+    @Column(name = "issue_id")
+    private Long issueId;
 
     @Id
-    @ManyToOne
-    @JoinColumn(name = "publication_id", referencedColumnName = "publication_id")
-    private PublicationMySQLDAO publication;
+    @Column(name = "publication_id")
+    private Long publicationId;
 
     public IssuePublicationLinkPK getId() {
         return new IssuePublicationLinkPK(
-                this.issue != null ? this.issue.getId() : null,
-                this.publication != null ? this.publication.getId() : null
+                this.issueId,
+                this.publicationId
         );
     }
 

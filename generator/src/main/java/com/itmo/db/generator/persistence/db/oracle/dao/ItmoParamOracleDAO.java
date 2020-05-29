@@ -21,19 +21,16 @@ public class ItmoParamOracleDAO implements IdentifiableDAO<Long> {
     @Column(name = "id")
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "object_id", referencedColumnName = "id")
-    private ItmoObjectOracleDAO itmoObjectOracleDAO;
+    @Column(name = "object_id")
+    private Long objectId;
 
-    @ManyToOne
-    @JoinColumn(name = "attribute_id", referencedColumnName = "id")
-    private ItmoAttributeOracleDAO itmoAttributeOracleDAO;
+    @Column(name = "attribute_id")
+    private Long attributeId;
 
     @Column(name = "value")
     private String value;
 
-    @ManyToOne
-    @JoinColumn(name = "list_value_id", referencedColumnName = "id")
-    private ItmoListValueOracleDAO itmoListValueOracleDAO;
+    @Column(name = "list_value_id")
+    private Long listValueId;
 
 }

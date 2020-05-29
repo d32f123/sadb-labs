@@ -20,16 +20,12 @@ public class GroupPersistenceWorker extends AbstractPersistenceWorker<Group, Int
 
     @Override
     protected List<? extends IdentifiableDAO<?>> doPersist(Group entity) {
-
         ItmoObjectOracleDAO savedOracleGroup = this.itmoGroupPersistenceWorker.persist(entity);
-
-//        this.groupOracleRepository.save(groupOracleDAO);
         return List.of(savedOracleGroup);
     }
 
     @Override
     protected void doCommit() {
         this.itmoGroupPersistenceWorker.commit();
-//        this.groupOracleRepository.flush();
     }
 }

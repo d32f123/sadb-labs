@@ -25,19 +25,16 @@ public class ConferencePublicationLinkMySQLDAO implements IdentifiableDAO<Confer
     }
 
     @Id
-    @ManyToOne
-    @JoinColumn(name = "conference_id", referencedColumnName = "conference_id")
-    private ConferenceMySQLDAO conference;
+    @Column(name = "conference_id")
+    private Long conference_id;
 
     @Id
-    @ManyToOne
-    @JoinColumn(name = "publication_id", referencedColumnName = "publication_id")
-    private PublicationMySQLDAO publication;
+    @Column(name = "publication_id")
+    private Long publication_id;
 
     public ConferencePublicationLinkPK getId() {
         return new ConferencePublicationLinkPK(
-                this.conference != null ? this.conference.getId() : null,
-                this.publication != null ? this.publication.getId() : null
+                this.conference_id, this.publication_id
         );
     }
 

@@ -25,8 +25,7 @@ public class SpecialtyPostgresDAO implements IdentifiableDAO<Integer> {
     @Column(name = "study_standard")
     private String studyStandard;
 
-    @ManyToOne
-    @JoinColumn(name = "faculty_id", referencedColumnName = "faculty_id")
-    private FacultyPostgresDAO faculty;
+    @Column(name = "faculty_id")
+    private Integer facultyId;
 
 }

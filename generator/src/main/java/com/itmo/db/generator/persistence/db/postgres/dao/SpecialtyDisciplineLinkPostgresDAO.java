@@ -17,18 +17,16 @@ import java.io.Serializable;
 public class SpecialtyDisciplineLinkPostgresDAO implements IdentifiableDAO<SpecialtyDisciplineLinkPostgresDAO.SpecialtyDisciplineLinkPK> {
 
     @Id
-    @ManyToOne
-    @JoinColumn(name = "specialty_id", referencedColumnName = "specialty_id")
-    private SpecialtyPostgresDAO specialty;
+    @Column(name = "specialty_id")
+    private Integer specialtyId;
     @Id
-    @ManyToOne
-    @JoinColumn(name = "discipline_id", referencedColumnName = "discipline_id")
-    private DisciplinePostgresDAO discipline;
+    @Column(name = "discipline_id")
+    private Integer disciplineId;
 
     public SpecialtyDisciplineLinkPK getId() {
         return new SpecialtyDisciplineLinkPK(
-                this.specialty != null ? this.specialty.getId() : null,
-                this.discipline != null ? this.discipline.getId() : null
+                this.specialtyId,
+                this.disciplineId
         );
     }
 

@@ -22,14 +22,10 @@ public class FacultyPersistenceWorker extends AbstractPersistenceWorker<Faculty,
 
     @Override
     protected List<? extends IdentifiableDAO<?>> doPersist(Faculty entity) {
-        UniversityPostgresDAO universityPostgresDAO = new UniversityPostgresDAO(
-                this.getDependencyDAOId(University.class, entity.getUniversityId(), UniversityPostgresDAO.class), null, null
-        );
-
         FacultyPostgresDAO facultyPostgresDAO = new FacultyPostgresDAO(
                 null,
                 entity.getFacultyName(),
-                universityPostgresDAO
+                this.getDependencyDAOId(University.class, entity.getUniversityId(), UniversityPostgresDAO.class)
         );
 
         this.facultyPostgresRepository.save(facultyPostgresDAO);

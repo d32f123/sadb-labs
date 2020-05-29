@@ -18,20 +18,16 @@ import java.util.Date;
 public class StudentSemesterDisciplinePostgresDAO implements IdentifiableDAO<StudentSemesterDisciplinePostgresDAO.StudentSemesterDisciplinePostgresPK> {
 
     @Id
-    @ManyToOne
-    @JoinColumn(name = "student_id", referencedColumnName = "person_id")
-    private StudentPostgresDAO student;
+    @Column(name = "student_id")
+    private Integer studentId;
     @Id
-    @ManyToOne
-    @JoinColumn(name = "semester_id", referencedColumnName = "semester_id")
-    private SemesterPostgresDAO semester;
+    @Column(name = "semester_id")
+    private Integer semesterId;
     @Id
-    @ManyToOne
-    @JoinColumn(name = "discipline_id", referencedColumnName = "discipline_id")
-    private DisciplinePostgresDAO discipline;
-    @ManyToOne
-    @JoinColumn(name = "professor_id", referencedColumnName = "person_id")
-    private ProfessorPostgresDAO professor;
+    @Column(name = "discipline_id")
+    private Integer disciplineId;
+    @Column(name = "professor_id")
+    private Integer professorId;
     @Column(name = "semester_counter")
     private Integer semesterCounter;
     @Column(name = "score")
@@ -42,9 +38,9 @@ public class StudentSemesterDisciplinePostgresDAO implements IdentifiableDAO<Stu
     @Override
     public StudentSemesterDisciplinePostgresPK getId() {
         return new StudentSemesterDisciplinePostgresPK(
-                this.student != null ? this.student.getId() : null,
-                this.semester != null ? this.semester.getId() : null,
-                this.discipline != null ? this.discipline.getId() : null
+                this.studentId,
+                this.semesterId,
+                this.disciplineId
         );
     }
 

@@ -4,7 +4,6 @@ import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.generator.entity.AbstractEntityGenerator;
 import com.itmo.db.generator.generator.model.DependencyDefinition;
 import com.itmo.db.generator.model.entity.Group;
-import com.itmo.db.generator.model.entity.Person;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
@@ -47,7 +46,7 @@ public class GroupGenerator extends AbstractEntityGenerator<Group, Integer> {
         Calendar endDate = getEndDate(startDate);
 
         return List.of(new Group(
-                null, getName(random, course), String.valueOf(course) + " курс", startDate.getTime(), endDate.getTime()
+                null, getName(random, course), course + " курс", startDate.getTime(), endDate.getTime()
         ));
     }
 }

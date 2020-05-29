@@ -4,7 +4,7 @@ import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.generator.entity.AbstractEntityGenerator;
 import com.itmo.db.generator.generator.model.DependencyDefinition;
 import com.itmo.db.generator.model.entity.AcademicRecord;
-import com.itmo.db.generator.model.entity.AcademicRecord;
+import com.itmo.db.generator.model.entity.Person;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
@@ -95,7 +95,7 @@ public class AcademicRecordGenerator extends AbstractEntityGenerator<AcademicRec
 
         return List.of(new AcademicRecord(
                 null,
-                null,
+                this.getDependencyInstances(Person.class).get(0).getId(),
                 academicYear.getTime(),
                 getDegree(random),
                 getBudget(random),

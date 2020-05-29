@@ -23,12 +23,12 @@ public class LibraryRecordPersistenceWorker extends AbstractPersistenceWorker<Li
 
     @Override
     protected List<? extends IdentifiableDAO<?>> doPersist(LibraryRecord entity) {
-        PersonMySQLDAO personMySqlDAO = new PersonMySQLDAO(
-                this.getDependencyDAOId(Person.class, entity.getPersonId(), PersonMySQLDAO.class), null, null, null, null
-        );
-
         LibraryRecordMySQLDAO dao = new LibraryRecordMySQLDAO(
-                null, personMySqlDAO, entity.getBookId(), entity.getAction(), entity.getActionDate()
+                null,
+                this.getDependencyDAOId(Person.class, entity.getPersonId(), PersonMySQLDAO.class),
+                entity.getBookId(),
+                entity.getAction(),
+                entity.getActionDate()
         );
 
         this.libraryRecordMySQLRepository.save(dao);

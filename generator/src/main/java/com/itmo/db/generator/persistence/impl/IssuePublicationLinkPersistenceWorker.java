@@ -1,12 +1,15 @@
 package com.itmo.db.generator.persistence.impl;
 
 import com.itmo.db.generator.generator.Generator;
-import com.itmo.db.generator.model.entity.*;
+import com.itmo.db.generator.model.entity.Issue;
+import com.itmo.db.generator.model.entity.Publication;
 import com.itmo.db.generator.model.entity.link.IssuePublicationLink;
 import com.itmo.db.generator.persistence.AbstractPersistenceWorker;
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
-import com.itmo.db.generator.persistence.db.mysql.dao.*;
-import com.itmo.db.generator.persistence.db.mysql.repository.*;
+import com.itmo.db.generator.persistence.db.mysql.dao.IssueMySQLDAO;
+import com.itmo.db.generator.persistence.db.mysql.dao.IssuePublicationLinkMySQLDAO;
+import com.itmo.db.generator.persistence.db.mysql.dao.PublicationMySQLDAO;
+import com.itmo.db.generator.persistence.db.mysql.repository.IssuePublicationLinkMySQLRepository;
 
 import java.util.List;
 
@@ -22,17 +25,9 @@ public class IssuePublicationLinkPersistenceWorker
 
     @Override
     protected List<? extends IdentifiableDAO<?>> doPersist(IssuePublicationLink entity) {
-        IssueMySQLDAO issueMySQLDAO = new IssueMySQLDAO(
-                this.getDependencyDAOId(Issue.class, entity.getId().getIssueId(), IssueMySQLDAO.class),
-                null, null, null, null, null
-        );
-        PublicationMySQLDAO publicationMySQLDAO = new PublicationMySQLDAO(
-                this.getDependencyDAOId(Publication.class, entity.getId().getPublicationId(), PublicationMySQLDAO.class),
-                null, null, null, null
-        );
-
         IssuePublicationLinkMySQLDAO issuePublicationLinkMySQLDAO = new IssuePublicationLinkMySQLDAO(
-                issueMySQLDAO, publicationMySQLDAO
+                this.getDependencyDAOId(Issue.class, entity.getId().getIssueId(), IssueMySQLDAO.class),
+                this.getDependencyDAOId(Publication.class, entity.getId().getPublicationId(), PublicationMySQLDAO.class)
         );
 
         this.repository.save(issuePublicationLinkMySQLDAO);

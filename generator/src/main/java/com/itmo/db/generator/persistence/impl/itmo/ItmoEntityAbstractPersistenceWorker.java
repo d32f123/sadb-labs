@@ -74,14 +74,8 @@ public class ItmoEntityAbstractPersistenceWorker<T extends AbstractEntity<TId>, 
         ItmoObjectOracleDAO itmoObjectOracleDAO =
                 ItmoObjectOracleDAO.builder()
                         .name(String.valueOf(callGetter(entity, "name")))
-                        .itmoObjectTypeOracleDAO(
-                                new ItmoObjectTypeOracleDAO(
-                                        this.itmoIdMap.get(entity.getClass().getName()),
-                                        null,
-                                        null
-                                )
-                        )
-                        .parent(null)
+                        .objectTypeId(this.itmoIdMap.get(entity.getClass().getName()))
+                        .parentId(null)
                         .build();
 
         this.itmoObjectOracleRepository.save(itmoObjectOracleDAO);
@@ -90,21 +84,19 @@ public class ItmoEntityAbstractPersistenceWorker<T extends AbstractEntity<TId>, 
                 .filter(field -> field.isAnnotationPresent(ItmoAttribute.class))
                 .forEach(field -> {
                     ItmoParamOracleDAO itmoParamOracleDAO = ItmoParamOracleDAO.builder()
-                            .itmoAttributeOracleDAO(
-                                    new ItmoAttributeOracleDAO(this.itmoIdMap.get(getFieldQualifiedName(field)), null, null)
-                            )
+                            .attributeId(this.itmoIdMap.get(getFieldQualifiedName(field)))
                             .value(field.getType().isAssignableFrom(Enum.class)
                                     ? null
                                     : String.valueOf(callGetter(entity, field.getName()))
                             )
-                            .itmoListValueOracleDAO(field.getType().isAssignableFrom(Enum.class)
-                                    ? new ItmoListValueOracleDAO(this.itmoIdMap.get(getFieldQualifiedName(field)), null)
+                            .listValueId(field.getType().isAssignableFrom(Enum.class)
+                                    ? this.itmoIdMap.get(getFieldQualifiedName(field))
                                     : null
                             )
-                            .itmoObjectOracleDAO(itmoObjectOracleDAO)
+                            .objectId(itmoObjectOracleDAO.getId())
                             .build();
                     itmoParamOracleDAOS.add(itmoParamOracleDAO);
-                    log.debug("Adding: " + itmoParamOracleDAO.getItmoAttributeOracleDAO().getId().toString());
+                    log.debug("Adding: " + itmoParamOracleDAO.getAttributeId().toString());
                 });
 
         this.itmoParamOracleRepository.saveAll(itmoParamOracleDAOS);

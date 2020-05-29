@@ -3,9 +3,11 @@ package com.itmo.db.generator.persistence;
 import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.model.entity.*;
 import com.itmo.db.generator.model.entity.link.*;
-import com.itmo.db.generator.persistence.db.mongo.repository.*;
+import com.itmo.db.generator.persistence.db.mongo.repository.AccommodationRecordMongoRepository;
+import com.itmo.db.generator.persistence.db.mongo.repository.DormitoryMongoRepository;
+import com.itmo.db.generator.persistence.db.mongo.repository.PersonMongoRepository;
+import com.itmo.db.generator.persistence.db.mongo.repository.RoomMongoRepository;
 import com.itmo.db.generator.persistence.db.mysql.repository.*;
-import com.itmo.db.generator.persistence.db.oracle.annotations.ItmoEntity;
 import com.itmo.db.generator.persistence.db.oracle.repository.*;
 import com.itmo.db.generator.persistence.db.postgres.repository.*;
 import com.itmo.db.generator.persistence.impl.*;
@@ -14,110 +16,159 @@ import com.itmo.db.generator.persistence.impl.itmo.ItmoGroupPersistenceWorker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.transaction.Transactional;
-
 @Component
 public class PersistenceWorkerFactory {
 
-    @Autowired
-    private Generator generator;
+    private final Generator generator;
 
     //MySQL section START
-    @Autowired
-    private ConferenceMySQLRepository conferenceMySQLRepository;
+    private final ConferenceMySQLRepository conferenceMySQLRepository;
 
-    @Autowired
-    private ConferencePublicationLinkMySQLRepository conferencePublicationLinkMySQLRepository;
+    private final ConferencePublicationLinkMySQLRepository conferencePublicationLinkMySQLRepository;
 
-    @Autowired
-    private IssueMySQLRepository issueMySQLRepository;
+    private final IssueMySQLRepository issueMySQLRepository;
 
-    @Autowired
-    private IssuePublicationLinkMySQLRepository issuePublicationLinkMySQLRepository;
+    private final IssuePublicationLinkMySQLRepository issuePublicationLinkMySQLRepository;
 
-    @Autowired
-    private LibraryRecordMySQLRepository libraryRecordMySQLRepository;
+    private final LibraryRecordMySQLRepository libraryRecordMySQLRepository;
 
-    @Autowired
-    private PersonMySQLRepository personMySQLRepository;
+    private final PersonMySQLRepository personMySQLRepository;
 
-    @Autowired
-    private PersonProjectLinkMySQLRepository personProjectRepository;
+    private final PersonProjectLinkMySQLRepository personProjectRepository;
 
-    @Autowired
-    private PersonPublicationLinkMySQLRepository personPublicationLinkMySQLRepository;
+    private final PersonPublicationLinkMySQLRepository personPublicationLinkMySQLRepository;
 
-    @Autowired
-    private ProjectMySQLRepository projectMySQLRepository;
+    private final ProjectMySQLRepository projectMySQLRepository;
 
-    @Autowired
-    private PublicationMySQLRepository publicationMySQLRepository;
+    private final PublicationMySQLRepository publicationMySQLRepository;
     //MySQL section END
 
     //Oracle section START
-    @Autowired
-    private ItmoObjectOracleRepository itmoObjectOracleRepository;
+    private final ItmoObjectOracleRepository itmoObjectOracleRepository;
 
-    @Autowired
-    private ItmoObjectTypeOracleRepository itmoObjectTypeOracleRepository;
+    private final ItmoObjectTypeOracleRepository itmoObjectTypeOracleRepository;
 
-    @Autowired
-    private ItmoAttributeOracleRepository itmoAttributeOracleRepository;
+    private final ItmoAttributeOracleRepository itmoAttributeOracleRepository;
 
-    @Autowired
-    private ItmoParamOracleRepository itmoParamOracleRepository;
+    private final ItmoParamOracleRepository itmoParamOracleRepository;
 
-    @Autowired
-    private ItmoListValueOracleRepository itmoListValueOracleRepository;
+    private final ItmoListValueOracleRepository itmoListValueOracleRepository;
     //Oracle section END
 
     //Postgres section START
-    @Autowired
-    private DisciplinePostgresRepository disciplinePostgresRepository;
+    private final DisciplinePostgresRepository disciplinePostgresRepository;
 
-    @Autowired
-    private FacultyPostgresRepository facultyPostgresRepository;
+    private final FacultyPostgresRepository facultyPostgresRepository;
 
-    @Autowired
-    private PersonPostgresRepository personPostgresRepository;
+    private final PersonPostgresRepository personPostgresRepository;
 
-    @Autowired
-    private ProfessorPostgresRepository professorPostgresRepository;
+    private final ProfessorPostgresRepository professorPostgresRepository;
 
-    @Autowired
-    private SemesterPostgresRepository semesterPostgresRepository;
+    private final SemesterPostgresRepository semesterPostgresRepository;
 
-    @Autowired
-    private SpecialtyDisciplineLinkPostgresRepository specialtyDisciplineLinkPostgresRepository;
+    private final SpecialtyDisciplineLinkPostgresRepository specialtyDisciplineLinkPostgresRepository;
 
-    @Autowired
-    private SpecialtyPostgresRepository specialtyPostgresRepository;
+    private final SpecialtyPostgresRepository specialtyPostgresRepository;
 
-    @Autowired
-    private StudentPostgresRepository studentPostgresRepository;
+    private final StudentPostgresRepository studentPostgresRepository;
 
-    @Autowired
-    private StudentSemesterDisciplinePostgresRepository studentSemesterDisciplinePostgresRepository;
+    private final StudentSemesterDisciplinePostgresRepository studentSemesterDisciplinePostgresRepository;
 
-    @Autowired
-    private UniversityPostgresRepository universityPostgresRepository;
+    private final UniversityPostgresRepository universityPostgresRepository;
     //Postgres section END
 
     // MongoDB section START
-    @Autowired
-    private DormitoryMongoRepository dormitoryMongoRepository;
+    private final AccommodationRecordMongoRepository accommodationRecordMongoRepository;
+
+    private final DormitoryMongoRepository dormitoryMongoRepository;
+
+    private final PersonMongoRepository personMongoRepository;
+
+    private final RoomMongoRepository roomMongoRepository;
     // MongoDB section END
 
 
-    public PersistenceWorkerFactory() {
+    @Autowired
+    public PersistenceWorkerFactory(ConferenceMySQLRepository conferenceMySQLRepository,
+                                    Generator generator,
+                                    ConferencePublicationLinkMySQLRepository conferencePublicationLinkMySQLRepository,
+                                    ProfessorPostgresRepository professorPostgresRepository,
+                                    PersonMongoRepository personMongoRepository,
+                                    ItmoParamOracleRepository itmoParamOracleRepository,
+                                    SpecialtyPostgresRepository specialtyPostgresRepository,
+                                    DormitoryMongoRepository dormitoryMongoRepository,
+                                    ItmoObjectTypeOracleRepository itmoObjectTypeOracleRepository,
+                                    ItmoAttributeOracleRepository itmoAttributeOracleRepository,
+                                    IssueMySQLRepository issueMySQLRepository,
+                                    IssuePublicationLinkMySQLRepository issuePublicationLinkMySQLRepository,
+                                    LibraryRecordMySQLRepository libraryRecordMySQLRepository,
+                                    PersonPostgresRepository personPostgresRepository,
+                                    StudentSemesterDisciplinePostgresRepository studentSemesterDisciplinePostgresRepository,
+                                    PersonMySQLRepository personMySQLRepository,
+                                    ItmoObjectOracleRepository itmoObjectOracleRepository,
+                                    StudentPostgresRepository studentPostgresRepository,
+                                    UniversityPostgresRepository universityPostgresRepository,
+                                    SemesterPostgresRepository semesterPostgresRepository,
+                                    AccommodationRecordMongoRepository accommodationRecordMongoRepository,
+                                    DisciplinePostgresRepository disciplinePostgresRepository,
+                                    PersonProjectLinkMySQLRepository personProjectRepository,
+                                    PersonPublicationLinkMySQLRepository personPublicationLinkMySQLRepository,
+                                    FacultyPostgresRepository facultyPostgresRepository,
+                                    ProjectMySQLRepository projectMySQLRepository,
+                                    ItmoListValueOracleRepository itmoListValueOracleRepository,
+                                    SpecialtyDisciplineLinkPostgresRepository specialtyDisciplineLinkPostgresRepository,
+                                    PublicationMySQLRepository publicationMySQLRepository,
+                                    RoomMongoRepository roomMongoRepository) {
+        this.conferenceMySQLRepository = conferenceMySQLRepository;
+        this.generator = generator;
+        this.conferencePublicationLinkMySQLRepository = conferencePublicationLinkMySQLRepository;
+        this.professorPostgresRepository = professorPostgresRepository;
+        this.personMongoRepository = personMongoRepository;
+        this.itmoParamOracleRepository = itmoParamOracleRepository;
+        this.specialtyPostgresRepository = specialtyPostgresRepository;
+        this.dormitoryMongoRepository = dormitoryMongoRepository;
+        this.itmoObjectTypeOracleRepository = itmoObjectTypeOracleRepository;
+        this.itmoAttributeOracleRepository = itmoAttributeOracleRepository;
+        this.issueMySQLRepository = issueMySQLRepository;
+        this.issuePublicationLinkMySQLRepository = issuePublicationLinkMySQLRepository;
+        this.libraryRecordMySQLRepository = libraryRecordMySQLRepository;
+        this.personPostgresRepository = personPostgresRepository;
+        this.studentSemesterDisciplinePostgresRepository = studentSemesterDisciplinePostgresRepository;
+        this.personMySQLRepository = personMySQLRepository;
+        this.itmoObjectOracleRepository = itmoObjectOracleRepository;
+        this.studentPostgresRepository = studentPostgresRepository;
+        this.universityPostgresRepository = universityPostgresRepository;
+        this.semesterPostgresRepository = semesterPostgresRepository;
+        this.accommodationRecordMongoRepository = accommodationRecordMongoRepository;
+        this.disciplinePostgresRepository = disciplinePostgresRepository;
+        this.personProjectRepository = personProjectRepository;
+        this.personPublicationLinkMySQLRepository = personPublicationLinkMySQLRepository;
+        this.facultyPostgresRepository = facultyPostgresRepository;
+        this.projectMySQLRepository = projectMySQLRepository;
+        this.itmoListValueOracleRepository = itmoListValueOracleRepository;
+        this.specialtyDisciplineLinkPostgresRepository = specialtyDisciplineLinkPostgresRepository;
+        this.publicationMySQLRepository = publicationMySQLRepository;
+        this.roomMongoRepository = roomMongoRepository;
+    }
+
+    private <T extends AbstractEntity<TId>, TId> ItmoEntityAbstractPersistenceWorker<T, TId> getItmoEntityWorker(Class<T> entityClass) {
+        return new ItmoEntityAbstractPersistenceWorker<>(
+                entityClass,
+                generator,
+                itmoAttributeOracleRepository,
+                itmoListValueOracleRepository,
+                itmoObjectOracleRepository,
+                itmoObjectTypeOracleRepository,
+                itmoParamOracleRepository
+        );
     }
 
     public <T extends AbstractEntity<TId>, TId> PersistenceWorker getWorker(Class<T> entityClass) {
         if (entityClass.equals(AcademicRecord.class)) {
-            return new AcademicRecordPersistenceWorker(generator);
+            return new AcademicRecordPersistenceWorker(generator, getItmoEntityWorker(AcademicRecord.class));
         }
         if (entityClass.equals(AccommodationRecord.class)) {
-            return new AccommodationRecordPersistenceWorker(generator);
+            return new AccommodationRecordPersistenceWorker(generator, accommodationRecordMongoRepository);
         }
         if (entityClass.equals(Conference.class)) {
             return new ConferencePersistenceWorker(generator, conferenceMySQLRepository);
@@ -126,7 +177,7 @@ public class PersistenceWorkerFactory {
             return new ConferencePublicationLinkPersistenceWorker(generator, conferencePublicationLinkMySQLRepository);
         }
         if (entityClass.equals(Discipline.class)) {
-            return new DisciplinePersistenceWorker(generator, disciplinePostgresRepository);
+            return new DisciplinePersistenceWorker(generator, disciplinePostgresRepository, getItmoEntityWorker(Discipline.class));
         }
         if (entityClass.equals(Dormitory.class)) {
             return new DormitoryPersistenceWorker(generator, dormitoryMongoRepository);
@@ -147,10 +198,14 @@ public class PersistenceWorkerFactory {
             return new LibraryRecordPersistenceWorker(generator, libraryRecordMySQLRepository);
         }
         if (entityClass.equals(PersonGroupLink.class)) {
-            return new PersonGroupLinkPersistenceWorker(generator);
+            return new PersonGroupLinkPersistenceWorker(generator, getItmoEntityWorker(PersonGroupLink.class));
         }
         if (entityClass.equals(Person.class)) {
-            return new PersonPersistenceWorker(generator, personMySQLRepository, personPostgresRepository);
+            return new PersonPersistenceWorker(generator,
+                    personMySQLRepository,
+                    personPostgresRepository,
+                    getItmoEntityWorker(Person.class),
+                    personMongoRepository);
         }
         if (entityClass.equals(PersonProjectLink.class)) {
             return new PersonProjectLinkPersistenceWorker(generator, personProjectRepository);
@@ -168,10 +223,10 @@ public class PersistenceWorkerFactory {
             return new PersonPublicationLinkPersistenceWorker(generator, personPublicationLinkMySQLRepository);
         }
         if (entityClass.equals(Room.class)) {
-            return new RoomPersistenceWorker(generator);
+            return new RoomPersistenceWorker(generator, roomMongoRepository);
         }
         if (entityClass.equals(ScheduleRecord.class)) {
-            return new ScheduleRecordPersistenceWorker(generator);
+            return new ScheduleRecordPersistenceWorker(generator, getItmoEntityWorker(ScheduleRecord.class));
         }
         if (entityClass.equals(Semester.class)) {
             return new SemesterPersistenceWorker(generator, semesterPostgresRepository);
@@ -186,7 +241,9 @@ public class PersistenceWorkerFactory {
             return new StudentPersistenceWorker(generator, studentPostgresRepository);
         }
         if (entityClass.equals(StudentSemesterDiscipline.class)) {
-            return new StudentSemesterDisciplinePersistenceWorker(generator);
+            return new StudentSemesterDisciplinePersistenceWorker(generator,
+                    studentSemesterDisciplinePostgresRepository,
+                    getItmoEntityWorker(StudentSemesterDiscipline.class));
         }
         if (entityClass.equals(University.class)) {
             return new UniversityPersistenceWorker(generator, universityPostgresRepository);

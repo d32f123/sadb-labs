@@ -1,12 +1,15 @@
 package com.itmo.db.generator.persistence.impl;
 
 import com.itmo.db.generator.generator.Generator;
-import com.itmo.db.generator.model.entity.*;
-import com.itmo.db.generator.model.entity.link.*;
+import com.itmo.db.generator.model.entity.Person;
+import com.itmo.db.generator.model.entity.Publication;
+import com.itmo.db.generator.model.entity.link.PersonPublicationLink;
 import com.itmo.db.generator.persistence.AbstractPersistenceWorker;
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
-import com.itmo.db.generator.persistence.db.mysql.dao.*;
-import com.itmo.db.generator.persistence.db.mysql.repository.*;
+import com.itmo.db.generator.persistence.db.mysql.dao.PersonMySQLDAO;
+import com.itmo.db.generator.persistence.db.mysql.dao.PersonPublicationLinkMySQLDAO;
+import com.itmo.db.generator.persistence.db.mysql.dao.PublicationMySQLDAO;
+import com.itmo.db.generator.persistence.db.mysql.repository.PersonPublicationLinkMySQLRepository;
 
 import java.util.List;
 
@@ -22,17 +25,9 @@ public class PersonPublicationLinkPersistenceWorker
 
     @Override
     protected List<? extends IdentifiableDAO<?>> doPersist(PersonPublicationLink entity) {
-        PersonMySQLDAO personMySQLDAO = new PersonMySQLDAO(
-                this.getDependencyDAOId(Person.class, entity.getId().getPersonId(), PersonMySQLDAO.class),
-                null, null, null, null
-        );
-        PublicationMySQLDAO publicationMySQLDAO = new PublicationMySQLDAO(
-                this.getDependencyDAOId(Publication.class, entity.getId().getPublicationId(), PublicationMySQLDAO.class),
-                null, null, null, null
-        );
-
         PersonPublicationLinkMySQLDAO personPublicationLinkMySQLDAO = new PersonPublicationLinkMySQLDAO(
-                personMySQLDAO, publicationMySQLDAO
+                this.getDependencyDAOId(Person.class, entity.getId().getPersonId(), PersonMySQLDAO.class),
+                this.getDependencyDAOId(Publication.class, entity.getId().getPublicationId(), PublicationMySQLDAO.class)
         );
 
         this.repository.save(personPublicationLinkMySQLDAO);

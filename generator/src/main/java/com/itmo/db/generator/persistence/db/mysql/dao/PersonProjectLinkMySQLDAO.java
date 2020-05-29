@@ -26,14 +26,12 @@ public class PersonProjectLinkMySQLDAO implements IdentifiableDAO<PersonProjectL
     }
 
     @Id
-    @ManyToOne
-    @JoinColumn(name = "person_id", referencedColumnName = "person_id")
-    private PersonMySQLDAO person;
+    @Column(name = "person_id")
+    private Long personId;
 
     @Id
-    @ManyToOne
-    @JoinColumn(name = "project_id", referencedColumnName = "project_id")
-    private ProjectMySQLDAO project;
+    @Column(name = "project_id")
+    private Long projectId;
 
     @Column(name = "participation_start")
     private Timestamp participationStart;
@@ -43,8 +41,8 @@ public class PersonProjectLinkMySQLDAO implements IdentifiableDAO<PersonProjectL
 
     public PersonProjectLinkPK getId() {
         return new PersonProjectLinkPK(
-                this.person != null ? this.person.getId() : null,
-                this.project != null ? this.project.getId() : null
+                this.personId,
+                this.projectId
         );
     }
 

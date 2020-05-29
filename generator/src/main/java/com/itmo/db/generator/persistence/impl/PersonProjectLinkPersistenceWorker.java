@@ -24,12 +24,9 @@ public class PersonProjectLinkPersistenceWorker extends AbstractPersistenceWorke
 
     @Override
     protected List<? extends IdentifiableDAO<?>> doPersist(PersonProjectLink entity) {
-        PersonMySQLDAO personMySQLDAO = new PersonMySQLDAO(this.getDependencyDAOId(Person.class, entity.getId().getPersonId(), PersonMySQLDAO.class), null, null, null, null);
-        ProjectMySQLDAO projectMySQLDAO = new ProjectMySQLDAO(this.getDependencyDAOId(Project.class, entity.getId().getProjectId(), ProjectMySQLDAO.class), null);
-
         PersonProjectLinkMySQLDAO personProjectLinkMySQLDAO = new PersonProjectLinkMySQLDAO(
-                personMySQLDAO,
-                projectMySQLDAO,
+                this.getDependencyDAOId(Person.class, entity.getId().getPersonId(), PersonMySQLDAO.class),
+                this.getDependencyDAOId(Project.class, entity.getId().getProjectId(), ProjectMySQLDAO.class),
                 entity.getStartDate(),
                 entity.getEndDate()
         );

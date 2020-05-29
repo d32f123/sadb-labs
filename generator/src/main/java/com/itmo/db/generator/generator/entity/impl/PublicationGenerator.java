@@ -7,7 +7,9 @@ import com.itmo.db.generator.model.entity.Publication;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
 @Slf4j
 public class PublicationGenerator extends AbstractEntityGenerator<Publication, Integer> {
@@ -36,7 +38,7 @@ public class PublicationGenerator extends AbstractEntityGenerator<Publication, I
     Timestamp getDate(Random random) {
         String y = "201" + random.nextInt(10);
 
-        Integer i = 1 + random.nextInt(12);
+        int i = 1 + random.nextInt(12);
         String m = (i > 9) ? String.valueOf(i) : ("0" + i);
 
         i = 1 + random.nextInt(28);
