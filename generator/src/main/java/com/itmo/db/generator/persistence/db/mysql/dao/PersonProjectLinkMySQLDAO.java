@@ -21,8 +21,8 @@ public class PersonProjectLinkMySQLDAO implements IdentifiableDAO<PersonProjectL
     @AllArgsConstructor
     @NoArgsConstructor
     public static class PersonProjectLinkPK implements Serializable {
-        private Long person;
-        private Long project;
+        private Long personId;
+        private Long projectId;
     }
 
     @Id

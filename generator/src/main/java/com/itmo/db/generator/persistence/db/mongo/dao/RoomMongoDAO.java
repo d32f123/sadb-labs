@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import javax.persistence.Id;
-import java.time.LocalDate;
+import java.sql.Date;
 
 @Data
 @AllArgsConstructor
@@ -33,7 +33,7 @@ public class RoomMongoDAO implements IdentifiableDAO<String> {
     private Boolean bugs;
 
     @Field(name = "last_cleaning_date")
-    private LocalDate lastCleaningDate;
+    private Date lastCleaningDate;
 
     @Field(name = "dormitory_id")
     private String dormitoryId;

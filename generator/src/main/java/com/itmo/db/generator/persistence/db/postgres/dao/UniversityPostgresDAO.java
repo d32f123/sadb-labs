@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.time.LocalDate;
+import java.sql.Date;
 
 @Entity
 @Data
@@ -24,6 +24,6 @@ public class UniversityPostgresDAO implements IdentifiableDAO<Integer> {
     private String name;
 
     @Column(name = "creation_date")
-    private LocalDate creationDate;
+    private Date creationDate;
 
 }

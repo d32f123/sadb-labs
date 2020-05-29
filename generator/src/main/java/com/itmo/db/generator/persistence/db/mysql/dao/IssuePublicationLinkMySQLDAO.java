@@ -20,8 +20,8 @@ public class IssuePublicationLinkMySQLDAO implements IdentifiableDAO<IssuePublic
     @AllArgsConstructor
     @NoArgsConstructor
     public static class IssuePublicationLinkPK implements Serializable {
-        private Long issue;
-        private Long publication;
+        private Long issueId;
+        private Long publicationId;
     }
 
     @Id

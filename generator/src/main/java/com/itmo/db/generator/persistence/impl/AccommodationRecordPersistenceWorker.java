@@ -11,6 +11,7 @@ import com.itmo.db.generator.persistence.db.mongo.dao.PersonMongoDAO;
 import com.itmo.db.generator.persistence.db.mongo.dao.RoomMongoDAO;
 import com.itmo.db.generator.persistence.db.mongo.repository.AccommodationRecordMongoRepository;
 
+import java.sql.Date;
 import java.util.List;
 
 public class AccommodationRecordPersistenceWorker extends AbstractPersistenceWorker<AccommodationRecord, Integer> {
@@ -29,8 +30,8 @@ public class AccommodationRecordPersistenceWorker extends AbstractPersistenceWor
                 entity.isFacilities(),
                 entity.isBudget(),
                 entity.getPayment(),
-                entity.getLivingStartDate(),
-                entity.getLivingEndDate(),
+                Date.valueOf(entity.getLivingStartDate()),
+                Date.valueOf(entity.getLivingEndDate()),
                 entity.getCourse(),
                 this.getDependencyDAOId(Person.class, entity.getPersonId(), PersonMongoDAO.class),
                 this.getDependencyDAOId(Room.class, entity.getRoomId(), RoomMongoDAO.class)

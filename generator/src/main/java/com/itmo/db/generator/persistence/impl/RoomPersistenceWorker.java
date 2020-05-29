@@ -9,6 +9,7 @@ import com.itmo.db.generator.persistence.db.mongo.dao.DormitoryMongoDAO;
 import com.itmo.db.generator.persistence.db.mongo.dao.RoomMongoDAO;
 import com.itmo.db.generator.persistence.db.mongo.repository.RoomMongoRepository;
 
+import java.sql.Date;
 import java.util.List;
 
 public class RoomPersistenceWorker extends AbstractPersistenceWorker<Room, Integer> {
@@ -29,7 +30,7 @@ public class RoomPersistenceWorker extends AbstractPersistenceWorker<Room, Integ
                 (int) entity.getCapacity(),
                 (int) entity.getEngaged(),
                 entity.isBugs(),
-                entity.getLastCleaningDate(),
+                Date.valueOf(entity.getLastCleaningDate()),
                 this.getDependencyDAOId(Dormitory.class, entity.getDormitoryId(), DormitoryMongoDAO.class)
         );
         this.roomMongoRepository.save(dao);

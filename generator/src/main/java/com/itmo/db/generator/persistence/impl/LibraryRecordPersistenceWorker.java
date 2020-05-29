@@ -9,6 +9,7 @@ import com.itmo.db.generator.persistence.db.mysql.dao.LibraryRecordMySQLDAO;
 import com.itmo.db.generator.persistence.db.mysql.dao.PersonMySQLDAO;
 import com.itmo.db.generator.persistence.db.mysql.repository.LibraryRecordMySQLRepository;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 public class LibraryRecordPersistenceWorker extends AbstractPersistenceWorker<LibraryRecord, Integer> {
@@ -28,7 +29,7 @@ public class LibraryRecordPersistenceWorker extends AbstractPersistenceWorker<Li
                 this.getDependencyDAOId(Person.class, entity.getPersonId(), PersonMySQLDAO.class),
                 entity.getBookId(),
                 entity.getAction(),
-                entity.getActionDate()
+                Timestamp.valueOf(entity.getActionDate().atStartOfDay())
         );
 
         this.libraryRecordMySQLRepository.save(dao);

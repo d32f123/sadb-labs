@@ -20,8 +20,8 @@ public class PersonPublicationLinkMySQLDAO implements IdentifiableDAO<PersonPubl
     @AllArgsConstructor
     @NoArgsConstructor
     public static class PersonPublicationLinkPK implements Serializable {
-        private Long person;
-        private Long publication;
+        private Long personId;
+        private Long publicationId;
     }
 
     @Id

@@ -7,6 +7,7 @@ import com.itmo.db.generator.persistence.db.IdentifiableDAO;
 import com.itmo.db.generator.persistence.db.postgres.dao.UniversityPostgresDAO;
 import com.itmo.db.generator.persistence.db.postgres.repository.UniversityPostgresRepository;
 
+import java.sql.Date;
 import java.util.List;
 
 public class UniversityPersistenceWorker extends AbstractPersistenceWorker<University, Integer> {
@@ -23,7 +24,7 @@ public class UniversityPersistenceWorker extends AbstractPersistenceWorker<Unive
         UniversityPostgresDAO universityPostgresDAO = new UniversityPostgresDAO(
                 null,
                 entity.getName(),
-                entity.getCreationDate()
+                Date.valueOf(entity.getCreationDate())
         );
 
         this.universityPostgresRepository.save(universityPostgresDAO);

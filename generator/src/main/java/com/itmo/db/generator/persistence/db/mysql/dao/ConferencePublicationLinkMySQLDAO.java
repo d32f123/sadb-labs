@@ -16,26 +16,25 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class ConferencePublicationLinkMySQLDAO implements IdentifiableDAO<ConferencePublicationLinkMySQLDAO.ConferencePublicationLinkPK> {
 
+    @Id
+    @Column(name = "conference_id")
+    private Long conferenceId;
+    @Id
+    @Column(name = "publication_id")
+    private Long publicationId;
+
+    public ConferencePublicationLinkPK getId() {
+        return new ConferencePublicationLinkPK(
+                this.conferenceId, this.publicationId
+        );
+    }
+
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
     public static class ConferencePublicationLinkPK implements Serializable {
-        private Long conference;
-        private Long publication;
-    }
-
-    @Id
-    @Column(name = "conference_id")
-    private Long conference_id;
-
-    @Id
-    @Column(name = "publication_id")
-    private Long publication_id;
-
-    public ConferencePublicationLinkPK getId() {
-        return new ConferencePublicationLinkPK(
-                this.conference_id, this.publication_id
-        );
+        private Long conferenceId;
+        private Long publicationId;
     }
 
     public void setId(ConferencePublicationLinkPK id) {

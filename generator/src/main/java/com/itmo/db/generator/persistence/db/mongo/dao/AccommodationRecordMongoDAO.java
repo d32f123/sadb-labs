@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import javax.persistence.Id;
-import java.time.LocalDate;
+import java.sql.Date;
 
 @Data
 @AllArgsConstructor
@@ -29,10 +29,10 @@ public class AccommodationRecordMongoDAO implements IdentifiableDAO<String> {
     private Double payment;
 
     @Field(name = "living_start_date")
-    private LocalDate livingStartDate;
+    private Date livingStartDate;
 
     @Field(name = "living_end_date")
-    private LocalDate livingEndDate;
+    private Date livingEndDate;
 
     @Field(name = "course")
     private String course;
