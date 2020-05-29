@@ -12,4 +12,6 @@ target/
 .settings
 .springBeans
 .sts4-cache
+
+# Provider properties
 ./src/main/resources/*-provider.properties
