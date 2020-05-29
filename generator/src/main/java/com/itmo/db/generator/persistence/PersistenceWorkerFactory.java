@@ -134,8 +134,8 @@ public class PersistenceWorkerFactory {
         if (entityClass.equals(Faculty.class)) {
             return new FacultyPersistenceWorker(generator, facultyPostgresRepository);
         }
-        if (entityClass.isAnnotationPresent(ItmoEntity.class)) {
-            return new ItmoEntityAbstractPersistenceWorker(entityClass, generator, itmoAttributeOracleRepository, itmoListValueOracleRepository, itmoObjectOracleRepository, itmoObjectTypeOracleRepository, itmoParamOracleRepository);
+        if (entityClass.equals(Group.class)) {
+            return new GroupPersistenceWorker(generator, new ItmoGroupPersistenceWorker(Group.class, generator, itmoAttributeOracleRepository, itmoListValueOracleRepository, itmoObjectOracleRepository, itmoObjectTypeOracleRepository, itmoParamOracleRepository));
         }
         if (entityClass.equals(Issue.class)) {
             return new IssuePersistenceWorker(generator, issueMySQLRepository);

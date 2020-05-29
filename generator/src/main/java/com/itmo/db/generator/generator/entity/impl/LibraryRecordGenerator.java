@@ -8,10 +8,10 @@ import com.itmo.db.generator.model.entity.*;
 import java.util.*;
 
 public class LibraryRecordGenerator extends AbstractEntityGenerator<LibraryRecord, Integer> {
-    public String getBookId(Random random) {
-        String bookId = "";
+    public int getBookId(Random random) {
+        int bookId = 0;
         for (int i = 0; i < 8; i++) {
-            bookId += String.valueOf((char)((int)'A' + random.nextInt(20)));
+            bookId += ((char)((int)'A' + random.nextInt(20)));
         }
         return bookId;
     }
