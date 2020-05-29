@@ -8,9 +8,11 @@ import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class StudentSemesterDiscipline implements AbstractEntity<StudentSemesterDiscipline.StudentSemesterDisciplinePK> {
 
     private StudentSemesterDisciplinePK id;
+
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
@@ -21,11 +23,11 @@ public class StudentSemesterDiscipline implements AbstractEntity<StudentSemester
     }
 
     private Integer professorId;
-    private int semesterCounter;
-    private int score;
+    private Integer semesterCounter;
+    private Integer score;
     private LocalDate scoreDate;
-    private short mark;
-    private char markLetter;
+    private Short mark;
+    private Character markLetter;
     private LocalDate markDate;
 
 }
