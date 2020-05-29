@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
@@ -23,9 +23,9 @@ public class StudentSemesterDiscipline implements AbstractEntity<StudentSemester
     private Integer professorId;
     private int semesterCounter;
     private int score;
-    private Date scoreDate;
+    private LocalDate scoreDate;
     private short mark;
     private char markLetter;
-    private Date markDate;
+    private LocalDate markDate;
 
 }

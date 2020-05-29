@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
@@ -15,7 +15,7 @@ public class AcademicRecord implements NumericallyIdentifiableEntity {
 
     private Integer id;
     private Integer personId;
-    private Date academicYear;
+    private LocalDate academicYear;
     private String degree;
     private boolean budget;
     private boolean fullTime;
@@ -23,7 +23,7 @@ public class AcademicRecord implements NumericallyIdentifiableEntity {
     private String specialty;
     private String position;
     private String subdivision;
-    private Date startDate;
-    private Date endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
 
 }

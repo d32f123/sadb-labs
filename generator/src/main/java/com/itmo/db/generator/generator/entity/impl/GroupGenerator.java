@@ -6,13 +6,17 @@ import com.itmo.db.generator.generator.model.DependencyDefinition;
 import com.itmo.db.generator.model.entity.Group;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.*;
+import java.time.LocalDate;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
 @Slf4j
 public class GroupGenerator extends AbstractEntityGenerator<Group, Integer> {
 
     String getName(Random random, int course) {
-        String letter = String.valueOf((char)((int)'A' + random.nextInt(20)));
+        String letter = String.valueOf((char) ((int) 'A' + random.nextInt(20)));
         return (letter + course) + (100 + random.nextInt(900));
     }
 
@@ -20,18 +24,17 @@ public class GroupGenerator extends AbstractEntityGenerator<Group, Integer> {
         return 1 + random.nextInt(4);
     }
 
-    public Calendar getStartDate(Random random) {
-        Calendar startDate = new GregorianCalendar(1993, Calendar.SEPTEMBER,1);
+    public LocalDate getStartDate(Random random) {
+        LocalDate startDate = LocalDate.of(1993, Calendar.SEPTEMBER, 1);
         int MAX_YEARS_SINCE_START_DATE = 27;
-        startDate.add(Calendar.DAY_OF_MONTH, random.nextInt(MAX_YEARS_SINCE_START_DATE));
+        startDate = startDate.plusDays(random.nextInt(MAX_YEARS_SINCE_START_DATE));
         return startDate;
     }
 
-    public Calendar getEndDate(Calendar startDate) {
-        Calendar endDate = new GregorianCalendar(1993, Calendar.AUGUST,31);
-        endDate.set(Calendar.YEAR, endDate.get(Calendar.YEAR) + 1);
-        return endDate;
+    public LocalDate getEndDate(LocalDate startDate) {
+        return LocalDate.of(startDate.getYear() + 1, Calendar.AUGUST, 31);
     }
+
     public GroupGenerator(Set<DependencyDefinition<?, ?>> deps, Generator generator) {
         super(Group.class, deps, generator);
     }
@@ -42,11 +45,11 @@ public class GroupGenerator extends AbstractEntityGenerator<Group, Integer> {
         Random random = new Random();
 
         int course = getCourse(random);
-        Calendar startDate = getStartDate(random);
-        Calendar endDate = getEndDate(startDate);
+        LocalDate startDate = getStartDate(random);
+        LocalDate endDate = getEndDate(startDate);
 
         return List.of(new Group(
-                null, getName(random, course), course + " курс", startDate.getTime(), endDate.getTime()
+                null, getName(random, course), course + " курс", startDate, endDate
         ));
     }
 }

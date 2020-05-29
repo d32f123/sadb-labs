@@ -7,17 +7,17 @@ import com.itmo.db.generator.model.entity.AcademicRecord;
 import com.itmo.db.generator.model.entity.Person;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.*;
+import java.time.LocalDate;
+import java.time.Month;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
 @Slf4j
 public class AcademicRecordGenerator extends AbstractEntityGenerator<AcademicRecord, Integer> {
     int budgetRatio = 80;
     int fullTimeRatio = 90;
     int studentRatio = 75;
-
-    public Calendar getAcademicYear(Calendar startDate) {
-        return new GregorianCalendar(startDate.get(Calendar.YEAR) + 1, Calendar.SEPTEMBER, 1);
-    }
 
     public String getDegree(Random random) {
         String[] roles = new String[]{"доцент", "магистр", "бакалавр"};
@@ -70,15 +70,15 @@ public class AcademicRecordGenerator extends AbstractEntityGenerator<AcademicRec
         return subdivisions[random.nextInt(subdivisions.length)];
     }
 
-    public Calendar getStartDate(Random random) {
-        Calendar startDate = new GregorianCalendar(1993, Calendar.SEPTEMBER, 1);
+    public LocalDate getStartDate(Random random) {
+        LocalDate startDate = LocalDate.of(1993, Month.SEPTEMBER, 1);
         int MAX_YEARS_SINCE_START_DATE = 27;
-        startDate.add(Calendar.DAY_OF_MONTH, random.nextInt(MAX_YEARS_SINCE_START_DATE));
+        startDate = startDate.plusDays(random.nextInt(MAX_YEARS_SINCE_START_DATE));
         return startDate;
     }
 
-    public Calendar getEndDate(Calendar startDate) {
-        return new GregorianCalendar(startDate.get(Calendar.YEAR) + 1, Calendar.AUGUST, 31);
+    public LocalDate getEndDate(LocalDate startDate) {
+        return LocalDate.of(startDate.getYear() + 1, Month.AUGUST, 31);
     }
 
     public AcademicRecordGenerator(Set<DependencyDefinition<?, ?>> deps, Generator generator) {
@@ -89,14 +89,14 @@ public class AcademicRecordGenerator extends AbstractEntityGenerator<AcademicRec
     protected List<AcademicRecord> getEntities() {
         log.debug("Creating AcademicRecord");
         Random random = new Random();
-        Calendar startDate = getStartDate(random);
-        Calendar endDate = getEndDate(startDate);
-        Calendar academicYear = getStartDate(random);
+        LocalDate startDate = getStartDate(random);
+        LocalDate endDate = getEndDate(startDate);
+        LocalDate academicYear = getStartDate(random);
 
         return List.of(new AcademicRecord(
                 null,
                 this.getDependencyInstances(Person.class).get(0).getId(),
-                academicYear.getTime(),
+                academicYear,
                 getDegree(random),
                 getBudget(random),
                 getFullTime(random),
@@ -104,8 +104,8 @@ public class AcademicRecordGenerator extends AbstractEntityGenerator<AcademicRec
                 getSpecialty(random),
                 getPosition(random),
                 getSubdivision(random),
-                startDate.getTime(),
-                endDate.getTime()
+                startDate,
+                endDate
         ));
     }
 }

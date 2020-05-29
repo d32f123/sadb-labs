@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
@@ -16,7 +16,7 @@ public class Room implements NumericallyIdentifiableEntity {
     private short capacity;
     private short engaged;
     private boolean bugs;
-    private Date lastCleaningDate;
+    private LocalDate lastCleaningDate;
     private Integer dormitoryId;
 
 }

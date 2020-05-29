@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.sql.Date;
+import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
@@ -13,6 +13,6 @@ public class University implements NumericallyIdentifiableEntity {
 
     private Integer id;
     private String name;
-    private Date creationDate;
+    private LocalDate creationDate;
 
 }

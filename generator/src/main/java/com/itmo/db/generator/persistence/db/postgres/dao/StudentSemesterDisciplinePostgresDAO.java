@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 @Data
@@ -33,7 +33,7 @@ public class StudentSemesterDisciplinePostgresDAO implements IdentifiableDAO<Stu
     @Column(name = "score")
     private Integer score;
     @Column(name = "score_date")
-    private Date scoreDate;
+    private LocalDate scoreDate;
 
     @Override
     public StudentSemesterDisciplinePostgresPK getId() {

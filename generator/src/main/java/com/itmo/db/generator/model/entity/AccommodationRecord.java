@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
@@ -18,8 +18,8 @@ public class AccommodationRecord implements NumericallyIdentifiableEntity {
     private boolean facilities;
     private boolean budget;
     private double payment;
-    private Date livingStartDate;
-    private Date livingEndDate;
+    private LocalDate livingStartDate;
+    private LocalDate livingEndDate;
     private String course;
 
 }

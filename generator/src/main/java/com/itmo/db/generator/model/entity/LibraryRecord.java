@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 
 @Data
@@ -16,6 +16,6 @@ public class LibraryRecord implements NumericallyIdentifiableEntity {
     private Integer personId;
     private String bookId;
     private String action;
-    private Date actionDate;
+    private LocalDate actionDate;
 
 }

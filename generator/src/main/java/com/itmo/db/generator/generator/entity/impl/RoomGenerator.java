@@ -7,7 +7,11 @@ import com.itmo.db.generator.model.entity.Dormitory;
 import com.itmo.db.generator.model.entity.Room;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.*;
+import java.time.LocalDate;
+import java.time.Month;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
 @Slf4j
 public class RoomGenerator extends AbstractEntityGenerator<Room, Integer> {
@@ -20,18 +24,18 @@ public class RoomGenerator extends AbstractEntityGenerator<Room, Integer> {
     }
 
     public short getEngaged(Random random, short capacity) {
-        return (short)(capacity - random.nextInt(3));
+        return (short) (capacity - random.nextInt(3));
     }
 
     public RoomGenerator(Set<DependencyDefinition<?, ?>> deps, Generator generator) {
         super(Room.class, deps, generator);
     }
 
-    public Date getDate(Random random) {
-        Calendar date = new GregorianCalendar(2019, Calendar.JANUARY,0);
+    public LocalDate getDate(Random random) {
+        LocalDate date = LocalDate.of(2019, Month.JANUARY, 0);
         int MAX_DAYS_SINCE_START_DATE = 365;
-        date.add(Calendar.DAY_OF_MONTH, random.nextInt(MAX_DAYS_SINCE_START_DATE));
-        return date.getTime();
+        date = date.plusDays(random.nextInt(MAX_DAYS_SINCE_START_DATE));
+        return date;
     }
 
     @Override

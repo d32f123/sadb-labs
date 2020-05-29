@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
@@ -20,7 +20,7 @@ public class Group implements NumericallyIdentifiableEntity {
     @ItmoAttribute
     private String course;
     @ItmoAttribute
-    private Date startDate;
+    private LocalDate startDate;
     @ItmoAttribute
-    private Date endDate;
+    private LocalDate endDate;
 }

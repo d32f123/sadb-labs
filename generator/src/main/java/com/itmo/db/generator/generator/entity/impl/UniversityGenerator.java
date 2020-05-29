@@ -6,8 +6,10 @@ import com.itmo.db.generator.generator.model.DependencyDefinition;
 import com.itmo.db.generator.model.entity.University;
 import lombok.extern.slf4j.Slf4j;
 
-import java.sql.Date;
-import java.util.*;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
 @Slf4j
 public class UniversityGenerator extends AbstractEntityGenerator<University, Integer> {
@@ -33,16 +35,16 @@ public class UniversityGenerator extends AbstractEntityGenerator<University, Int
         return names[random.nextInt(names.length)];
     }
 
-    Date getDate(Random random) {
+    LocalDate getDate(Random random) {
         String y = "19" + (10 + random.nextInt(90));
 
-        Integer i = 1 + random.nextInt(12);
+        int i = 1 + random.nextInt(12);
         String m = (i > 9) ? String.valueOf(i) : ("0" + i);
 
         i = 1 + random.nextInt(28);
         String d = (i > 9) ? String.valueOf(i) : ("0" + i);
 
-        return Date.valueOf(y + "-" + m + "-" + d);
+        return LocalDate.parse(y + "-" + m + "-" + d);
     }
 
     public UniversityGenerator(Set<DependencyDefinition<?, ?>> deps, Generator generator) {

@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
@@ -23,7 +23,7 @@ public class Person implements NumericallyIdentifiableEntity {
     private String patronymicName;
     private String role;
     @ItmoAttribute
-    private Date birthDate;
+    private LocalDate birthDate;
     @ItmoAttribute
     private String birthPlace;
     private boolean isInDormitory;

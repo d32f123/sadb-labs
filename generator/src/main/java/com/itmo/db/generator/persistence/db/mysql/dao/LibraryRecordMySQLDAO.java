@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 @Data
@@ -30,6 +30,6 @@ public class LibraryRecordMySQLDAO implements IdentifiableDAO<Long> {
     private String action;
 
     @Column(name = "action_date")
-    private Date actionDate;
+    private LocalDate actionDate;
 
 }

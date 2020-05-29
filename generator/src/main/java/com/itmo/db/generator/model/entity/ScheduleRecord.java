@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalTime;
 
 @Data
 @AllArgsConstructor
@@ -18,9 +18,9 @@ public class ScheduleRecord implements NumericallyIdentifiableEntity {
     private Integer disciplineId;
     private Integer semesterId;
     @ItmoAttribute
-    private Date startTime;
+    private LocalTime startTime;
     @ItmoAttribute
-    private Date endTime;
+    private LocalTime endTime;
     @ItmoAttribute
     private String classroom;
 

@@ -4,10 +4,13 @@ import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.generator.entity.AbstractEntityGenerator;
 import com.itmo.db.generator.generator.model.DependencyDefinition;
 import com.itmo.db.generator.model.entity.Person;
-import com.itmo.db.generator.pool.EntityPool;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.*;
+import java.time.LocalDate;
+import java.time.Month;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
 @Slf4j
 public class PersonGenerator extends AbstractEntityGenerator<Person, Integer> {
@@ -58,18 +61,18 @@ public class PersonGenerator extends AbstractEntityGenerator<Person, Integer> {
         return roles[0];
     }
 
-    public Date getBirthDate(Random random) {
-        Calendar date = new GregorianCalendar(1900, Calendar.JANUARY,0);
+    public LocalDate getBirthDate(Random random) {
+        LocalDate date = LocalDate.of(1900, Month.JANUARY, 0);
         int MAX_DAYS_SINCE_START_DATE = 37600;
-        date.add(Calendar.DAY_OF_MONTH, random.nextInt(MAX_DAYS_SINCE_START_DATE));
-        return date.getTime();
+        date = date.plusDays(random.nextInt(MAX_DAYS_SINCE_START_DATE));
+        return date;
     }
 
     public String getBirthPlace(Random random) {
-        String[] cities = new String[] {
-                "Moscow","Saint-Petersburg", "Abakan","Azov","Aleksandrov","Aleksin","Al'met'evsk","Anapa","Angarsk",
-                "Anzhero-Sudzhensk","Apatity","Arzamas","Armavir","Arsen'ev","Artem","Arhangel'sk","Asbest","Astrahan'",
-                "Achinsk","Balakovo","Balahna","Balashiha","Balashov","Barnaul","Batajsk","Belgorod","Belebej","Belovo",
+        String[] cities = new String[]{
+                "Moscow", "Saint-Petersburg", "Abakan", "Azov", "Aleksandrov", "Aleksin", "Al'met'evsk", "Anapa", "Angarsk",
+                "Anzhero-Sudzhensk", "Apatity", "Arzamas", "Armavir", "Arsen'ev", "Artem", "Arhangel'sk", "Asbest", "Astrahan'",
+                "Achinsk", "Balakovo", "Balahna", "Balashiha", "Balashov", "Barnaul", "Batajsk", "Belgorod", "Belebej", "Belovo",
                 "Belogorsk","Beloreck","Belorechensk","Berdsk","Berezniki",
                 "Berezovskij","Bijsk","Birobidzhan","Blagoveshchensk",
                 "Bor","Borisoglebsk","Borovichi","Bratsk","Bryansk","Bugul'ma","Budennovsk","Buzuluk","Bujnaksk",

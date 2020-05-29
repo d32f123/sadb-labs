@@ -8,7 +8,11 @@ import com.itmo.db.generator.model.entity.Person;
 import com.itmo.db.generator.model.entity.Room;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.*;
+import java.time.LocalDate;
+import java.time.Month;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
 @Slf4j
 public class AccommodationRecordGenerator extends AbstractEntityGenerator<AccommodationRecord, Integer> {
@@ -21,17 +25,15 @@ public class AccommodationRecordGenerator extends AbstractEntityGenerator<Accomm
         return random.nextDouble() * 8000 + 2000;
     }
 
-    public Calendar getLivingStartDate(Random random) {
-        Calendar startDate = new GregorianCalendar(2015, Calendar.SEPTEMBER, 1);
+    public LocalDate getLivingStartDate(Random random) {
+        LocalDate startDate = LocalDate.of(2015, Month.SEPTEMBER, 1);
         int MAX_YEARS_SINCE_START_DATE = 4;
-        startDate.add(Calendar.DAY_OF_MONTH, random.nextInt(MAX_YEARS_SINCE_START_DATE));
+        startDate = startDate.plusDays(random.nextInt(MAX_YEARS_SINCE_START_DATE));
         return startDate;
     }
 
-    public Calendar getLivingEndDate(Calendar startDate) {
-        Calendar endDate = new GregorianCalendar(2015, Calendar.AUGUST,31);
-        endDate.set(Calendar.YEAR, endDate.get(Calendar.YEAR) + 1);
-        return endDate;
+    public LocalDate getLivingEndDate(LocalDate startDate) {
+        return LocalDate.of(startDate.getYear() + 1, Month.AUGUST, 31);
     }
 
     public AccommodationRecordGenerator(Set<DependencyDefinition<?, ?>> deps, Generator generator) {
@@ -45,12 +47,12 @@ public class AccommodationRecordGenerator extends AbstractEntityGenerator<Accomm
 
         Person person = this.getDependencyInstances(Person.class).get(0);
         Room room = this.getDependencyInstances(Room.class).get(0);
-        Calendar startDate = getLivingStartDate(random);
+        LocalDate startDate = getLivingStartDate(random);
         Double payment = getPayment(random);
 
         return List.of(new AccommodationRecord(
                 null, person.getId(), room.getId(), random.nextBoolean(), random.nextBoolean(), payment,
-                startDate.getTime(), getLivingEndDate(startDate).getTime(), getCourse(random)
+                startDate, getLivingEndDate(startDate), getCourse(random)
         ));
     }
 }

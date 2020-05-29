@@ -6,7 +6,11 @@ import com.itmo.db.generator.generator.model.DependencyDefinition;
 import com.itmo.db.generator.model.entity.LibraryRecord;
 import com.itmo.db.generator.model.entity.Person;
 
-import java.util.*;
+import java.time.LocalDate;
+import java.time.Month;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
 public class LibraryRecordGenerator extends AbstractEntityGenerator<LibraryRecord, Integer> {
     public String getBookId(Random random) {
@@ -21,11 +25,11 @@ public class LibraryRecordGenerator extends AbstractEntityGenerator<LibraryRecor
         return random.nextBoolean() ? "взял" : "вернул";
     }
 
-    public Date getDate(Random random) {
-        Calendar date = new GregorianCalendar(2000, Calendar.JANUARY,0);
+    public LocalDate getDate(Random random) {
+        LocalDate date = LocalDate.of(2000, Month.JANUARY, 0);
         int MAX_DAYS_SINCE_START_DATE = 7200;
-        date.add(Calendar.DAY_OF_MONTH, random.nextInt(MAX_DAYS_SINCE_START_DATE));
-        return date.getTime();
+        date = date.plusDays(random.nextInt(MAX_DAYS_SINCE_START_DATE));
+        return date;
     }
 
     public LibraryRecordGenerator(Set<DependencyDefinition<?, ?>> dependencies, Generator generator) {
