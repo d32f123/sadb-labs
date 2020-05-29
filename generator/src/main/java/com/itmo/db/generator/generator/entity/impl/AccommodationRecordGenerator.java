@@ -3,7 +3,9 @@ package com.itmo.db.generator.generator.entity.impl;
 import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.generator.entity.AbstractEntityGenerator;
 import com.itmo.db.generator.generator.model.DependencyDefinition;
-import com.itmo.db.generator.model.entity.*;
+import com.itmo.db.generator.model.entity.AccommodationRecord;
+import com.itmo.db.generator.model.entity.Person;
+import com.itmo.db.generator.model.entity.Room;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
@@ -12,11 +14,15 @@ import java.util.*;
 public class AccommodationRecordGenerator extends AbstractEntityGenerator<AccommodationRecord, Integer> {
 
     String getCourse(Random random) {
-        return String.valueOf(1 + random.nextInt(4)) + "курс";
+        return (1 + random.nextInt(4)) + "курс";
+    }
+
+    public Double getPayment(Random random) {
+        return random.nextDouble() * 8000 + 2000;
     }
 
     public Calendar getLivingStartDate(Random random) {
-        Calendar startDate = new GregorianCalendar(2015, Calendar.SEPTEMBER,1);
+        Calendar startDate = new GregorianCalendar(2015, Calendar.SEPTEMBER, 1);
         int MAX_YEARS_SINCE_START_DATE = 4;
         startDate.add(Calendar.DAY_OF_MONTH, random.nextInt(MAX_YEARS_SINCE_START_DATE));
         return startDate;
@@ -40,9 +46,10 @@ public class AccommodationRecordGenerator extends AbstractEntityGenerator<Accomm
         Person person = this.getDependencyInstances(Person.class).get(0);
         Room room = this.getDependencyInstances(Room.class).get(0);
         Calendar startDate = getLivingStartDate(random);
+        Double payment = getPayment(random);
 
         return List.of(new AccommodationRecord(
-                null, person.getId(), room.getId(), random.nextBoolean(), random.nextBoolean(), random.nextBoolean(),
+                null, person.getId(), room.getId(), random.nextBoolean(), random.nextBoolean(), payment,
                 startDate.getTime(), getLivingEndDate(startDate).getTime(), getCourse(random)
         ));
     }

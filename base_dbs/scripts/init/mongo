@@ -74,7 +74,7 @@ db.createCollection("rooms", {
                     bsonType: "date"
                 },
                 dormitory_id: {
-                    bsonType: "int",
+                    bsonType: "string",
                     description: "is required and should reference dormitories"
                 }
             }
@@ -108,10 +108,10 @@ db.createCollection("room_records", {
                     bsonType: "string"
                 },
                 person_id: {
-                    bsonType: "int",
+                    bsonType: "string",
                 },
                 room_id: {
-                    bsonType: "int"
+                    bsonType: "string"
                 }
             }
         }

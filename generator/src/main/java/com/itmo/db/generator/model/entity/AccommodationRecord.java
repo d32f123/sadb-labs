@@ -17,7 +17,7 @@ public class AccommodationRecord implements NumericallyIdentifiableEntity {
 
     private boolean facilities;
     private boolean budget;
-    private boolean payment;
+    private double payment;
     private Date livingStartDate;
     private Date livingEndDate;
     private String course;
