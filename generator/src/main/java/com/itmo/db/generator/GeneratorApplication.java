@@ -29,6 +29,9 @@ public class GeneratorApplication implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
         Set<EntityDefinition<?, ?>> entities = Set.of(
+                new EntityDefinition<>(AcademicRecord.class, 2, Set.of(
+                        new DependencyDefinition<>(Person.class, 1)
+                )),
                 new EntityDefinition<>(Group.class, 2, null),
                 new EntityDefinition<>(Person.class, 2, null),
 //                new EntityDefinition<>(Project.class, 2, null),

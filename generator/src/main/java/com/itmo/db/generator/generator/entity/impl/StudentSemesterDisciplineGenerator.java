@@ -19,7 +19,10 @@ public class StudentSemesterDisciplineGenerator
         super(StudentSemesterDiscipline.class, deps, generator);
     }
 
-    private int getScore(Random random) {
+    private Integer getScore(Random random) {
+        if (random.nextInt(10) < 1) {
+            return null;
+        }
         double res = random.nextGaussian() * 10.0 + 65.0;
         if (res < 0.0) {
             res = 0.0;
@@ -30,7 +33,10 @@ public class StudentSemesterDisciplineGenerator
         return (int) Math.floor(res);
     }
 
-    private LocalDate getScoreDate(Random random) {
+    private LocalDate getScoreDate(Integer score, Random random) {
+        if (score == null) {
+            return null;
+        }
         var m = random.nextInt(8) + 2;
         if (m > 4) {
             m += 2;
@@ -38,8 +44,8 @@ public class StudentSemesterDisciplineGenerator
         return LocalDate.of(2015 + random.nextInt(4), m, random.nextInt(27) + 1);
     }
 
-    private Short getMark(int score, Random random) {
-        if (random.nextInt(10) < 2) {
+    private Short getMark(Integer score, Random random) {
+        if (score == null || random.nextInt(10) < 2) {
             return null;
         }
         if (score < 60) {
@@ -80,11 +86,11 @@ public class StudentSemesterDisciplineGenerator
     protected List<StudentSemesterDiscipline> getEntities() {
         log.debug("Creating StudentSemesterDiscipline");
         var random = new Random();
-        var score = getScore(random);
-        var scoreDate = getScoreDate(random);
-        var mark = getMark(score, random);
-        var markChar = getMarkChar(score, mark);
-        var markDate = getScoreDate(random);
+        Integer score = getScore(random);
+        LocalDate scoreDate = getScoreDate(score, random);
+        Short mark = getMark(score, random);
+        Character markChar = score == null ? null : getMarkChar(score, mark);
+        LocalDate markDate = mark == null ? null : getScoreDate(mark.intValue(), random);
 
         var entity = new StudentSemesterDiscipline(
                 new StudentSemesterDiscipline.StudentSemesterDisciplinePK(

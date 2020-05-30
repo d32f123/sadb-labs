@@ -62,8 +62,7 @@ public class ItmoEntityAbstractPersistenceWorker<T extends AbstractEntity<TId>, 
 
 
     public ItmoObjectOracleDAO persist(T entity) {
-        List<?> itmoObjects = this.doPersist(entity);
-        return itmoObjects == null || itmoObjects.isEmpty() ? null : (ItmoObjectOracleDAO) itmoObjects.get(0);
+        return this.persistEntity(entity);
     }
 
     private <TEntity> ItmoObjectOracleDAO persistEntity(TEntity entity) {
@@ -72,7 +71,7 @@ public class ItmoEntityAbstractPersistenceWorker<T extends AbstractEntity<TId>, 
 
         ItmoObjectOracleDAO itmoObjectOracleDAO =
                 ItmoObjectOracleDAO.builder()
-                        .name(String.valueOf(getObjectName(entity)))
+                        .name(getObjectName(entity))
                         .objectTypeId(this.itmoIdMap.get(entity.getClass().getName()))
                         .parentId(null)
                         .build();
@@ -85,18 +84,6 @@ public class ItmoEntityAbstractPersistenceWorker<T extends AbstractEntity<TId>, 
         this.itmoParamOracleRepository.saveAll(paramDAOs);
 
         return itmoObjectOracleDAO;
-    }
-
-    private boolean isCompoundField(Field field) {
-        return field.getType().isAnnotationPresent(ItmoEntity.class);
-    }
-
-    private boolean isReferenceField(Field field) {
-        return field.isAnnotationPresent(ItmoReference.class);
-    }
-
-    private Class<? extends NumericallyIdentifiableEntity> getReferenceClass(Field field) {
-        return field.getDeclaredAnnotation(ItmoReference.class).value();
     }
 
     private <TEntity> ItmoParamOracleDAO persistField(TEntity entity, Field field, ItmoObjectOracleDAO entityDAO) {
@@ -132,7 +119,7 @@ public class ItmoEntityAbstractPersistenceWorker<T extends AbstractEntity<TId>, 
 
     @Override
     protected List<? extends IdentifiableDAO<?>> doPersist(T entity) {
-        return List.of(this.persistEntity(entity));
+        return List.of(this.persist(entity));
     }
 
     public void createObjectSpecificProperties(Class<?> entityClass) {
@@ -199,14 +186,14 @@ public class ItmoEntityAbstractPersistenceWorker<T extends AbstractEntity<TId>, 
         return String.join(".", field.getType().getName(), field.getName());
     }
 
-    private Object getObjectName(Object obj) {
+    private String getObjectName(Object obj) {
         try {
             log.trace("Trying to call method with name '{}'", "getName");
-            return obj.getClass().getDeclaredMethod("getName").invoke(obj);
+            return truncateName((String) obj.getClass().getDeclaredMethod("getName").invoke(obj));
         } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException exception) {
             log.warn("Object of type '{}' does not have getName method, retuning String.valueOf()", obj.getClass());
         }
-        return obj.toString().substring(0, 99);
+        return truncateName(obj.toString());
     }
 
     private Object callGetter(Object obj, String fieldName) {
@@ -220,6 +207,25 @@ public class ItmoEntityAbstractPersistenceWorker<T extends AbstractEntity<TId>, 
             e.printStackTrace();
         }
         return null;
+    }
+
+    private boolean isCompoundField(Field field) {
+        return field.getType().isAnnotationPresent(ItmoEntity.class);
+    }
+
+    private boolean isReferenceField(Field field) {
+        return field.isAnnotationPresent(ItmoReference.class);
+    }
+
+    private Class<? extends NumericallyIdentifiableEntity> getReferenceClass(Field field) {
+        return field.getDeclaredAnnotation(ItmoReference.class).value();
+    }
+
+    private String truncateName(String string) {
+        if (string.length() <= 50) {
+            return string;
+        }
+        return string.substring(0, 50);
     }
 
     public void commit() {

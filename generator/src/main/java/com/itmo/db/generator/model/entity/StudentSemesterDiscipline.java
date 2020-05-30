@@ -18,13 +18,13 @@ public class StudentSemesterDiscipline implements AbstractEntity<StudentSemester
 
     @ItmoAttribute
     private StudentSemesterDisciplinePK id;
-    @ItmoAttribute
-    private Short mark;
 
     private Integer professorId;
     private Integer semesterCounter;
     private Integer score;
     private LocalDate scoreDate;
+    @ItmoAttribute
+    private Short mark;
     @ItmoAttribute
     private Character markLetter;
     @ItmoAttribute
