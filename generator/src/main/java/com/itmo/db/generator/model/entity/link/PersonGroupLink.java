@@ -25,7 +25,7 @@ public class PersonGroupLink implements AbstractEntity<PersonGroupLink.PersonGro
 
     @Override
     public String getName() {
-        return String.join(" ", String.valueOf(this.getId().groupId), String.valueOf(this.getId().personId));
+        return this.toString();
     }
 
     @Data
