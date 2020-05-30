@@ -42,7 +42,7 @@ public class GeneratorApplication implements ApplicationRunner {
 //                        new DependencyDefinition<>(Publication.class, 1)
 //                )),
 //                new EntityDefinition<>(Discipline.class, 2, null),
-//                new EntityDefinition<>(Dormitory.class, 2, null),
+                new EntityDefinition<>(Dormitory.class, 2, null),
                 new EntityDefinition<>(Faculty.class, 2, Set.of(
                         new DependencyDefinition<>(University.class, 1)
                 )),
@@ -74,9 +74,9 @@ public class GeneratorApplication implements ApplicationRunner {
                 )),
 //                new EntityDefinition<>(Project.class, 2, null),
 //                new EntityDefinition<>(Publication.class, 2, null),
-//                new EntityDefinition<>(Room.class, 2, Set.of(
-//                        new DependencyDefinition<>(Dormitory.class, 1)
-//                )),
+                new EntityDefinition<>(Room.class, 2, Set.of(
+                        new DependencyDefinition<>(Dormitory.class, 1)
+                )),
 //                new EntityDefinition<>(ScheduleRecord.class, 2, Set.of(
 //                        new DependencyDefinition<>(StudentSemesterDiscipline.class, 1)
 //                )),
