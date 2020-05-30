@@ -26,7 +26,7 @@ public class LibraryRecordGenerator extends AbstractEntityGenerator<LibraryRecor
     }
 
     public LocalDate getDate(Random random) {
-        LocalDate date = LocalDate.of(2000, Month.JANUARY, 0);
+        LocalDate date = LocalDate.of(2000, Month.JANUARY, 1);
         int MAX_DAYS_SINCE_START_DATE = 7200;
         date = date.plusDays(random.nextInt(MAX_DAYS_SINCE_START_DATE));
         return date;

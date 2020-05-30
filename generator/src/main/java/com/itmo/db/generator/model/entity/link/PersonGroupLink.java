@@ -1,28 +1,48 @@
 package com.itmo.db.generator.model.entity.link;
 
 import com.itmo.db.generator.model.entity.AbstractEntity;
+import com.itmo.db.generator.model.entity.Group;
+import com.itmo.db.generator.model.entity.OracleEntity;
+import com.itmo.db.generator.model.entity.Person;
+import com.itmo.db.generator.persistence.db.oracle.annotations.ItmoAttribute;
+import com.itmo.db.generator.persistence.db.oracle.annotations.ItmoEntity;
+import com.itmo.db.generator.persistence.db.oracle.annotations.ItmoReference;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.sql.Timestamp;
-
 @Data
 @NoArgsConstructor
-public class PersonGroupLink implements AbstractEntity<PersonGroupLink.PersonGroupLinkPK> {
+@ItmoEntity(description = "PersonGroup link")
+public class PersonGroupLink implements AbstractEntity<PersonGroupLink.PersonGroupLinkPK>, OracleEntity {
 
-    public PersonGroupLink(Integer person_id, Integer group_id){
-        this.id = new PersonGroupLink.PersonGroupLinkPK(person_id, group_id);
+    @ItmoAttribute
+    private PersonGroupLink.PersonGroupLinkPK id;
+
+    public PersonGroupLink(Integer person_id, Integer group_id) {
         this.id = new PersonGroupLinkPK(person_id, group_id);
+    }
+
+    @Override
+    public String getName() {
+        return String.join(" ", String.valueOf(this.getId().groupId), String.valueOf(this.getId().personId));
     }
 
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class PersonGroupLinkPK {
+    @ItmoEntity(description = "PersonGroupLink primary key")
+    public static class PersonGroupLinkPK implements OracleEntity {
+        @ItmoAttribute
+        @ItmoReference(Person.class)
         public Integer personId;
+        @ItmoAttribute
+        @ItmoReference(Group.class)
         public Integer groupId;
-    }
 
-    private PersonGroupLink.PersonGroupLinkPK id;
+        @Override
+        public String getName() {
+            return this.toString();
+        }
+    }
 }

@@ -8,7 +8,7 @@ import com.itmo.db.generator.persistence.db.postgres.dao.*;
 import com.itmo.db.generator.persistence.db.postgres.repository.StudentSemesterDisciplinePostgresRepository;
 import com.itmo.db.generator.persistence.impl.itmo.ItmoEntityAbstractPersistenceWorker;
 
-import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.List;
 
 public class StudentSemesterDisciplinePersistenceWorker
@@ -39,7 +39,7 @@ public class StudentSemesterDisciplinePersistenceWorker
                 this.getDependencyDAOId(Professor.class, entity.getProfessorId(), ProfessorPostgresDAO.class),
                 entity.getSemesterCounter(),
                 entity.getScore(),
-                Date.valueOf(entity.getScoreDate())
+                Timestamp.valueOf(entity.getScoreDate().atStartOfDay())
         );
 
         var oracleDAO = this.worker.persist(entity);

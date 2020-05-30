@@ -2,6 +2,7 @@ package com.itmo.db.generator.persistence.db.oracle.dao;
 
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -16,6 +17,7 @@ import javax.persistence.Table;
 @Table(name = "itmo_object_types")
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class ItmoObjectTypeOracleDAO implements IdentifiableDAO<Long> {
 
     @Id

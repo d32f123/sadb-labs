@@ -38,8 +38,8 @@ public class SpecialtyDisciplineLinkPostgresDAO implements IdentifiableDAO<Speci
     @AllArgsConstructor
     @NoArgsConstructor
     public static class SpecialtyDisciplineLinkPK implements Serializable {
-        private Integer specialty;
-        private Integer discipline;
+        private Integer specialtyId;
+        private Integer disciplineId;
     }
 
 }

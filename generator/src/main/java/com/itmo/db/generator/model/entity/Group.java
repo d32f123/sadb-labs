@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @ItmoEntity(description = "Group of students")
-public class Group implements NumericallyIdentifiableEntity {
+public class Group implements NumericallyIdentifiableEntity, OracleEntity {
 
     private Integer id;
     @ItmoAttribute

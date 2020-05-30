@@ -35,7 +35,7 @@ public class StudentSemesterDisciplineGenerator
         if (m > 4) {
             m += 2;
         }
-        return LocalDate.of(2015 + random.nextInt(4), m, random.nextInt(27));
+        return LocalDate.of(2015 + random.nextInt(4), m, random.nextInt(27) + 1);
     }
 
     private Short getMark(int score, Random random) {

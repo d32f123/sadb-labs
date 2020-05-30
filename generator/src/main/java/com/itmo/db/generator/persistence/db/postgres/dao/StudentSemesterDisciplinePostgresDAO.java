@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.sql.Date;
+import java.sql.Timestamp;
 
 @Entity
 @Data
@@ -33,7 +33,7 @@ public class StudentSemesterDisciplinePostgresDAO implements IdentifiableDAO<Stu
     @Column(name = "score")
     private Integer score;
     @Column(name = "score_date")
-    private Date scoreDate;
+    private Timestamp scoreDate;
 
     @Override
     public StudentSemesterDisciplinePostgresPK getId() {
@@ -53,8 +53,8 @@ public class StudentSemesterDisciplinePostgresDAO implements IdentifiableDAO<Stu
     @AllArgsConstructor
     @NoArgsConstructor
     public static class StudentSemesterDisciplinePostgresPK implements Serializable {
-        private Integer student;
-        private Integer semester;
-        private Integer discipline;
+        private Integer studentId;
+        private Integer semesterId;
+        private Integer disciplineId;
     }
 }

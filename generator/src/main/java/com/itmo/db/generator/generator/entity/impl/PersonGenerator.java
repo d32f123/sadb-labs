@@ -62,7 +62,7 @@ public class PersonGenerator extends AbstractEntityGenerator<Person, Integer> {
     }
 
     public LocalDate getBirthDate(Random random) {
-        LocalDate date = LocalDate.of(1900, Month.JANUARY, 0);
+        LocalDate date = LocalDate.of(1900, Month.JANUARY, 1);
         int MAX_DAYS_SINCE_START_DATE = 37600;
         date = date.plusDays(random.nextInt(MAX_DAYS_SINCE_START_DATE));
         return date;

@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @ItmoEntity(description = "University subject used to map other entities")
-public class Discipline implements NumericallyIdentifiableEntity {
+public class Discipline implements NumericallyIdentifiableEntity, OracleEntity {
 
     private Integer id;
     @ItmoAttribute

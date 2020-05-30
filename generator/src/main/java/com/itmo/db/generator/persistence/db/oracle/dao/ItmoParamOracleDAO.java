@@ -33,4 +33,7 @@ public class ItmoParamOracleDAO implements IdentifiableDAO<Long> {
     @Column(name = "list_value_id")
     private Long listValueId;
 
+    @Column(name = "reference_id")
+    private Long referenceId;
+
 }

@@ -2,10 +2,12 @@ package com.itmo.db.generator.persistence.impl.itmo;
 
 import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.model.entity.AbstractEntity;
+import com.itmo.db.generator.model.entity.NumericallyIdentifiableEntity;
 import com.itmo.db.generator.persistence.AbstractPersistenceWorker;
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
 import com.itmo.db.generator.persistence.db.oracle.annotations.ItmoAttribute;
 import com.itmo.db.generator.persistence.db.oracle.annotations.ItmoEntity;
+import com.itmo.db.generator.persistence.db.oracle.annotations.ItmoReference;
 import com.itmo.db.generator.persistence.db.oracle.dao.*;
 import com.itmo.db.generator.persistence.db.oracle.repository.*;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -63,83 +66,121 @@ public class ItmoEntityAbstractPersistenceWorker<T extends AbstractEntity<TId>, 
         return itmoObjects == null || itmoObjects.isEmpty() ? null : (ItmoObjectOracleDAO) itmoObjects.get(0);
     }
 
-
-    @Override
-    protected List<? extends IdentifiableDAO<?>> doPersist(T entity) {
-        List<ItmoParamOracleDAO> itmoParamOracleDAOS = new ArrayList<>();
-        /// create objects
-
+    private <TEntity> ItmoObjectOracleDAO persistEntity(TEntity entity) {
         log.debug("Persisting entity '{}' with name '{}' and objectType '{}' to ORACLE",
-                entity, callGetter(entity, "name"), this.itmoIdMap.get(entity.getClass().getName()));
+                entity, getObjectName(entity), this.itmoIdMap.get(entity.getClass().getName()));
+
         ItmoObjectOracleDAO itmoObjectOracleDAO =
                 ItmoObjectOracleDAO.builder()
-                        .name(String.valueOf(callGetter(entity, "name")))
+                        .name(String.valueOf(getObjectName(entity)))
                         .objectTypeId(this.itmoIdMap.get(entity.getClass().getName()))
                         .parentId(null)
                         .build();
-
         this.itmoObjectOracleRepository.save(itmoObjectOracleDAO);
 
-        Arrays.stream(entity.getClass().getDeclaredFields())
+        var paramDAOs = Arrays.stream(entity.getClass().getDeclaredFields())
                 .filter(field -> field.isAnnotationPresent(ItmoAttribute.class))
-                .forEach(field -> {
-                    ItmoParamOracleDAO itmoParamOracleDAO = ItmoParamOracleDAO.builder()
-                            .attributeId(this.itmoIdMap.get(getFieldQualifiedName(field)))
-                            .value(field.getType().isAssignableFrom(Enum.class)
-                                    ? null
-                                    : String.valueOf(callGetter(entity, field.getName()))
-                            )
-                            .listValueId(field.getType().isAssignableFrom(Enum.class)
-                                    ? this.itmoIdMap.get(getFieldQualifiedName(field))
-                                    : null
-                            )
-                            .objectId(itmoObjectOracleDAO.getId())
-                            .build();
-                    itmoParamOracleDAOS.add(itmoParamOracleDAO);
-                    log.debug("Adding: " + itmoParamOracleDAO.getAttributeId().toString());
-                });
+                .map(field -> this.persistField(entity, field, itmoObjectOracleDAO))
+                .collect(Collectors.toList());
+        this.itmoParamOracleRepository.saveAll(paramDAOs);
 
-        this.itmoParamOracleRepository.saveAll(itmoParamOracleDAOS);
-        // INFO: required to return saved object because it contains OBJECT_ID
-        //  Then dependent entities will have this id for reference
-        return List.of(itmoObjectOracleDAO);
+        return itmoObjectOracleDAO;
     }
 
+    private boolean isCompoundField(Field field) {
+        return field.getType().isAnnotationPresent(ItmoEntity.class);
+    }
 
-    public void createObjectSpecificProperties(Class<T> entityClass) {
+    private boolean isReferenceField(Field field) {
+        return field.isAnnotationPresent(ItmoReference.class);
+    }
+
+    private Class<? extends NumericallyIdentifiableEntity> getReferenceClass(Field field) {
+        return field.getDeclaredAnnotation(ItmoReference.class).value();
+    }
+
+    private <TEntity> ItmoParamOracleDAO persistField(TEntity entity, Field field, ItmoObjectOracleDAO entityDAO) {
+        log.trace("Handling field '{}' of entity '{}'", field.getName(), entity);
+        ItmoParamOracleDAO itmoParamOracleDAO = ItmoParamOracleDAO.builder()
+                .attributeId(this.itmoIdMap.get(getFieldQualifiedName(field)))
+                .value(
+                        field.getType().isEnum() || this.isReferenceField(field) || this.isCompoundField(field)
+                                ? null
+                                : String.valueOf(callGetter(entity, field.getName()))
+                )
+                .listValueId(
+                        field.getType().isEnum()
+                                ? this.itmoIdMap.get(getFieldQualifiedName(field))
+                                : null
+                )
+                .referenceId(
+                        this.isCompoundField(field)
+                                ? this.persistEntity(callGetter(entity, field.getName())).getId()
+                                : this.isReferenceField(field)
+                                ? this.getDependencyDAOId(
+                                getReferenceClass(field),
+                                (Integer) callGetter(entity, field.getName()),
+                                ItmoObjectOracleDAO.class
+                        )
+                                : null
+                )
+                .objectId(entityDAO.getId())
+                .build();
+        log.trace("Adding: " + itmoParamOracleDAO.getAttributeId().toString());
+        return itmoParamOracleDAO;
+    }
+
+    @Override
+    protected List<? extends IdentifiableDAO<?>> doPersist(T entity) {
+        return List.of(this.persistEntity(entity));
+    }
+
+    public void createObjectSpecificProperties(Class<?> entityClass) {
         log.debug("Creating entity mapping for oracle schema for entity '{}'", entityClass);
-        ItmoObjectTypeOracleDAO itmoObjectTypeOracleDAO = new ItmoObjectTypeOracleDAO();
-        List<ItmoAttributeOracleDAO> itmoAttributeOracleDAOS = new ArrayList<>();
-        List<ItmoListValueOracleDAO> itmoListValueOracleDAOS = new ArrayList<>();
 
-        long generatedAttributeTypeId;
-        long generatedListValueId;
         long generatedObjectTypeId = entityClass.getName().hashCode();
         itmoIdMap.put(entityClass.getName(), generatedObjectTypeId);
-        itmoObjectTypeOracleDAO.setId(generatedObjectTypeId);
-        itmoObjectTypeOracleDAO.setName(entityClass.getName());
-        itmoObjectTypeOracleDAO.setDescription(entityClass.getAnnotation(ItmoEntity.class).description());
-        itmoObjectTypeOracleRepository.save(itmoObjectTypeOracleDAO);
-        log.trace("Generated itmoObjectType: '{}'", itmoObjectTypeOracleDAO);
 
-        for (Field field : entityClass.getDeclaredFields())
-            if (field.isAnnotationPresent(ItmoAttribute.class)) {
-                log.trace("Found field declaration for persistence: '{}'", field.getName());
-                generatedAttributeTypeId = getFieldQualifiedName(field).hashCode();
-                itmoIdMap.put(getFieldQualifiedName(field), generatedAttributeTypeId);
-                var attributeDAO = ItmoAttributeOracleDAO.builder()
-                        .id(generatedAttributeTypeId)
-                        .name(field.getName())
-                        .attributeType(field.getType().getName())
-                        .build();
-                log.trace("Persisting attribute '{}'", attributeDAO);
-                itmoAttributeOracleDAOS.add(attributeDAO);
+        var objectTypeDAO = ItmoObjectTypeOracleDAO.builder()
+                .id(generatedObjectTypeId)
+                .name(entityClass.getName())
+                .description(entityClass.getAnnotation(ItmoEntity.class).description())
+                .build();
+        itmoObjectTypeOracleRepository.save(objectTypeDAO);
+        log.trace("Generated itmoObjectType: '{}'", objectTypeDAO);
 
-                if (field.getType().isAssignableFrom(Enum.class))
+        List<ItmoAttributeOracleDAO> itmoAttributeOracleDAOS = new ArrayList<>();
+        List<ItmoListValueOracleDAO> itmoListValueOracleDAOS = new ArrayList<>();
+        Arrays.stream(entityClass.getDeclaredFields())
+                .filter(field -> field.isAnnotationPresent(ItmoAttribute.class))
+                .forEach(field -> {
+                    log.trace("Found field declaration for persistence: '{}'", field.getName());
+
+                    long generatedAttributeTypeId = getFieldQualifiedName(field).hashCode();
+                    itmoIdMap.put(getFieldQualifiedName(field), generatedAttributeTypeId);
+
+                    var attributeDAO = ItmoAttributeOracleDAO.builder()
+                            .id(generatedAttributeTypeId)
+                            .name(field.getName())
+                            .attributeType(field.getType().getName())
+                            .build();
+                    log.trace("Persisting attribute '{}'", attributeDAO);
+                    itmoAttributeOracleDAOS.add(attributeDAO);
+
+                    if (field.getType().isAnnotationPresent(ItmoEntity.class)) {
+                        log.trace("Field '{}' type is an entity, recursing", field.getName());
+                        this.createObjectSpecificProperties(field.getType());
+                        return;
+                    }
+
+                    if (!field.getType().isEnum()) {
+                        return;
+                    }
+
                     log.trace("Field '{}' is enum, persisting enum values", field.getName());
                     for (Field enumField : field.getType().getDeclaredFields()) {
                         log.trace("Persisting enum value '{}' for enum '{}'", enumField.getName(), field.getName());
-                        generatedListValueId = getFieldQualifiedName(field).hashCode();
+                        long generatedListValueId = getFieldQualifiedName(field).hashCode();
                         itmoIdMap.put(getFieldQualifiedName(field), generatedListValueId);
                         var itmoListValueDAO = ItmoListValueOracleDAO.builder()
                                 .id((long) (getFieldQualifiedName(enumField)).hashCode())
@@ -148,9 +189,8 @@ public class ItmoEntityAbstractPersistenceWorker<T extends AbstractEntity<TId>, 
                         log.trace("Persisting listValue '{}'", itmoListValueDAO);
                         itmoListValueOracleDAOS.add(itmoListValueDAO);
                     }
-            }
+                });
 
-        this.itmoObjectTypeOracleRepository.save(itmoObjectTypeOracleDAO);
         this.itmoAttributeOracleRepository.saveAll(itmoAttributeOracleDAOS);
         this.itmoListValueOracleRepository.saveAll(itmoListValueOracleDAOS);
     }
@@ -159,9 +199,20 @@ public class ItmoEntityAbstractPersistenceWorker<T extends AbstractEntity<TId>, 
         return String.join(".", field.getType().getName(), field.getName());
     }
 
-    private Object callGetter(Object obj, String fieldName){
+    private Object getObjectName(Object obj) {
+        try {
+            log.trace("Trying to call method with name '{}'", "getName");
+            return obj.getClass().getDeclaredMethod("getName").invoke(obj);
+        } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException exception) {
+            log.warn("Object of type '{}' does not have getName method, retuning String.valueOf()", obj.getClass());
+        }
+        return obj.toString().substring(0, 99);
+    }
+
+    private Object callGetter(Object obj, String fieldName) {
         PropertyDescriptor pd;
         try {
+            log.trace("Trying to get property with name '{}'", fieldName);
             pd = new PropertyDescriptor(fieldName, obj.getClass());
             return pd.getReadMethod().invoke(obj);
         } catch (IntrospectionException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {

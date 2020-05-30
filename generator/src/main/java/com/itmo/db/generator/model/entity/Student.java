@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Student implements AbstractEntity<Integer> {
+public class Student implements NumericallyIdentifiableEntity {
 
     private Integer id; // personId
     private Integer specialtyId;

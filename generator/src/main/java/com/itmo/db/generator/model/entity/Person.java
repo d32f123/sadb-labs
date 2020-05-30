@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @ItmoEntity(description = "Basic person entity")
-public class Person implements NumericallyIdentifiableEntity {
+public class Person implements NumericallyIdentifiableEntity, OracleEntity {
 
     private Integer id;
     @ItmoAttribute
@@ -28,5 +28,9 @@ public class Person implements NumericallyIdentifiableEntity {
     private String birthPlace;
     private boolean isInDormitory;
     private short warningCount;
+
+    public String getName() {
+        return String.join(" ", this.lastName, this.firstName, this.patronymicName);
+    }
 
 }
