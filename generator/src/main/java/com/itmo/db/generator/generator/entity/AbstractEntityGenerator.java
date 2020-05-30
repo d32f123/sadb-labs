@@ -140,9 +140,11 @@ public abstract class AbstractEntityGenerator<T extends AbstractEntity<TId>, TId
         entities.forEach(entity -> {
             if (entity instanceof NumericallyIdentifiableEntity) {
                 NumericallyIdentifiableEntity numericallyIdentifiableEntity = (NumericallyIdentifiableEntity) entity;
-                int id = getEntityId();
-                log.debug("'{}': Generated id for numerically identifiable entity", id);
-                numericallyIdentifiableEntity.setId(id);
+                if (numericallyIdentifiableEntity.getId() == null) {
+                    int id = getEntityId();
+                    log.debug("'{}': Generated id for numerically identifiable entity", id);
+                    numericallyIdentifiableEntity.setId(id);
+                }
             }
             pool.add(entity);
         });

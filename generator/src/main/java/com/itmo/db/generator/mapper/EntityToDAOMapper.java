@@ -40,6 +40,7 @@ public class EntityToDAOMapper<TEntity extends AbstractEntity<TEntityId>, TEntit
     }
 
     public <TDAO extends IdentifiableDAO<TDAOId>, TDAOId> TDAOId getDAOId(TEntityId id, Class<TDAO> daoClass) {
+        log.trace("Getting entity '{}' by id '{}' and class '{}'", entityClass, id, daoClass);
         return (TDAOId) this.entityToDAOMap.get(id).get(daoClass);
     }
 

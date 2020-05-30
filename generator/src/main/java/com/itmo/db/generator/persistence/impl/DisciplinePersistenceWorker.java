@@ -4,6 +4,7 @@ import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.model.entity.Discipline;
 import com.itmo.db.generator.persistence.AbstractPersistenceWorker;
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
+import com.itmo.db.generator.persistence.db.oracle.dao.ItmoObjectOracleDAO;
 import com.itmo.db.generator.persistence.db.postgres.dao.DisciplinePostgresDAO;
 import com.itmo.db.generator.persistence.db.postgres.repository.DisciplinePostgresRepository;
 import com.itmo.db.generator.persistence.impl.itmo.ItmoEntityAbstractPersistenceWorker;
@@ -35,7 +36,7 @@ public class DisciplinePersistenceWorker extends AbstractPersistenceWorker<Disci
         );
 
         this.disciplinePostgresRepository.save(disciplinePostgresDAO);
-        var disciplineOracleDAO = this.disciplineOracleWorker.persist(entity);
+        ItmoObjectOracleDAO disciplineOracleDAO = this.disciplineOracleWorker.persist(entity);
         return List.of(disciplinePostgresDAO, disciplineOracleDAO);
     }
 

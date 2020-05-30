@@ -214,7 +214,8 @@ public class ItmoEntityAbstractPersistenceWorker<T extends AbstractEntity<TId>, 
     }
 
     private boolean isReferenceField(Field field) {
-        return field.isAnnotationPresent(ItmoReference.class);
+        return field.isAnnotationPresent(ItmoReference.class)
+                && !field.getAnnotation(ItmoReference.class).isTransient();
     }
 
     private Class<? extends NumericallyIdentifiableEntity> getReferenceClass(Field field) {

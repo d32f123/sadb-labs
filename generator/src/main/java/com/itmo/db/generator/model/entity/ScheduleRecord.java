@@ -22,7 +22,7 @@ public class ScheduleRecord implements NumericallyIdentifiableEntity, OracleEnti
     @ItmoReference(Discipline.class)
     private Integer disciplineId;
     @ItmoAttribute
-    @ItmoReference(Semester.class)
+    @ItmoReference(value = Semester.class, isTransient = true)
     private Integer semesterId;
     @ItmoAttribute
     private LocalTime startTime;

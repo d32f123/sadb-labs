@@ -11,4 +11,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ItmoReference {
     Class<? extends NumericallyIdentifiableEntity> value();
+
+    boolean isTransient() default false;
 }

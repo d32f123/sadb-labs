@@ -41,13 +41,13 @@ public class StudentSemesterDiscipline implements AbstractEntity<StudentSemester
     @ItmoEntity(description = "Student Semester Discipline Key mapping")
     public static class StudentSemesterDisciplinePK implements OracleEntity {
         @ItmoAttribute
-        @ItmoReference(Student.class)
+        @ItmoReference(Person.class)
         public Integer studentId;
         @ItmoAttribute
         @ItmoReference(Discipline.class)
         public Integer disciplineId;
         @ItmoAttribute
-        @ItmoReference(Semester.class)
+        @ItmoReference(value = Semester.class, isTransient = true)
         public Integer semesterId;
 
         @Override

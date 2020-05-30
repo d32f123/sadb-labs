@@ -73,8 +73,8 @@ public class ScheduleRecordGenerator extends AbstractEntityGenerator<ScheduleRec
         var record = new ScheduleRecord(
                 null,
                 studentSemesterDiscipline.getId().getStudentId(),
-                studentSemesterDiscipline.getId().getSemesterId(),
                 studentSemesterDiscipline.getId().getDisciplineId(),
+                studentSemesterDiscipline.getId().getSemesterId(),
                 entry.getStartTime(),
                 entry.getEndTime(),
                 getClassroom(random)

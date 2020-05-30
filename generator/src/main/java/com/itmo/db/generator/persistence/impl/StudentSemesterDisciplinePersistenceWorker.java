@@ -42,6 +42,7 @@ public class StudentSemesterDisciplinePersistenceWorker
                 Timestamp.valueOf(entity.getScoreDate().atStartOfDay())
         );
 
+        this.studentSemesterDisciplinePostgresRepository.save(postgresDAO);
         var oracleDAO = this.worker.persist(entity);
         return List.of(postgresDAO, oracleDAO);
     }
