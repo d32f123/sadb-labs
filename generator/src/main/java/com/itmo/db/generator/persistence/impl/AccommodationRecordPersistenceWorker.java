@@ -31,7 +31,9 @@ public class AccommodationRecordPersistenceWorker extends AbstractPersistenceWor
                 entity.isBudget(),
                 entity.getPayment(),
                 Date.valueOf(entity.getLivingStartDate()),
-                Date.valueOf(entity.getLivingEndDate()),
+                entity.getLivingEndDate() != null
+                        ? Date.valueOf(entity.getLivingEndDate())
+                        : null,
                 entity.getCourse(),
                 this.getDependencyDAOId(Person.class, entity.getPersonId(), PersonMongoDAO.class),
                 this.getDependencyDAOId(Room.class, entity.getRoomId(), RoomMongoDAO.class)

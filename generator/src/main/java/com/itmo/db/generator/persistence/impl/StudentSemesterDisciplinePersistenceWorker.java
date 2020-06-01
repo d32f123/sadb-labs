@@ -39,7 +39,9 @@ public class StudentSemesterDisciplinePersistenceWorker
                 this.getDependencyDAOId(Professor.class, entity.getProfessorId(), ProfessorPostgresDAO.class),
                 entity.getSemesterCounter(),
                 entity.getScore(),
-                Timestamp.valueOf(entity.getScoreDate().atStartOfDay())
+                entity.getScoreDate() != null
+                        ? Timestamp.valueOf(entity.getScoreDate().atStartOfDay())
+                        : null
         );
 
         this.studentSemesterDisciplinePostgresRepository.save(postgresDAO);

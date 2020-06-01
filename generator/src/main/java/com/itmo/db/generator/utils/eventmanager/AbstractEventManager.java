@@ -1,6 +1,11 @@
 package com.itmo.db.generator.utils.eventmanager;
 
-import java.util.*;
+import com.itmo.db.generator.pool.ThreadPoolFactory;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
@@ -32,7 +37,7 @@ public class AbstractEventManager<TEventEnum extends Enum<TEventEnum>> implement
 
         List<Consumer<T>> eventConsumers = (List<Consumer<T>>) (List) this.consumers.get(eventType);
         for (Consumer<T> listener : eventConsumers) {
-            new Thread(() -> listener.accept(arg)).start();
+            ThreadPoolFactory.getPool().submit(() -> listener.accept(arg));
         }
     }
 }

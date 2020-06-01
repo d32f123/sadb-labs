@@ -9,6 +9,8 @@ import lombok.Data;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
+import java.util.concurrent.Future;
+
 @Data
 @RequiredArgsConstructor
 public class GeneratableEntity<T extends AbstractEntity<TId>, TId> {
@@ -19,9 +21,9 @@ public class GeneratableEntity<T extends AbstractEntity<TId>, TId> {
     @NonNull
     private EntityToDAOMapper<T, TId> mapper;
     private EntityGenerator generator;
-    private Thread generatorThread;
+    private Future<?> generatorThread;
     private PersistenceWorker persistenceWorker;
-    private Thread persistenceWorkerThread;
+    private Future<?> persistenceWorkerThread;
     private boolean generated = false;
     private boolean persisted = false;
 }

@@ -30,7 +30,9 @@ public class RoomPersistenceWorker extends AbstractPersistenceWorker<Room, Integ
                 (int) entity.getCapacity(),
                 (int) entity.getEngaged(),
                 entity.isBugs(),
-                Date.valueOf(entity.getLastCleaningDate()),
+                entity.getLastCleaningDate() != null
+                        ? Date.valueOf(entity.getLastCleaningDate())
+                        : null,
                 this.getDependencyDAOId(Dormitory.class, entity.getDormitoryId(), DormitoryMongoDAO.class)
         );
         this.roomMongoRepository.save(dao);

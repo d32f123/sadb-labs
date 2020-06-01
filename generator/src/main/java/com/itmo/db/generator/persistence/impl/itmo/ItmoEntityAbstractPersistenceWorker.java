@@ -34,6 +34,8 @@ public class ItmoEntityAbstractPersistenceWorker<T extends AbstractEntity<TId>, 
     protected final ItmoParamOracleRepository itmoParamOracleRepository;
     protected final HashMap<String, Long> itmoIdMap = new HashMap<>();
 
+    private static final Object lock = new Object();
+
 
     public ItmoEntityAbstractPersistenceWorker(Class<T> entityClass,
                                                Generator generator,
@@ -51,13 +53,19 @@ public class ItmoEntityAbstractPersistenceWorker<T extends AbstractEntity<TId>, 
         this.createObjectSpecificProperties(entityClass);
     }
 
+    public void commit() {
+        synchronized (lock) {
+            this.itmoAttributeOracleRepository.flush();
+            this.itmoListValueOracleRepository.flush();
+            this.itmoObjectOracleRepository.flush();
+            this.itmoObjectTypeOracleRepository.flush();
+            this.itmoParamOracleRepository.flush();
+        }
+    }
+
     @Override
     protected void doCommit() {
-        this.itmoAttributeOracleRepository.flush();
-        this.itmoListValueOracleRepository.flush();
-        this.itmoObjectOracleRepository.flush();
-        this.itmoObjectTypeOracleRepository.flush();
-        this.itmoParamOracleRepository.flush();
+        this.commit();
     }
 
 
@@ -75,13 +83,17 @@ public class ItmoEntityAbstractPersistenceWorker<T extends AbstractEntity<TId>, 
                         .objectTypeId(this.itmoIdMap.get(entity.getClass().getName()))
                         .parentId(null)
                         .build();
-        this.itmoObjectOracleRepository.save(itmoObjectOracleDAO);
+        synchronized (lock) {
+            this.itmoObjectOracleRepository.save(itmoObjectOracleDAO);
+        }
 
         var paramDAOs = Arrays.stream(entity.getClass().getDeclaredFields())
                 .filter(field -> field.isAnnotationPresent(ItmoAttribute.class))
                 .map(field -> this.persistField(entity, field, itmoObjectOracleDAO))
                 .collect(Collectors.toList());
-        this.itmoParamOracleRepository.saveAll(paramDAOs);
+        synchronized (lock) {
+            this.itmoParamOracleRepository.saveAll(paramDAOs);
+        }
 
         return itmoObjectOracleDAO;
     }
@@ -133,7 +145,9 @@ public class ItmoEntityAbstractPersistenceWorker<T extends AbstractEntity<TId>, 
                 .name(entityClass.getName())
                 .description(entityClass.getAnnotation(ItmoEntity.class).description())
                 .build();
-        itmoObjectTypeOracleRepository.save(objectTypeDAO);
+        synchronized (lock) {
+            itmoObjectTypeOracleRepository.save(objectTypeDAO);
+        }
         log.trace("Generated itmoObjectType: '{}'", objectTypeDAO);
 
         List<ItmoAttributeOracleDAO> itmoAttributeOracleDAOS = new ArrayList<>();
@@ -152,7 +166,9 @@ public class ItmoEntityAbstractPersistenceWorker<T extends AbstractEntity<TId>, 
                             .attributeType(field.getType().getName())
                             .build();
                     log.trace("Persisting attribute '{}'", attributeDAO);
-                    itmoAttributeOracleDAOS.add(attributeDAO);
+                    synchronized (lock) {
+                        itmoAttributeOracleDAOS.add(attributeDAO);
+                    }
 
                     if (field.getType().isAnnotationPresent(ItmoEntity.class)) {
                         log.trace("Field '{}' type is an entity, recursing", field.getName());
@@ -174,12 +190,16 @@ public class ItmoEntityAbstractPersistenceWorker<T extends AbstractEntity<TId>, 
                                 .value(enumField.getName())
                                 .build();
                         log.trace("Persisting listValue '{}'", itmoListValueDAO);
-                        itmoListValueOracleDAOS.add(itmoListValueDAO);
+                        synchronized (lock) {
+                            itmoListValueOracleDAOS.add(itmoListValueDAO);
+                        }
                     }
                 });
 
-        this.itmoAttributeOracleRepository.saveAll(itmoAttributeOracleDAOS);
-        this.itmoListValueOracleRepository.saveAll(itmoListValueOracleDAOS);
+        synchronized (lock) {
+            this.itmoAttributeOracleRepository.saveAll(itmoAttributeOracleDAOS);
+            this.itmoListValueOracleRepository.saveAll(itmoListValueOracleDAOS);
+        }
     }
 
     private static String getFieldQualifiedName(Field field) {
@@ -227,10 +247,6 @@ public class ItmoEntityAbstractPersistenceWorker<T extends AbstractEntity<TId>, 
             return string;
         }
         return string.substring(0, 50);
-    }
-
-    public void commit() {
-        this.doCommit();
     }
 
 }

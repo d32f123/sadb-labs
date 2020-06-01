@@ -1,17 +1,18 @@
 package com.itmo.db.generator.generator;
 
+import com.itmo.db.generator.generator.entity.EntityGeneratorFactory;
 import com.itmo.db.generator.generator.model.EntityDefinition;
+import com.itmo.db.generator.generator.model.GeneratableEntity;
 import com.itmo.db.generator.mapper.EntityToDAOMapper;
+import com.itmo.db.generator.model.entity.AbstractEntity;
 import com.itmo.db.generator.persistence.PersistenceWorkerFactory;
+import com.itmo.db.generator.pool.EntityPool;
+import com.itmo.db.generator.pool.ThreadPoolFactory;
+import com.itmo.db.generator.pool.impl.EntityPoolImpl;
 import com.itmo.db.generator.utils.dependencytree.DependencyTree;
 import com.itmo.db.generator.utils.eventbus.EventBus;
-import com.itmo.db.generator.utils.eventbus.GeneratorEventMessage;
-import com.itmo.db.generator.generator.entity.EntityGeneratorFactory;
 import com.itmo.db.generator.utils.eventbus.GeneratorEvent;
-import com.itmo.db.generator.generator.model.GeneratableEntity;
-import com.itmo.db.generator.model.entity.AbstractEntity;
-import com.itmo.db.generator.pool.EntityPool;
-import com.itmo.db.generator.pool.impl.EntityPoolImpl;
+import com.itmo.db.generator.utils.eventbus.GeneratorEventMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -39,6 +40,9 @@ public class Generator {
 
     @Autowired
     private EntityGeneratorFactory entityGeneratorFactory;
+
+    @Autowired
+    private ThreadPoolFactory threadPoolFactory;
 
     private Map<Class<? extends AbstractEntity<?>>, GeneratableEntity<? extends AbstractEntity<?>, ?>> allEntities;
     private Map<Class<? extends AbstractEntity<?>>, GeneratableEntity<? extends AbstractEntity<?>, ?>> currentEntities;
@@ -150,11 +154,9 @@ public class Generator {
 
         log.debug("Level ready to run: '{}'", this.currentEntities.values());
         this.currentEntities.values().forEach(entity -> {
-            log.trace("Running threads for entity '{}'", entity.getEntityClass());
-            entity.setGeneratorThread(new Thread(entity.getGenerator()));
-            entity.setPersistenceWorkerThread(new Thread(entity.getPersistenceWorker()));
-            entity.getPersistenceWorkerThread().start();
-            entity.getGeneratorThread().start();
+            log.trace("Enqueuing threads for entity '{}'", entity.getEntityClass());
+            entity.setGeneratorThread(this.threadPoolFactory.getPoolInstance().submit(entity.getGenerator()));
+            entity.setPersistenceWorkerThread(this.threadPoolFactory.getPoolInstance().submit(entity.getPersistenceWorker()));
         });
     }
 

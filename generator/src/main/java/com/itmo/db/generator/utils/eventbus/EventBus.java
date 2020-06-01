@@ -1,6 +1,7 @@
 package com.itmo.db.generator.utils.eventbus;
 
 import com.itmo.db.generator.model.entity.AbstractEntity;
+import com.itmo.db.generator.pool.ThreadPoolFactory;
 import com.itmo.db.generator.utils.eventmanager.AbstractEventManager;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,7 +10,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 @Slf4j
@@ -79,18 +83,7 @@ public class EventBus extends AbstractEventManager<GeneratorEvent> {
                             eventType,
                             sender,
                             new ArrayList<>(),
-                            (message) -> {
-                                if (message.getSender() != sender) {
-                                    return;
-                                }
-                                log.info("'{}:{}' callback, notifying consumers", eventType, sender);
-                                synchronized (this.consumerMap) {
-                                    List<Consumer<GeneratorEventMessage<T, TId, TMessage>>> consumers =
-                                            (List) this.consumerMap.get(key).getConsumers();
-                                    log.info("'{}:{}' Acquired lock, CONSUMERS FOUND: '{}', notifying consumers", eventType, sender, consumers);
-                                    consumers.forEach(sub -> new Thread(() -> sub.accept(message)).start());
-                                }
-                            }
+                    (message) -> this.messageHandler(eventType, sender, message, key)
                     )
             );
             log.info("'{}:{}' adding to new collection", eventType, sender);
@@ -133,4 +126,25 @@ public class EventBus extends AbstractEventManager<GeneratorEvent> {
     void notify(GeneratorEvent eventType, GeneratorEventMessage<T, TId, TMessage> arg) {
         super.notify(eventType, arg);
     }
+
+    private <T extends AbstractEntity<TId>, TId, TMessage>
+    void messageHandler(GeneratorEvent eventType,
+                        Class<T> sender,
+                        GeneratorEventMessage<T, TId, TMessage> message,
+                        SenderKey<T, TId> key) {
+        if (message.getSender() != sender) {
+            return;
+        }
+        log.info("'{}:{}' callback, notifying consumers", eventType, sender);
+        synchronized (this.consumerMap) {
+            List<Consumer<GeneratorEventMessage<T, TId, TMessage>>> consumers =
+                    (List) this.consumerMap.get(key).getConsumers();
+            log.info("'{}:{}' Acquired lock, CONSUMERS FOUND: '{}', notifying consumers", eventType, sender, consumers);
+            consumers
+                    .parallelStream()
+                    .map(sub -> (Runnable) () -> sub.accept(message))
+                    .forEach(ThreadPoolFactory.getPool()::submit);
+        }
+    }
+
 }

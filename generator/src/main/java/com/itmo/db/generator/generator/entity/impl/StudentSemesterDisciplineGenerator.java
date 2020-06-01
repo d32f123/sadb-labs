@@ -21,7 +21,7 @@ public class StudentSemesterDisciplineGenerator
 
     private Integer getScore(Random random) {
         if (random.nextInt(10) < 1) {
-            return null;
+            return 0;
         }
         double res = random.nextGaussian() * 10.0 + 65.0;
         if (res < 0.0) {
@@ -34,9 +34,6 @@ public class StudentSemesterDisciplineGenerator
     }
 
     private LocalDate getScoreDate(Integer score, Random random) {
-        if (score == null) {
-            return null;
-        }
         var m = random.nextInt(8) + 2;
         if (m > 4) {
             m += 2;
@@ -45,7 +42,7 @@ public class StudentSemesterDisciplineGenerator
     }
 
     private Short getMark(Integer score, Random random) {
-        if (score == null || random.nextInt(10) < 2) {
+        if (score < 30 || random.nextInt(10) < 2) {
             return null;
         }
         if (score < 60) {

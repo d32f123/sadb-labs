@@ -1,17 +1,16 @@
 package com.itmo.db.generator.pool.impl;
 
-import com.itmo.db.generator.utils.eventbus.EventBus;
-import com.itmo.db.generator.utils.eventbus.GeneratorEvent;
 import com.itmo.db.generator.model.entity.AbstractEntity;
 import com.itmo.db.generator.pool.EntityPool;
 import com.itmo.db.generator.pool.EntityPoolInstance;
+import com.itmo.db.generator.pool.ThreadPoolFactory;
+import com.itmo.db.generator.utils.eventbus.EventBus;
+import com.itmo.db.generator.utils.eventbus.GeneratorEvent;
 import com.itmo.db.generator.utils.eventbus.GeneratorEventMessage;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -50,8 +49,8 @@ public class EntityPoolInstanceImpl<T extends AbstractEntity<TId>, TId> implemen
     public void request(int entitiesCount, Consumer<List<T>> callback) {
         log.debug("'{}': Got request for {} entities", entityClass, entitiesCount);
         synchronized (this.consumerQueue) {
-            this.consumerQueue.offer(new ConsumerWithMeta(callback, entitiesCount));
             synchronized (this.handlerMontior) {
+                this.consumerQueue.offer(new ConsumerWithMeta(callback, entitiesCount));
                 this.handlerMontior.notify();
             }
         }
@@ -111,11 +110,13 @@ public class EntityPoolInstanceImpl<T extends AbstractEntity<TId>, TId> implemen
     }
 
     private synchronized void sendToConsumer(ConsumerWithMeta consumer, List<T> entities) {
-        new Thread(() -> consumer.getConsumer().accept(entities)).start();
+        ThreadPoolFactory.getPool().submit(
+                () -> consumer.getConsumer().accept(entities)
+        );
     }
 
     private synchronized void poolUpdatedCallback(GeneratorEventMessage<T, TId, T> message) {
-        synchronized (this.pool) {
+        synchronized (this.consumerQueue) {
             synchronized (this.handlerMontior) {
                 this.handlerMontior.notify();
             }
@@ -124,7 +125,7 @@ public class EntityPoolInstanceImpl<T extends AbstractEntity<TId>, TId> implemen
 
     // TODO: Unsub here from everything
     private void poolGenerationCompleteCallback(GeneratorEventMessage<T, TId, ?> message) {
-        synchronized (this.pool) {
+        synchronized (this.consumerQueue) {
             synchronized (this.handlerMontior) {
                 this.handlerMontior.notify();
             }
