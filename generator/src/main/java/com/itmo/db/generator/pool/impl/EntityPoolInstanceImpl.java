@@ -25,6 +25,7 @@ public class EntityPoolInstanceImpl<T extends AbstractEntity<TId>, TId> implemen
     private final Queue<ConsumerWithMeta> consumerQueue;
     private final Class<T> entityClass;
     private final Object handlerMontior;
+    private boolean shouldExit = false;
 
     @Data
     @AllArgsConstructor
@@ -40,7 +41,7 @@ public class EntityPoolInstanceImpl<T extends AbstractEntity<TId>, TId> implemen
         this.entityClass = entityClass;
         this.eventBus = EventBus.getInstance();
         this.handlerMontior = new Object();
-        new Thread(this::handleQueue).start();
+        ThreadPoolFactory.getPool().submit(this::handleQueue);
         this.eventBus.subscribe(GeneratorEvent.ENTITY_GENERATED, entityClass, this::poolUpdatedCallback);
         this.eventBus.subscribe(GeneratorEvent.ENTITY_GENERATION_FINISHED, entityClass, this::poolGenerationCompleteCallback);
     }
@@ -48,11 +49,9 @@ public class EntityPoolInstanceImpl<T extends AbstractEntity<TId>, TId> implemen
     @Override
     public void request(int entitiesCount, Consumer<List<T>> callback) {
         log.debug("'{}': Got request for {} entities", entityClass, entitiesCount);
-        synchronized (this.consumerQueue) {
-            synchronized (this.handlerMontior) {
-                this.consumerQueue.offer(new ConsumerWithMeta(callback, entitiesCount));
-                this.handlerMontior.notify();
-            }
+        synchronized (this.handlerMontior) {
+            this.consumerQueue.offer(new ConsumerWithMeta(callback, entitiesCount));
+            this.handlerMontior.notify();
         }
     }
 
@@ -60,12 +59,11 @@ public class EntityPoolInstanceImpl<T extends AbstractEntity<TId>, TId> implemen
         return this.pool.getActualAmount() - this.pointer;
     }
 
-    // TODO: Оставить только Discipline, чекнуть локи
     private void handleQueue() {
-        while (true) {
+        while (!shouldExit) {
             log.debug("'{}': HandleQueue iteration", entityClass);
             ConsumerWithMeta consumer;
-            synchronized (consumerQueue) {
+            synchronized (handlerMontior) {
                 consumer = consumerQueue.peek();
 
                 if (consumer == null) {
@@ -85,7 +83,9 @@ public class EntityPoolInstanceImpl<T extends AbstractEntity<TId>, TId> implemen
             if (this.getNumberOfAvailableEntities() < consumer.entitiesCount) {
                 log.debug("'{}': Pool is not frozen and not enough entities as of yet ({} / {})",
                         entityClass, this.getNumberOfAvailableEntities(), consumer.entitiesCount);
-                this.waitForMonitor();
+                synchronized (handlerMontior) {
+                    this.waitForMonitor();
+                }
                 continue;
             }
 
@@ -102,33 +102,28 @@ public class EntityPoolInstanceImpl<T extends AbstractEntity<TId>, TId> implemen
 
     private void waitForMonitor() {
         try {
-            synchronized (this.handlerMontior) {
-                this.handlerMontior.wait();
-            }
+            this.handlerMontior.wait();
         } catch (InterruptedException ignored) {
+            this.shouldExit = true;
         }
     }
 
-    private synchronized void sendToConsumer(ConsumerWithMeta consumer, List<T> entities) {
+    private void sendToConsumer(ConsumerWithMeta consumer, List<T> entities) {
         ThreadPoolFactory.getPool().submit(
                 () -> consumer.getConsumer().accept(entities)
         );
     }
 
-    private synchronized void poolUpdatedCallback(GeneratorEventMessage<T, TId, T> message) {
-        synchronized (this.consumerQueue) {
-            synchronized (this.handlerMontior) {
-                this.handlerMontior.notify();
-            }
+    private void poolUpdatedCallback(GeneratorEventMessage<T, TId, T> message) {
+        synchronized (this.handlerMontior) {
+            this.handlerMontior.notify();
         }
     }
 
     // TODO: Unsub here from everything
     private void poolGenerationCompleteCallback(GeneratorEventMessage<T, TId, ?> message) {
-        synchronized (this.consumerQueue) {
-            synchronized (this.handlerMontior) {
-                this.handlerMontior.notify();
-            }
+        synchronized (this.handlerMontior) {
+            this.handlerMontior.notify();
         }
     }
 
