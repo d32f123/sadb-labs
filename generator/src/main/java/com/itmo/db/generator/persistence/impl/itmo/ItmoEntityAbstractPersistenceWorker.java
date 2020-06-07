@@ -20,6 +20,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 
@@ -27,40 +31,56 @@ import java.util.stream.Collectors;
 public class ItmoEntityAbstractPersistenceWorker<T extends AbstractEntity<TId>, TId> extends AbstractPersistenceWorker<T, TId> {
 
 
-    protected final ItmoAttributeOracleRepository itmoAttributeOracleRepository;
-    protected final ItmoListValueOracleRepository itmoListValueOracleRepository;
-    protected final ItmoObjectOracleRepository itmoObjectOracleRepository;
-    protected final ItmoObjectTypeOracleRepository itmoObjectTypeOracleRepository;
-    protected final ItmoParamOracleRepository itmoParamOracleRepository;
+    private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    protected static ItmoAttributeOracleRepository itmoAttributeOracleRepository;
+    protected static ItmoListValueOracleRepository itmoListValueOracleRepository;
+    protected static ItmoObjectOracleRepository itmoObjectOracleRepository;
+    protected static ItmoObjectTypeOracleRepository itmoObjectTypeOracleRepository;
     protected final HashMap<String, Long> itmoIdMap = new HashMap<>();
+    protected static ItmoParamOracleRepository itmoParamOracleRepository;
 
     private static final Object lock = new Object();
 
-
-    public ItmoEntityAbstractPersistenceWorker(Class<T> entityClass,
-                                               Generator generator,
-                                               ItmoAttributeOracleRepository itmoAttributeOracleRepository,
-                                               ItmoListValueOracleRepository itmoListValueOracleRepository,
-                                               ItmoObjectOracleRepository itmoObjectOracleRepository,
-                                               ItmoObjectTypeOracleRepository itmoObjectTypeOracleRepository,
-                                               ItmoParamOracleRepository itmoParamOracleRepository) {
+    public ItmoEntityAbstractPersistenceWorker(Class<T> entityClass, Generator generator) {
         super(entityClass, generator);
-        this.itmoAttributeOracleRepository = itmoAttributeOracleRepository;
-        this.itmoListValueOracleRepository = itmoListValueOracleRepository;
-        this.itmoObjectOracleRepository = itmoObjectOracleRepository;
-        this.itmoObjectTypeOracleRepository = itmoObjectTypeOracleRepository;
-        this.itmoParamOracleRepository = itmoParamOracleRepository;
+
         this.createObjectSpecificProperties(entityClass);
     }
 
-    public void commit() {
-        synchronized (lock) {
-            this.itmoAttributeOracleRepository.flush();
-            this.itmoListValueOracleRepository.flush();
-            this.itmoObjectOracleRepository.flush();
-            this.itmoObjectTypeOracleRepository.flush();
-            this.itmoParamOracleRepository.flush();
+    public static void init(ItmoAttributeOracleRepository itmoAttributeOracleRepository,
+                            ItmoListValueOracleRepository itmoListValueOracleRepository,
+                            ItmoObjectOracleRepository itmoObjectOracleRepository,
+                            ItmoObjectTypeOracleRepository itmoObjectTypeOracleRepository,
+                            ItmoParamOracleRepository itmoParamOracleRepository) {
+        ItmoEntityAbstractPersistenceWorker.itmoAttributeOracleRepository = itmoAttributeOracleRepository;
+        ItmoEntityAbstractPersistenceWorker.itmoListValueOracleRepository = itmoListValueOracleRepository;
+        ItmoEntityAbstractPersistenceWorker.itmoObjectOracleRepository = itmoObjectOracleRepository;
+        ItmoEntityAbstractPersistenceWorker.itmoObjectTypeOracleRepository = itmoObjectTypeOracleRepository;
+        ItmoEntityAbstractPersistenceWorker.itmoParamOracleRepository = itmoParamOracleRepository;
+    }
+
+    public static void shutdown() {
+        executorService.shutdownNow();
+    }
+
+    private <V> V executeViaService(Callable<V> runnable) {
+        try {
+            return executorService.submit(runnable).get();
+        } catch (InterruptedException | ExecutionException ex) {
+            log.error("Got exception", ex);
+            return null;
         }
+    }
+
+    public void commit() {
+        executeViaService(() -> {
+            itmoAttributeOracleRepository.flush();
+            itmoListValueOracleRepository.flush();
+            itmoObjectOracleRepository.flush();
+            itmoObjectTypeOracleRepository.flush();
+            itmoParamOracleRepository.flush();
+            return null;
+        });
     }
 
     @Override
@@ -83,17 +103,13 @@ public class ItmoEntityAbstractPersistenceWorker<T extends AbstractEntity<TId>, 
                         .objectTypeId(this.itmoIdMap.get(entity.getClass().getName()))
                         .parentId(null)
                         .build();
-        synchronized (lock) {
-            this.itmoObjectOracleRepository.save(itmoObjectOracleDAO);
-        }
+        executeViaService(() -> itmoObjectOracleRepository.save(itmoObjectOracleDAO));
 
         var paramDAOs = Arrays.stream(entity.getClass().getDeclaredFields())
                 .filter(field -> field.isAnnotationPresent(ItmoAttribute.class))
                 .map(field -> this.persistField(entity, field, itmoObjectOracleDAO))
                 .collect(Collectors.toList());
-        synchronized (lock) {
-            this.itmoParamOracleRepository.saveAll(paramDAOs);
-        }
+        executeViaService(() -> itmoParamOracleRepository.saveAll(paramDAOs));
 
         return itmoObjectOracleDAO;
     }
@@ -145,9 +161,8 @@ public class ItmoEntityAbstractPersistenceWorker<T extends AbstractEntity<TId>, 
                 .name(entityClass.getName())
                 .description(entityClass.getAnnotation(ItmoEntity.class).description())
                 .build();
-        synchronized (lock) {
-            itmoObjectTypeOracleRepository.save(objectTypeDAO);
-        }
+        executeViaService(() ->
+                itmoObjectTypeOracleRepository.save(objectTypeDAO));
         log.trace("Generated itmoObjectType: '{}'", objectTypeDAO);
 
         List<ItmoAttributeOracleDAO> itmoAttributeOracleDAOS = new ArrayList<>();
@@ -195,11 +210,11 @@ public class ItmoEntityAbstractPersistenceWorker<T extends AbstractEntity<TId>, 
                         }
                     }
                 });
-
-        synchronized (lock) {
-            this.itmoAttributeOracleRepository.saveAll(itmoAttributeOracleDAOS);
-            this.itmoListValueOracleRepository.saveAll(itmoListValueOracleDAOS);
-        }
+        executeViaService(() -> {
+            itmoAttributeOracleRepository.saveAll(itmoAttributeOracleDAOS);
+            itmoListValueOracleRepository.saveAll(itmoListValueOracleDAOS);
+            return null;
+        });
     }
 
     private static String getFieldQualifiedName(Field field) {

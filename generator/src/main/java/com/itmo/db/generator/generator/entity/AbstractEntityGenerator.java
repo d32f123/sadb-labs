@@ -66,15 +66,9 @@ public abstract class AbstractEntityGenerator<T extends AbstractEntity<TId>, TId
                 )
         );
 
-        while (entity.getAmount() != null && entity.getAmount() < pool.getAvailableAmount() && !this.noDependantsLeft) {
+        while ((entity.getAmount() == null || pool.getAvailableAmount() < entity.getAmount()) && !this.noDependantsLeft) {
             log.trace("'{}' loop: '{}' entities so far", entity.getEntityClass(), pool.getAvailableAmount());
             if (this.dependenciesMetaMap.isEmpty()) {
-                if (this.pool.getAvailableAmount() >= entity.getAmount()) {
-                    log.info("All entities generated for '{}'. Total: '{}'", entity.getEntityClass(), pool.getAvailableAmount());
-                    this.pool.freeze();
-                    return;
-                }
-                this.shouldContinue = true;
                 log.trace("No deps for '{}'", entity.getEntityClass());
                 if (entity.getAmount() == null) {
                     log.error("No deps for '{}' but no amount either!", entity.getEntityClass());
@@ -102,7 +96,6 @@ public abstract class AbstractEntityGenerator<T extends AbstractEntity<TId>, TId
                                     entity.getEntityClass(), pool.getAvailableAmount());
                             this.noDependantsLeft = true;
                             this.shouldContinue = true;
-                            this.pool.freeze();
                             this.runMonitor.notify();
                             return;
                         }
@@ -130,10 +123,13 @@ public abstract class AbstractEntityGenerator<T extends AbstractEntity<TId>, TId
                 while (!this.shouldContinue) {
                     try {
                         this.runMonitor.wait();
-                    } catch (InterruptedException ignored) {}
+                    } catch (InterruptedException ignored) {
+                    }
                 }
             }
         }
+        log.info("All entities generated for '{}'. Total: '{}'", entity.getEntityClass(), pool.getAvailableAmount());
+        this.pool.freeze();
     }
 
     private boolean checkIfAllDependenciesInstantiated() {

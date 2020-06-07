@@ -12,6 +12,9 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 @Slf4j
 public class AccommodationRecordGenerator extends AbstractEntityGenerator<AccommodationRecord, Integer> {
@@ -19,6 +22,8 @@ public class AccommodationRecordGenerator extends AbstractEntityGenerator<Accomm
     public AccommodationRecordGenerator(EntityDefinition<AccommodationRecord, Integer> entity, Generator generator) {
         super(entity, generator);
     }
+
+    Random random = new Random();
 
     String getCourse(Random random) {
         return (1 + random.nextInt(4)) + "курс";
@@ -39,20 +44,31 @@ public class AccommodationRecordGenerator extends AbstractEntityGenerator<Accomm
         return LocalDate.of(startDate.getYear() + 1, Month.AUGUST, 31);
     }
 
-    @Override
-    protected List<AccommodationRecord> getEntities() {
-        log.debug("Creating AccommodationRecord");
-        Random random = new Random();
-
-        Person person = this.getDependencyInstances(Person.class).get(0);
+    private AccommodationRecord getPersonEntity(Person person) {
         Room room = this.getDependencyInstances(Room.class).get(0);
         LocalDate startDate = getLivingStartDate(random);
         Double payment = getPayment(random);
 
-        return List.of(new AccommodationRecord(
+        return new AccommodationRecord(
                 null, person.getId(), room.getId(), random.nextBoolean(), random.nextBoolean(), payment,
                 startDate, getLivingEndDate(startDate), getCourse(random)
-        ));
+        );
+    }
+
+    private Stream<AccommodationRecord> getPersonEntities(Person person) {
+        int n = random.nextInt(3) + 1;
+        log.debug("Creating '{}' AccommodationRecords", n);
+        return IntStream.range(0, n).mapToObj((i) -> this.getPersonEntity(person));
+    }
+
+    @Override
+    protected List<AccommodationRecord> getEntities() {
+        return this.getDependencyInstances(Person.class)
+                .stream()
+                .map(this::getPersonEntities)
+                .reduce(Stream::concat)
+                .orElse(Stream.of())
+                .collect(Collectors.toList());
     }
 }
 

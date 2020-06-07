@@ -33,7 +33,7 @@ public class GeneratorApplication implements ApplicationRunner {
                         new DependencyDefinition<>(Person.class, 1)
                 )),
                 new EntityDefinition<>(AccommodationRecord.class, null, Set.of(
-                        new DependencyDefinition<>(Person.class, 1),
+                        new DependencyDefinition<>(Person.class, 2),
                         new DependencyDefinition<>(Room.class, 1)
                 )),
                 new EntityDefinition<>(Conference.class, 2, null),

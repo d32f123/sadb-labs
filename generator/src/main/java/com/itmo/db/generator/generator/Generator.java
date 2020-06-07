@@ -6,6 +6,7 @@ import com.itmo.db.generator.generator.model.GeneratableEntity;
 import com.itmo.db.generator.mapper.EntityToDAOMapper;
 import com.itmo.db.generator.model.entity.AbstractEntity;
 import com.itmo.db.generator.persistence.PersistenceWorkerFactory;
+import com.itmo.db.generator.persistence.impl.itmo.ItmoEntityAbstractPersistenceWorker;
 import com.itmo.db.generator.pool.EntityPool;
 import com.itmo.db.generator.pool.ThreadPoolFactory;
 import com.itmo.db.generator.pool.impl.EntityPoolImpl;
@@ -105,6 +106,7 @@ public class Generator {
         log.info("Shutting down pools");
         this.threadPoolFactory.getPoolInstance().shutdownNow();
         this.eventBus.shutdown();
+        ItmoEntityAbstractPersistenceWorker.shutdown();
         log.info("Main thread exiting now");
     }
 

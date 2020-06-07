@@ -73,7 +73,11 @@ public class EntityPoolImpl<T extends AbstractEntity<TId>, TId> implements Entit
     }
 
     @Override
-    public void freeze() {
+    public synchronized void freeze() {
+        if (this.frozen) {
+            log.info("Pool '{}' is already frozen, skipping", entityClass);
+            return;
+        }
         log.info("Freezing '{}' at '{}' entities", entityClass, availableAmount);
         this.frozen = true;
         this.eventBus.notify(GeneratorEvent.ENTITY_GENERATION_FINISHED, new GeneratorEventMessage<>(entityClass, this.getPool()));

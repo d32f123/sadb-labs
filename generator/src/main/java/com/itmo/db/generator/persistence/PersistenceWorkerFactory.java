@@ -149,18 +149,17 @@ public class PersistenceWorkerFactory {
         this.specialtyDisciplineLinkPostgresRepository = specialtyDisciplineLinkPostgresRepository;
         this.publicationMySQLRepository = publicationMySQLRepository;
         this.roomMongoRepository = roomMongoRepository;
-    }
-
-    private <T extends AbstractEntity<TId>, TId> ItmoEntityAbstractPersistenceWorker<T, TId> getItmoEntityWorker(Class<T> entityClass) {
-        return new ItmoEntityAbstractPersistenceWorker<>(
-                entityClass,
-                generator,
+        ItmoEntityAbstractPersistenceWorker.init(
                 itmoAttributeOracleRepository,
                 itmoListValueOracleRepository,
                 itmoObjectOracleRepository,
                 itmoObjectTypeOracleRepository,
                 itmoParamOracleRepository
         );
+    }
+
+    private <T extends AbstractEntity<TId>, TId> ItmoEntityAbstractPersistenceWorker<T, TId> getItmoEntityWorker(Class<T> entityClass) {
+        return new ItmoEntityAbstractPersistenceWorker<>(entityClass, generator);
     }
 
     public <T extends AbstractEntity<TId>, TId> PersistenceWorker getWorker(Class<T> entityClass) {
@@ -186,7 +185,7 @@ public class PersistenceWorkerFactory {
             return new FacultyPersistenceWorker(generator, facultyPostgresRepository);
         }
         if (entityClass.equals(Group.class)) {
-            return new GroupPersistenceWorker(generator, new ItmoGroupPersistenceWorker(Group.class, generator, itmoAttributeOracleRepository, itmoListValueOracleRepository, itmoObjectOracleRepository, itmoObjectTypeOracleRepository, itmoParamOracleRepository));
+            return new GroupPersistenceWorker(generator, new ItmoGroupPersistenceWorker(Group.class, generator));
         }
         if (entityClass.equals(Issue.class)) {
             return new IssuePersistenceWorker(generator, issueMySQLRepository);
