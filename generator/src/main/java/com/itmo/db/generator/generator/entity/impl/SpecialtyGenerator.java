@@ -2,21 +2,27 @@ package com.itmo.db.generator.generator.entity.impl;
 
 import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.generator.entity.AbstractEntityGenerator;
-import com.itmo.db.generator.generator.model.DependencyDefinition;
-import com.itmo.db.generator.model.entity.*;
+import com.itmo.db.generator.generator.model.EntityDefinition;
+import com.itmo.db.generator.model.entity.Faculty;
+import com.itmo.db.generator.model.entity.Specialty;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.*;
+import java.util.List;
+import java.util.Random;
 
 @Slf4j
 public class SpecialtyGenerator extends AbstractEntityGenerator<Specialty, Integer> {
+
+    public SpecialtyGenerator(EntityDefinition<Specialty, Integer> entity, Generator generator) {
+        super(entity, generator);
+    }
 
     String getStudyStandart(Random random) {
         return random.nextBoolean() ? "старый" : "новый";
     }
 
     String getName(Random random) {
-        String[] names = new String[] {
+        String[] names = new String[]{
                 "01.03.02\tПрикладная математика и информатика", "01.04.02\tПрикладная математика и информатика",
                 "02.04.03\tМатематическое обеспечение и администрирование информационных систем", "07.04.04\tГрадостроительство",
                 "09.03.01\tИнформатика и вычислительная техника", "09.03.02\tИнформационные системы и технологии",
@@ -30,10 +36,6 @@ public class SpecialtyGenerator extends AbstractEntityGenerator<Specialty, Integ
                 "12.03.03\tФотоника и оптоинформатика", "12.03.04\tБиотехнические системы и технологии", "12.04.01\tПриборостроение",
         };
         return names[random.nextInt(names.length)];
-    }
-
-    public SpecialtyGenerator(Set<DependencyDefinition<?, ?>> deps, Generator generator) {
-        super(Specialty.class, deps, generator);
     }
 
     @Override

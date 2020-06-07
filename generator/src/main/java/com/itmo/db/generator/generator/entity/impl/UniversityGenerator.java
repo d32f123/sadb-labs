@@ -2,19 +2,23 @@ package com.itmo.db.generator.generator.entity.impl;
 
 import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.generator.entity.AbstractEntityGenerator;
-import com.itmo.db.generator.generator.model.DependencyDefinition;
+import com.itmo.db.generator.generator.model.EntityDefinition;
 import com.itmo.db.generator.model.entity.University;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
 @Slf4j
 public class UniversityGenerator extends AbstractEntityGenerator<University, Integer> {
+
+    public UniversityGenerator(EntityDefinition<University, Integer> entity, Generator generator) {
+        super(entity, generator);
+    }
+
     String getName(Random random) {
-        String[] names = new String[] {
+        String[] names = new String[]{
                 "Балтийский государственный технический университет ВОЕНМЕХ им. Д.Ф. Устинова",
                 "Санкт-Петербургский гуманитарный университет профсоюзов", "Санкт-Петербургский университет технологий управления и экономики",
                 "Санкт-Петербургский государственный экономический университет", "Российская академия народного хозяйства и государственной службы при Президенте РФ — филиал в г. Санкт-Петербург",
@@ -45,10 +49,6 @@ public class UniversityGenerator extends AbstractEntityGenerator<University, Int
         String d = (i > 9) ? String.valueOf(i) : ("0" + i);
 
         return LocalDate.parse(y + "-" + m + "-" + d);
-    }
-
-    public UniversityGenerator(Set<DependencyDefinition<?, ?>> deps, Generator generator) {
-        super(University.class, deps, generator);
     }
 
     @Override

@@ -2,7 +2,7 @@ package com.itmo.db.generator.generator.entity.impl;
 
 import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.generator.entity.AbstractEntityGenerator;
-import com.itmo.db.generator.generator.model.DependencyDefinition;
+import com.itmo.db.generator.generator.model.EntityDefinition;
 import com.itmo.db.generator.model.entity.Person;
 import lombok.extern.slf4j.Slf4j;
 
@@ -10,18 +10,21 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
 @Slf4j
 public class PersonGenerator extends AbstractEntityGenerator<Person, Integer> {
     int maleFemaleRatio = 55;
 
+    public PersonGenerator(EntityDefinition<Person, Integer> entity, Generator generator) {
+        super(entity, generator);
+    }
+
     String getFirstName(Random random, Boolean isMale) {
-        String[] maleNames = new String[] {
+        String[] maleNames = new String[]{
                 "Aleksandr", "Andrew", "Boris", "Vadim", "Georgy", "Daniil", "Egor", "Zahar", "Ivan", "Kirill", "Lev",
                 "Konstantin", "Maxim", "Mikhail", "Nikita", "Oleg", "Petr", "Sergey", "Stepan", "Fedor", "Yaroslav",
         };
-        String[] femaleNames = new String[] {
+        String[] femaleNames = new String[]{
                 "Anna", "Alina", "Valentina", "Vera", "Galina", "Darya", "Yana", "Elena", "Zhanna", "Irina", "Lyubov",
                 "Lyudmila", "Margarita", "Maria", "Nadezhda", "Natalya", "Polina", "Svetlana", "Sofia", "Tatiana",
         };
@@ -89,10 +92,6 @@ public class PersonGenerator extends AbstractEntityGenerator<Person, Integer> {
 
     public short getWarningCount(Random random) {
         return (short) random.nextInt(5);
-    }
-
-    public PersonGenerator(Set<DependencyDefinition<?, ?>> deps, Generator generator) {
-        super(Person.class, deps, generator);
     }
 
     @Override

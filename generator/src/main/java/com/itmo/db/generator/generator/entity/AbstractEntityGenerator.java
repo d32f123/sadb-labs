@@ -1,7 +1,7 @@
 package com.itmo.db.generator.generator.entity;
 
 import com.itmo.db.generator.generator.Generator;
-import com.itmo.db.generator.generator.model.DependencyDefinition;
+import com.itmo.db.generator.generator.model.EntityDefinition;
 import com.itmo.db.generator.model.entity.AbstractEntity;
 import com.itmo.db.generator.model.entity.NumericallyIdentifiableEntity;
 import com.itmo.db.generator.pool.EntityPool;
@@ -11,7 +11,9 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 // WARN: Generator MUST NOT modify dependency instances
 @Slf4j
@@ -21,8 +23,7 @@ public abstract class AbstractEntityGenerator<T extends AbstractEntity<TId>, TId
 
     protected final Generator generator;
     protected EntityPool<T, TId> pool;
-    private final Class<T> entityClass;
-    private final Set<DependencyDefinition<?, ?>> dependencies;
+    private final EntityDefinition<T, TId> entity;
     protected final Map<Class<? extends AbstractEntity<?>>, DependencyWithMeta<?, ?>> dependenciesMetaMap;
     private int instancesCreated;
     private final Object instanceCreationMonitor;
@@ -39,76 +40,88 @@ public abstract class AbstractEntityGenerator<T extends AbstractEntity<TId>, TId
         private int amount;
     }
 
-    public AbstractEntityGenerator(Class<T> entityClass,
-                                   Set<DependencyDefinition<?, ?>> dependencies,
+    public AbstractEntityGenerator(EntityDefinition<T, TId> entity,
                                    Generator generator) {
-        log.debug("Creating AbstractEntityGenerator for '{}' with deps: '{}'", entityClass, dependencies);
+        log.debug("Creating AbstractEntityGenerator for '{}' with deps: '{}'", entity.getEntityClass(), entity.getDependencies());
         this.generator = generator;
-        this.entityClass = entityClass;
-        this.dependencies = new HashSet<>(dependencies);
-        this.dependenciesMetaMap = new HashMap<>(dependencies.size());
+        this.entity = entity;
+        this.dependenciesMetaMap = new HashMap<>(entity.getDependencies().size());
         this.instanceCreationMonitor = new Object();
         this.runMonitor = new Object();
-        this.pool = this.generator.getEntityPool(entityClass);
+        this.pool = this.generator.getEntityPool(entity.getEntityClass());
     }
 
     @Override
     public void run() {
-        log.debug("Running AbstractEntityGenerator for '{}' with deps: '{}'", entityClass, dependencies);
-        this.dependencies.forEach(dep ->
+        log.debug("Running AbstractEntityGenerator for '{}' with deps: '{}'", entity.getEntityClass(), entity.getDependencies());
+        entity.getDependencies().forEach(dep ->
                 this.dependenciesMetaMap.put(
                         dep.getDependencyClass(),
                         new DependencyWithMeta(
                                 dep.getDependencyClass(),
                                 null,
-                                this.generator.getEntityPool(dep.getDependencyClass()).getInstance(this.entityClass),
+                                this.generator.getEntityPool(dep.getDependencyClass()).getInstance(entity.getEntityClass()),
                                 dep.getAmountPerInstance()
                         )
                 )
         );
 
-        while (pool.getActualAmount() < pool.getRequestedAmount()) {
-            log.trace("'{}' loop: '{}' / '{}'", entityClass, pool.getActualAmount(), pool.getRequestedAmount());
+        while (entity.getAmount() != null && entity.getAmount() < pool.getAvailableAmount() && !this.noDependantsLeft) {
+            log.trace("'{}' loop: '{}' entities so far", entity.getEntityClass(), pool.getAvailableAmount());
             if (this.dependenciesMetaMap.isEmpty()) {
+                if (this.pool.getAvailableAmount() >= entity.getAmount()) {
+                    log.info("All entities generated for '{}'. Total: '{}'", entity.getEntityClass(), pool.getAvailableAmount());
+                    this.pool.freeze();
+                    return;
+                }
                 this.shouldContinue = true;
-                log.trace("No deps for '{}'", entityClass);
-                log.trace("'{}': Passing control to implementation", entityClass);
+                log.trace("No deps for '{}'", entity.getEntityClass());
+                if (entity.getAmount() == null) {
+                    log.error("No deps for '{}' but no amount either!", entity.getEntityClass());
+                    throw new IllegalArgumentException("No dependencies but no amount specified either");
+                }
+                log.trace("'{}': Passing control to implementation", entity.getEntityClass());
                 this.doGenerate();
                 continue;
             }
 
             this.shouldContinue = false;
-            log.trace("Deps found for '{}'", entityClass);
+            log.trace("Deps found for '{}'", entity.getEntityClass());
             this.instancesCreated = 0;
             this.dependenciesMetaMap.values().forEach(depWithMeta -> {
-                        log.debug("AbstractEntityGenerator for '{}': Requesting amount '{}' of '{}'",
-                                entityClass, depWithMeta.amount, depWithMeta.entityClass);
-                        depWithMeta.getPoolInstance().request(depWithMeta.getAmount(), (entities) -> {
-                            log.trace("Got entities for '{}'", depWithMeta.entityClass);
-                            synchronized (this.runMonitor) {
-                                if (this.noDependantsLeft) {
-                                    return;
-                                }
-                                if (entities == null || entities.size() != depWithMeta.getAmount()) {
-                                    this.noDependantsLeft = true;
-                                    this.runMonitor.notify();
-                                }
+                log.debug("AbstractEntityGenerator for '{}': Requesting amount '{}' of '{}'",
+                        entity.getEntityClass(), depWithMeta.amount, depWithMeta.entityClass);
+                depWithMeta.getPoolInstance().request(depWithMeta.getAmount(), (entities) -> {
+                    log.trace("Got entities for '{}'", depWithMeta.entityClass);
+                    synchronized (this.runMonitor) {
+                        if (this.noDependantsLeft) {
+                            return;
+                        }
+                        if (entities == null || entities.size() != depWithMeta.getAmount()) {
+                            log.info("No dependants left for '{}'. Total generated: '{}'. Exiting now",
+                                    entity.getEntityClass(), pool.getAvailableAmount());
+                            this.noDependantsLeft = true;
+                            this.shouldContinue = true;
+                            this.pool.freeze();
+                            this.runMonitor.notify();
+                            return;
+                        }
                             }
                             synchronized (this.instanceCreationMonitor) {
                                 depWithMeta.setEntityValues((List) entities);
                                 this.instancesCreated += 1;
                                 if (!this.checkIfAllDependenciesInstantiated()) {
-                                    log.trace("'{}': Still waiting for some entities...", entityClass);
+                                    log.trace("'{}': Still waiting for some entities...", entity.getEntityClass());
                                     return;
                                 }
                             }
-                            log.debug("'{}': Got all entities, passing control to implementation", entityClass);
-                            this.doGenerate();
+                    log.debug("'{}': Got all entities, passing control to implementation", entity.getEntityClass());
+                    this.doGenerate();
                             synchronized (this.runMonitor) {
-                                log.trace("'{}': Acquired lock, notifying main runner", entityClass);
+                                log.trace("'{}': Acquired lock, notifying main runner", entity.getEntityClass());
                                 this.shouldContinue = true;
                                 this.runMonitor.notify();
-                                log.trace("'{}': Notified main thread", entityClass);
+                                log.trace("'{}': Notified main thread", entity.getEntityClass());
                             }
                         });
                     }
@@ -124,7 +137,7 @@ public abstract class AbstractEntityGenerator<T extends AbstractEntity<TId>, TId
     }
 
     private boolean checkIfAllDependenciesInstantiated() {
-        return this.instancesCreated == this.dependencies.size();
+        return this.instancesCreated == this.entity.getDependencies().size();
     }
 
     protected <TDep extends AbstractEntity<TDepId>, TDepId> List<TDep> getDependencyInstances(Class<TDep> dependencyClass) {

@@ -2,7 +2,7 @@ package com.itmo.db.generator.generator.entity.impl;
 
 import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.generator.entity.AbstractEntityGenerator;
-import com.itmo.db.generator.generator.model.DependencyDefinition;
+import com.itmo.db.generator.generator.model.EntityDefinition;
 import com.itmo.db.generator.model.entity.LibraryRecord;
 import com.itmo.db.generator.model.entity.Person;
 
@@ -10,9 +10,13 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
 public class LibraryRecordGenerator extends AbstractEntityGenerator<LibraryRecord, Integer> {
+
+    public LibraryRecordGenerator(EntityDefinition<LibraryRecord, Integer> entity, Generator generator) {
+        super(entity, generator);
+    }
+
     public String getBookId(Random random) {
         StringBuilder bookId = new StringBuilder();
         for (int i = 0; i < 8; i++) {
@@ -30,10 +34,6 @@ public class LibraryRecordGenerator extends AbstractEntityGenerator<LibraryRecor
         int MAX_DAYS_SINCE_START_DATE = 7200;
         date = date.plusDays(random.nextInt(MAX_DAYS_SINCE_START_DATE));
         return date;
-    }
-
-    public LibraryRecordGenerator(Set<DependencyDefinition<?, ?>> dependencies, Generator generator) {
-        super(LibraryRecord.class, dependencies, generator);
     }
 
     @Override

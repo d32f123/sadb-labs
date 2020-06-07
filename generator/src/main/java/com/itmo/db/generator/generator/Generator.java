@@ -137,16 +137,13 @@ public class Generator {
                     log.trace("Instantiating generatableEntity for entity '{}'", entity);
                     GeneratableEntity<?, ?> generatableEntity = new GeneratableEntity(
                             entity.getEntityClass(),
-                            new EntityPoolImpl<>(entity.getEntityClass(), entity.getAmount()),
+                            new EntityPoolImpl<>(entity.getEntityClass()),
                             new EntityToDAOMapper<>(entity.getEntityClass())
                     );
                     this.currentEntities.put(entity.getEntityClass(), generatableEntity);
                     this.allEntities.put(entity.getEntityClass(), generatableEntity);
                     this.currentEntities.get(entity.getEntityClass()).setGenerator(
-                            this.entityGeneratorFactory.getGenerator(
-                                    entity.getEntityClass(),
-                                    entity.getDependencies()
-                            )
+                            this.entityGeneratorFactory.getGenerator(entity)
                     );
                     this.currentEntities.get(entity.getEntityClass()).setPersistenceWorker(
                             this.persistenceWorkerFactory.getWorker(

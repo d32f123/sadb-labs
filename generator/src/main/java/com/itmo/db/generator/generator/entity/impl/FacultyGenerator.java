@@ -2,11 +2,13 @@ package com.itmo.db.generator.generator.entity.impl;
 
 import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.generator.entity.AbstractEntityGenerator;
-import com.itmo.db.generator.generator.model.DependencyDefinition;
-import com.itmo.db.generator.model.entity.*;
+import com.itmo.db.generator.generator.model.EntityDefinition;
+import com.itmo.db.generator.model.entity.Faculty;
+import com.itmo.db.generator.model.entity.University;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.*;
+import java.util.List;
+import java.util.Random;
 
 @Slf4j
 public class FacultyGenerator extends AbstractEntityGenerator<Faculty, Integer> {
@@ -28,8 +30,8 @@ public class FacultyGenerator extends AbstractEntityGenerator<Faculty, Integer> 
             "Факультет прикладной оптики", "Военный учебный центр", "Факультет среднего профессионального образования",
     };
 
-    public FacultyGenerator(Set<DependencyDefinition<?, ?>> deps, Generator generator) {
-        super(Faculty.class, deps, generator);
+    public FacultyGenerator(EntityDefinition<Faculty, Integer> entity, Generator generator) {
+        super(entity, generator);
     }
 
     @Override

@@ -2,17 +2,22 @@ package com.itmo.db.generator.generator.entity.impl;
 
 import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.generator.entity.AbstractEntityGenerator;
-import com.itmo.db.generator.generator.model.DependencyDefinition;
+import com.itmo.db.generator.generator.model.EntityDefinition;
 import com.itmo.db.generator.model.entity.Discipline;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.*;
+import java.util.List;
+import java.util.Random;
 
 @Slf4j
 public class DisciplineGenerator extends AbstractEntityGenerator<Discipline, Integer> {
 
+    public DisciplineGenerator(EntityDefinition<Discipline, Integer> entity, Generator generator) {
+        super(entity, generator);
+    }
+
     String getControleForm(Random random) {
-        String[] forms = new String[] {"exam", "test"};
+        String[] forms = new String[]{"exam", "test"};
         return forms[random.nextInt(forms.length)];
     }
 
@@ -38,11 +43,6 @@ public class DisciplineGenerator extends AbstractEntityGenerator<Discipline, Int
                 "Интеллектуальные методы проектирования инерциальных ЧЭ ИНС", "Формирование программы реального времени для навигационной системы в пакете MATLAB"
         };
         return disciplines[random.nextInt(disciplines.length)];
-    }
-
-
-    public DisciplineGenerator(Set<DependencyDefinition<?, ?>> deps, Generator generator) {
-        super(Discipline.class, deps, generator);
     }
 
     @Override

@@ -2,20 +2,24 @@ package com.itmo.db.generator.generator.entity.impl;
 
 import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.generator.entity.AbstractEntityGenerator;
-import com.itmo.db.generator.generator.model.DependencyDefinition;
+import com.itmo.db.generator.generator.model.EntityDefinition;
 import com.itmo.db.generator.model.entity.Publication;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
 @Slf4j
 public class PublicationGenerator extends AbstractEntityGenerator<Publication, Integer> {
+
+    public PublicationGenerator(EntityDefinition<Publication, Integer> entity, Generator generator) {
+        super(entity, generator);
+    }
+
     String getLanguage(Random random) {
-        String[] languages = new String[] { "RU", "ENG", "DE" };
-        int[] ratios = new int[] {50, 90, 10}; // 50%, 40%, 10%
+        String[] languages = new String[]{"RU", "ENG", "DE"};
+        int[] ratios = new int[]{50, 90, 10}; // 50%, 40%, 10%
         int lang = random.nextInt(100);
 
         for (int i = 0; i < languages.length; i++) {
@@ -45,10 +49,6 @@ public class PublicationGenerator extends AbstractEntityGenerator<Publication, I
         String d = (i > 9) ? String.valueOf(i) : ("0" + i);
 
         return Timestamp.valueOf(y + "-" + m + "-" + d + " 03:00:00");
-    }
-
-    public PublicationGenerator(Set<DependencyDefinition<?, ?>> deps, Generator generator) {
-        super(Publication.class, deps, generator);
     }
 
     @Override

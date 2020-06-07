@@ -2,26 +2,29 @@ package com.itmo.db.generator.generator.entity.impl;
 
 import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.generator.entity.AbstractEntityGenerator;
-import com.itmo.db.generator.generator.model.DependencyDefinition;
+import com.itmo.db.generator.generator.model.EntityDefinition;
 import com.itmo.db.generator.model.entity.Issue;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
 @Slf4j
 public class IssueGenerator extends AbstractEntityGenerator<Issue, Integer> {
 
+    public IssueGenerator(EntityDefinition<Issue, Integer> entity, Generator generator) {
+        super(entity, generator);
+    }
+
     String getName(Random random) {
-        String[] part_1 = new String[] { "Исследование", "Разработка", "Модификация", "Улучшение", "Оптимизация" };
-        String[] part_2 = new String[] { "алгоритма", "метода", "способа" };
-        String[] part_3 = new String[] { "поиска", "удаления", "перемещения", "модификации", "замены" };
-        String[] part_4 = new String[] {
+        String[] part_1 = new String[]{"Исследование", "Разработка", "Модификация", "Улучшение", "Оптимизация"};
+        String[] part_2 = new String[]{"алгоритма", "метода", "способа"};
+        String[] part_3 = new String[]{"поиска", "удаления", "перемещения", "модификации", "замены"};
+        String[] part_4 = new String[]{
                 "ошибок", "букв", "слов", "фраз", "предложений", "омонимов", "синонимов", "антонимов", "фразеологизмов",
                 "абзацев", "слогов", "комплиментов", "оскорблений"
         };
-        String[] part_5 = new String[] {
+        String[] part_5 = new String[]{
                 "в книге Гарри Поттера", "в алгоритме сортировки Пузырьком", "в последнем сообщении в ВК",
                 "в устной речи", "в газете", "в научной статье", "в WhatsApp", "в случайной фразе",
         };
@@ -58,10 +61,6 @@ public class IssueGenerator extends AbstractEntityGenerator<Issue, Integer> {
 
     int getLength(Random random) {
         return 5 + random.nextInt(5);
-    }
-
-    public IssueGenerator(Set<DependencyDefinition<?, ?>> dependencies, Generator generator) {
-        super(Issue.class, dependencies, generator);
     }
 
     @Override

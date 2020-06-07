@@ -2,21 +2,20 @@ package com.itmo.db.generator.generator.entity.impl;
 
 import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.generator.entity.AbstractEntityGenerator;
-import com.itmo.db.generator.generator.model.DependencyDefinition;
+import com.itmo.db.generator.generator.model.EntityDefinition;
 import com.itmo.db.generator.model.entity.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
 @Slf4j
 public class StudentSemesterDisciplineGenerator
         extends AbstractEntityGenerator<StudentSemesterDiscipline, StudentSemesterDiscipline.StudentSemesterDisciplinePK> {
 
-    public StudentSemesterDisciplineGenerator(Set<DependencyDefinition<?, ?>> deps, Generator generator) {
-        super(StudentSemesterDiscipline.class, deps, generator);
+    public StudentSemesterDisciplineGenerator(EntityDefinition<StudentSemesterDiscipline, StudentSemesterDiscipline.StudentSemesterDisciplinePK> entity, Generator generator) {
+        super(entity, generator);
     }
 
     private Integer getScore(Random random) {

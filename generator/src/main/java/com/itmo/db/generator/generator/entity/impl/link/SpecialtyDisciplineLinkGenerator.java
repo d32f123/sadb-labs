@@ -2,18 +2,19 @@ package com.itmo.db.generator.generator.entity.impl.link;
 
 import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.generator.entity.AbstractEntityGenerator;
-import com.itmo.db.generator.generator.model.DependencyDefinition;
-import com.itmo.db.generator.model.entity.*;
-import com.itmo.db.generator.model.entity.link.*;
+import com.itmo.db.generator.generator.model.EntityDefinition;
+import com.itmo.db.generator.model.entity.Discipline;
+import com.itmo.db.generator.model.entity.Specialty;
+import com.itmo.db.generator.model.entity.link.SpecialtyDisciplineLink;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.*;
+import java.util.List;
 
 @Slf4j
 public class SpecialtyDisciplineLinkGenerator extends AbstractEntityGenerator<SpecialtyDisciplineLink, SpecialtyDisciplineLink.SpecialtyDisciplineLinkPK> {
 
-    public SpecialtyDisciplineLinkGenerator(Set<DependencyDefinition<?, ?>> deps, Generator generator) {
-        super(SpecialtyDisciplineLink.class, deps, generator);
+    public SpecialtyDisciplineLinkGenerator(EntityDefinition<SpecialtyDisciplineLink, SpecialtyDisciplineLink.SpecialtyDisciplineLinkPK> entity, Generator generator) {
+        super(entity, generator);
     }
 
     @Override

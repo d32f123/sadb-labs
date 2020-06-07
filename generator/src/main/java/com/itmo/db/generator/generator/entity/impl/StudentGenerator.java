@@ -2,22 +2,25 @@ package com.itmo.db.generator.generator.entity.impl;
 
 import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.generator.entity.AbstractEntityGenerator;
-import com.itmo.db.generator.generator.model.DependencyDefinition;
-import com.itmo.db.generator.model.entity.*;
+import com.itmo.db.generator.generator.model.EntityDefinition;
+import com.itmo.db.generator.model.entity.Person;
+import com.itmo.db.generator.model.entity.Specialty;
+import com.itmo.db.generator.model.entity.Student;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.*;
+import java.util.List;
+import java.util.Random;
 
 @Slf4j
 public class StudentGenerator extends AbstractEntityGenerator<Student, Integer> {
 
-    public String getStudyType(Random random) {
-        String[] types = new String[] {"очная", "заочная"};
-        return types[random.nextInt(types.length)];
+    public StudentGenerator(EntityDefinition<Student, Integer> entity, Generator generator) {
+        super(entity, generator);
     }
 
-    public StudentGenerator(Set<DependencyDefinition<?, ?>> deps, Generator generator) {
-        super(Student.class, deps, generator);
+    public String getStudyType(Random random) {
+        String[] types = new String[]{"очная", "заочная"};
+        return types[random.nextInt(types.length)];
     }
 
     @Override

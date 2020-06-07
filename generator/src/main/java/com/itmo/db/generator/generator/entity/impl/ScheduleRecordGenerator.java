@@ -2,7 +2,7 @@ package com.itmo.db.generator.generator.entity.impl;
 
 import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.generator.entity.AbstractEntityGenerator;
-import com.itmo.db.generator.generator.model.DependencyDefinition;
+import com.itmo.db.generator.generator.model.EntityDefinition;
 import com.itmo.db.generator.model.entity.ScheduleRecord;
 import com.itmo.db.generator.model.entity.StudentSemesterDiscipline;
 import lombok.Builder;
@@ -12,14 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
 @Slf4j
 public class ScheduleRecordGenerator extends AbstractEntityGenerator<ScheduleRecord, Integer> {
-
-    public ScheduleRecordGenerator(Set<DependencyDefinition<?, ?>> deps, Generator generator) {
-        super(ScheduleRecord.class, deps, generator);
-    }
 
     private static final List<ScheduleEntry> scheduleEntries = List.of(
             ScheduleEntry.builder()
@@ -55,6 +50,10 @@ public class ScheduleRecordGenerator extends AbstractEntityGenerator<ScheduleRec
                     .endTime(LocalTime.of(21, 50))
                     .build()
     );
+
+    public ScheduleRecordGenerator(EntityDefinition<ScheduleRecord, Integer> entity, Generator generator) {
+        super(entity, generator);
+    }
 
     private ScheduleEntry getEntry(Random random) {
         return scheduleEntries.get(random.nextInt(scheduleEntries.size()));

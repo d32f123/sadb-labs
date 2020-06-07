@@ -2,7 +2,7 @@ package com.itmo.db.generator.generator.entity.impl;
 
 import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.generator.entity.AbstractEntityGenerator;
-import com.itmo.db.generator.generator.model.DependencyDefinition;
+import com.itmo.db.generator.generator.model.EntityDefinition;
 import com.itmo.db.generator.model.entity.AcademicRecord;
 import com.itmo.db.generator.model.entity.Person;
 import lombok.extern.slf4j.Slf4j;
@@ -11,13 +11,16 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
 @Slf4j
 public class AcademicRecordGenerator extends AbstractEntityGenerator<AcademicRecord, Integer> {
     int budgetRatio = 80;
     int fullTimeRatio = 90;
     int studentRatio = 75;
+
+    public AcademicRecordGenerator(EntityDefinition<AcademicRecord, Integer> entity, Generator generator) {
+        super(entity, generator);
+    }
 
     public String getDegree(Random random) {
         String[] roles = new String[]{"доцент", "магистр", "бакалавр"};
@@ -79,10 +82,6 @@ public class AcademicRecordGenerator extends AbstractEntityGenerator<AcademicRec
 
     public LocalDate getEndDate(LocalDate startDate) {
         return LocalDate.of(startDate.getYear() + 1, Month.AUGUST, 31);
-    }
-
-    public AcademicRecordGenerator(Set<DependencyDefinition<?, ?>> deps, Generator generator) {
-        super(AcademicRecord.class, deps, generator);
     }
 
     @Override

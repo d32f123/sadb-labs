@@ -2,20 +2,22 @@ package com.itmo.db.generator.generator.entity.impl;
 
 import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.generator.entity.AbstractEntityGenerator;
-import com.itmo.db.generator.generator.model.DependencyDefinition;
+import com.itmo.db.generator.generator.model.EntityDefinition;
 import com.itmo.db.generator.model.entity.Dormitory;
-import com.itmo.db.generator.model.entity.Person;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
 @Slf4j
 public class DormitoryGenerator extends AbstractEntityGenerator<Dormitory, Integer> {
 
+    public DormitoryGenerator(EntityDefinition<Dormitory, Integer> entity, Generator generator) {
+        super(entity, generator);
+    }
+
     public String getAddress(Random random) {
-        String[] addresses = new String[] {
+        String[] addresses = new String[]{
                 "г. Санкт-Петербург, пер. Вяземский, д. 5/7", "г. Санкт-Петербург, ул. Ленсовета, д. 23, лит. А",
                 "г. Санкт-Петербург, Альпийский пер., д.15, к. 2, лит. А", "г. Санкт-Петербург, ул. Белорусская, д. 6, лит. А",
                 "г. Санкт-Петербург, пр. Новоизмайловский, д. 16", "г. Санкт-Петербург, наб. р. Карповки, д. 22, к. 2, лит. Б",
@@ -29,10 +31,6 @@ public class DormitoryGenerator extends AbstractEntityGenerator<Dormitory, Integ
 
     public int getRoomCount(Random random) {
         return 700 + random.nextInt(200);
-    }
-
-    public DormitoryGenerator(Set<DependencyDefinition<?, ?>> deps, Generator generator) {
-        super(Dormitory.class, deps, generator);
     }
 
     @Override

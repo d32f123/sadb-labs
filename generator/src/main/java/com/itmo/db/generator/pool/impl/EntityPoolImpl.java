@@ -1,10 +1,10 @@
 package com.itmo.db.generator.pool.impl;
 
-import com.itmo.db.generator.utils.eventbus.EventBus;
-import com.itmo.db.generator.utils.eventbus.GeneratorEvent;
 import com.itmo.db.generator.model.entity.AbstractEntity;
 import com.itmo.db.generator.pool.EntityPool;
 import com.itmo.db.generator.pool.EntityPoolInstance;
+import com.itmo.db.generator.utils.eventbus.EventBus;
+import com.itmo.db.generator.utils.eventbus.GeneratorEvent;
 import com.itmo.db.generator.utils.eventbus.GeneratorEventMessage;
 import lombok.extern.slf4j.Slf4j;
 
@@ -15,9 +15,7 @@ import java.util.Map;
 
 @Slf4j
 public class EntityPoolImpl<T extends AbstractEntity<TId>, TId> implements EntityPool<T, TId> {
-
-    private int requestedAmount;
-    private int actualAmount;
+    private int availableAmount;
     private boolean frozen;
 
     private final EventBus eventBus;
@@ -28,32 +26,17 @@ public class EntityPoolImpl<T extends AbstractEntity<TId>, TId> implements Entit
     private final Class<T> entityClass;
 
     public EntityPoolImpl(Class<T> entityClass) {
-        this(entityClass, 1000);
-    }
-
-    public EntityPoolImpl(Class<T> entityClass, int requestedAmount) {
         this.eventBus = EventBus.getInstance();
-        this.requestedAmount = requestedAmount;
-        this.actualAmount = 0;
-        this.entities = new ArrayList<>(requestedAmount / 4);
+        this.availableAmount = 0;
+        this.entities = new ArrayList<>(1024);
         this.poolInstances = new HashMap<>();
         this.entityClass = entityClass;
         this.frozen = false;
     }
 
     @Override
-    public synchronized int getRequestedAmount() {
-        return this.requestedAmount;
-    }
-
-    @Override
-    public synchronized void setRequestedAmount(int amount) {
-        this.requestedAmount = amount;
-    }
-
-    @Override
-    public synchronized int getActualAmount() {
-        return this.actualAmount;
+    public synchronized int getAvailableAmount() {
+        return this.availableAmount;
     }
 
     @Override
@@ -63,25 +46,16 @@ public class EntityPoolImpl<T extends AbstractEntity<TId>, TId> implements Entit
 
     @Override
     public synchronized void add(T entity) {
-        if (this.actualAmount >= this.requestedAmount) {
-            log.error("Adding entityClass will lead to overflow");
-            if (!this.frozen) {
-                this.frozen = true;
-                this.eventBus.notify(GeneratorEvent.ENTITY_GENERATION_FINISHED, this.getPool());
-            }
+        log.debug("Adding entityClass '{}'. {} entities so far", entity, availableAmount);
+        if (this.frozen) {
+            log.warn("Trying to add to a frozen pool: '{}'", entityClass);
             return;
         }
-        log.debug("Adding entityClass '{}'. {} / {}", entity, actualAmount, requestedAmount);
-        this.actualAmount += 1;
+
+        this.availableAmount += 1;
 
         this.entities.add(entity);
         this.eventBus.notify(GeneratorEvent.ENTITY_GENERATED, new GeneratorEventMessage<>(entityClass, entity));
-
-        if (this.actualAmount >= this.requestedAmount) {
-            log.info("Total amount of entities reached '{}'", entityClass);
-            this.frozen = true;
-            this.eventBus.notify(GeneratorEvent.ENTITY_GENERATION_FINISHED, new GeneratorEventMessage<>(entityClass, this.getPool()));
-        }
     }
 
     @Override
@@ -96,5 +70,12 @@ public class EntityPoolImpl<T extends AbstractEntity<TId>, TId> implements Entit
         }
         this.poolInstances.put(requester, new EntityPoolInstanceImpl<>(this, this.entityClass));
         return this.poolInstances.get(requester);
+    }
+
+    @Override
+    public void freeze() {
+        log.info("Freezing '{}' at '{}' entities", entityClass, availableAmount);
+        this.frozen = true;
+        this.eventBus.notify(GeneratorEvent.ENTITY_GENERATION_FINISHED, new GeneratorEventMessage<>(entityClass, this.getPool()));
     }
 }

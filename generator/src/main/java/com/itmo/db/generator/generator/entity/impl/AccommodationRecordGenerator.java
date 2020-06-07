@@ -2,7 +2,7 @@ package com.itmo.db.generator.generator.entity.impl;
 
 import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.generator.entity.AbstractEntityGenerator;
-import com.itmo.db.generator.generator.model.DependencyDefinition;
+import com.itmo.db.generator.generator.model.EntityDefinition;
 import com.itmo.db.generator.model.entity.AccommodationRecord;
 import com.itmo.db.generator.model.entity.Person;
 import com.itmo.db.generator.model.entity.Room;
@@ -12,10 +12,13 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
 @Slf4j
 public class AccommodationRecordGenerator extends AbstractEntityGenerator<AccommodationRecord, Integer> {
+
+    public AccommodationRecordGenerator(EntityDefinition<AccommodationRecord, Integer> entity, Generator generator) {
+        super(entity, generator);
+    }
 
     String getCourse(Random random) {
         return (1 + random.nextInt(4)) + "курс";
@@ -34,10 +37,6 @@ public class AccommodationRecordGenerator extends AbstractEntityGenerator<Accomm
 
     public LocalDate getLivingEndDate(LocalDate startDate) {
         return LocalDate.of(startDate.getYear() + 1, Month.AUGUST, 31);
-    }
-
-    public AccommodationRecordGenerator(Set<DependencyDefinition<?, ?>> deps, Generator generator) {
-        super(AccommodationRecord.class, deps, generator);
     }
 
     @Override

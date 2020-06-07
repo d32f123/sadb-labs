@@ -2,18 +2,19 @@ package com.itmo.db.generator.generator.entity.impl.link;
 
 import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.generator.entity.AbstractEntityGenerator;
-import com.itmo.db.generator.generator.model.DependencyDefinition;
-import com.itmo.db.generator.model.entity.*;
-import com.itmo.db.generator.model.entity.link.*;
+import com.itmo.db.generator.generator.model.EntityDefinition;
+import com.itmo.db.generator.model.entity.Conference;
+import com.itmo.db.generator.model.entity.Publication;
+import com.itmo.db.generator.model.entity.link.ConferencePublicationLink;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.*;
+import java.util.List;
 
 @Slf4j
 public class ConferencePublicationLinkGenerator extends AbstractEntityGenerator<ConferencePublicationLink, ConferencePublicationLink.ConferencePublicationLinkPK> {
 
-    public ConferencePublicationLinkGenerator(Set<DependencyDefinition<?, ?>> deps, Generator generator) {
-        super(ConferencePublicationLink.class, deps, generator);
+    public ConferencePublicationLinkGenerator(EntityDefinition<ConferencePublicationLink, ConferencePublicationLink.ConferencePublicationLinkPK> entity, Generator generator) {
+        super(entity, generator);
     }
 
     @Override

@@ -56,7 +56,7 @@ public class EntityPoolInstanceImpl<T extends AbstractEntity<TId>, TId> implemen
     }
 
     private int getNumberOfAvailableEntities() {
-        return this.pool.getActualAmount() - this.pointer;
+        return this.pool.getAvailableAmount() - this.pointer;
     }
 
     private void handleQueue() {
