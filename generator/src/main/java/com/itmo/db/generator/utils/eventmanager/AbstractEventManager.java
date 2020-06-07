@@ -7,13 +7,17 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 public class AbstractEventManager<TEventEnum extends Enum<TEventEnum>> implements EventManager<TEventEnum> {
     Map<TEventEnum, List<Consumer<?>>> consumers;
+    protected ExecutorService notifier;
 
     public AbstractEventManager() {
         this.consumers = new ConcurrentHashMap<>();
+        this.notifier = Executors.newSingleThreadExecutor();
     }
 
     public <T> void subscribe(TEventEnum eventType, Consumer<T> consumer) {
@@ -32,12 +36,18 @@ public class AbstractEventManager<TEventEnum extends Enum<TEventEnum>> implement
         this.consumers.put(eventType, eventConsumers);
     }
 
-    public <T> void notify(TEventEnum eventType, T arg) {
+    public synchronized <T> void notify(TEventEnum eventType, T arg) {
         this.consumers.putIfAbsent(eventType, new LinkedList<>());
 
         List<Consumer<T>> eventConsumers = (List<Consumer<T>>) (List) this.consumers.get(eventType);
-        for (Consumer<T> listener : eventConsumers) {
-            ThreadPoolFactory.getPool().submit(() -> listener.accept(arg));
-        }
+        this.notifier.submit(() -> {
+            for (Consumer<T> listener : eventConsumers) {
+                ThreadPoolFactory.getPool().submit(() -> listener.accept(arg));
+            }
+        });
+    }
+
+    public void shutdown() {
+        this.notifier.shutdownNow();
     }
 }

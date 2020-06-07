@@ -102,8 +102,9 @@ public class Generator {
                 }
             }
         }
-        log.info("Shutting down pool");
+        log.info("Shutting down pools");
         this.threadPoolFactory.getPoolInstance().shutdownNow();
+        this.eventBus.shutdown();
         log.info("Main thread exiting now");
     }
 

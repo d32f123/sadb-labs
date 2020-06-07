@@ -146,5 +146,4 @@ public class EventBus extends AbstractEventManager<GeneratorEvent> {
                     .forEach(ThreadPoolFactory.getPool()::submit);
         }
     }
-
 }
