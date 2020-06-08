@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 // For each entity generated, ENTITY_GENERATED event is fired
 //  Persister persists entities by entity_generated event
@@ -122,8 +123,14 @@ public class Generator {
     private void checkIfEntitiesAreDone() {
         log.debug("Checking if done");
         if (currentEntities.values().stream().anyMatch(entity -> !entity.isGenerated() || !entity.isPersisted())) {
-            log.trace("Found at least one entity still not generated or persisted");
-            return;
+            log.trace("Found at least one entity still not generated or persisted: {}",
+                    currentEntities.values()
+                            .stream()
+                            .filter(entity -> !entity.isGenerated() || !entity.isPersisted())
+                            .map(GeneratableEntity::getEntityClass)
+                            .collect(Collectors.toList())
+            );
+
         }
 
         log.trace("Persisted all entities, emitting done");

@@ -5,12 +5,18 @@ import com.itmo.db.generator.generator.entity.AbstractEntityGenerator;
 import com.itmo.db.generator.generator.model.EntityDefinition;
 import com.itmo.db.generator.model.entity.LibraryRecord;
 import com.itmo.db.generator.model.entity.Person;
+import com.itmo.db.generator.model.entity.Publication;
+import com.itmo.db.generator.model.entity.link.PersonPublicationLink;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+@Slf4j
 public class LibraryRecordGenerator extends AbstractEntityGenerator<LibraryRecord, Integer> {
 
     public LibraryRecordGenerator(EntityDefinition<LibraryRecord, Integer> entity, Generator generator) {
@@ -36,11 +42,20 @@ public class LibraryRecordGenerator extends AbstractEntityGenerator<LibraryRecor
         return date;
     }
 
+    private LibraryRecord getEntity(Person person) {
+        return new LibraryRecord(null, person.getId(), getBookId(random), getAction(random), getDate(random));
+    }
+
     @Override
     protected List<LibraryRecord> getEntities() {
-        Random random = new Random();
-        Person person = this.getDependencyInstances(Person.class).get(0);
+        log.debug("Generating LibraryRecord");
 
-        return List.of(new LibraryRecord(null, person.getId(), getBookId(random), getAction(random), getDate(random)));
+        return this.getDependencyInstances(Person.class).stream().map(
+                person -> this.getDependencyInstances(LibraryRecord.class).stream().map(
+                        libraryRecord -> getEntity(person)
+                )
+        ).reduce(Stream::concat).orElseThrow().collect(Collectors.toList());
+
     }
+
 }

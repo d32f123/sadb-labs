@@ -9,7 +9,7 @@ import java.util.concurrent.Executors;
 public class ThreadPoolFactory {
 
     private static final int MAX_THREADS = 50;
-    private static final ExecutorService pool = Executors.newFixedThreadPool(500);
+    private static final ExecutorService pool = Executors.newFixedThreadPool(MAX_THREADS);
 
     public static ExecutorService getPool() {
         return pool;

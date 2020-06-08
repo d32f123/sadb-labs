@@ -5,12 +5,15 @@ import com.itmo.db.generator.generator.entity.AbstractEntityGenerator;
 import com.itmo.db.generator.generator.model.EntityDefinition;
 import com.itmo.db.generator.model.entity.Person;
 import com.itmo.db.generator.model.entity.Project;
+import com.itmo.db.generator.model.entity.Project;
 import com.itmo.db.generator.model.entity.link.PersonProjectLink;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 public class PersonProjectLinkGenerator extends AbstractEntityGenerator<PersonProjectLink, PersonProjectLink.PersonProjectLinkPK> {
@@ -31,16 +34,19 @@ public class PersonProjectLinkGenerator extends AbstractEntityGenerator<PersonPr
         return Timestamp.valueOf(y + "-" + m + "-" + d + " 03:00:00");
     }
 
+    private PersonProjectLink getEntity(Person person, Project project) {
+        return new PersonProjectLink(person.getId(), project.getId(), getDate(random), getDate(random));
+    }
+
     @Override
     protected List<PersonProjectLink> getEntities() {
         log.debug("Generating PersonProjectLink");
-        Random random = new Random();
 
-        Person person = this.getDependencyInstances(Person.class).get(0);
-        Project project = this.getDependencyInstances(Project.class).get(0);
+        return this.getDependencyInstances(Person.class).stream().map(
+                person -> this.getDependencyInstances(Project.class).stream().map(
+                        project -> getEntity(person, project)
+                )
+        ).reduce(Stream::concat).orElseThrow().collect(Collectors.toList());
 
-        return List.of(new PersonProjectLink(
-                person.getId(), project.getId(), getDate(random), getDate(random)
-        ));
     }
 }

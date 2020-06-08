@@ -4,11 +4,16 @@ import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.generator.entity.AbstractEntityGenerator;
 import com.itmo.db.generator.generator.model.EntityDefinition;
 import com.itmo.db.generator.model.entity.Discipline;
+import com.itmo.db.generator.model.entity.Person;
+import com.itmo.db.generator.model.entity.Publication;
 import com.itmo.db.generator.model.entity.Specialty;
+import com.itmo.db.generator.model.entity.link.PersonPublicationLink;
 import com.itmo.db.generator.model.entity.link.SpecialtyDisciplineLink;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 public class SpecialtyDisciplineLinkGenerator extends AbstractEntityGenerator<SpecialtyDisciplineLink, SpecialtyDisciplineLink.SpecialtyDisciplineLinkPK> {
@@ -17,15 +22,19 @@ public class SpecialtyDisciplineLinkGenerator extends AbstractEntityGenerator<Sp
         super(entity, generator);
     }
 
+    private SpecialtyDisciplineLink getEntity(Specialty specialty, Discipline discipline) {
+        return new SpecialtyDisciplineLink(specialty.getId(), discipline.getId());
+    }
+
     @Override
     protected List<SpecialtyDisciplineLink> getEntities() {
         log.debug("Generating SpecialtyDisciplineLink");
 
-        Specialty specialty = this.getDependencyInstances(Specialty.class).get(0);
-        Discipline discipline = this.getDependencyInstances(Discipline.class).get(0);
+        return this.getDependencyInstances(Specialty.class).stream().map(
+                specialty -> this.getDependencyInstances(Discipline.class).stream().map(
+                        discipline -> getEntity(specialty, discipline)
+                )
+        ).reduce(Stream::concat).orElseThrow().collect(Collectors.toList());
 
-        return List.of(new SpecialtyDisciplineLink(
-                specialty.getId(), discipline.getId()
-        ));
     }
 }

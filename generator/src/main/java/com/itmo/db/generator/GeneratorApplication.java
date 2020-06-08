@@ -43,7 +43,7 @@ public class GeneratorApplication implements ApplicationRunner {
                 new EntityDefinition<>(Conference.class, baseAmount, null),
                 new EntityDefinition<>(ConferencePublicationLink.class, null, Set.of(
                         new DependencyDefinition<>(Conference.class, 1),
-                        new DependencyDefinition<>(Publication.class, 1)
+                        new DependencyDefinition<>(Publication.class, 5)
                 )),
                 new EntityDefinition<>(Discipline.class, DisciplineGenerator.disciplines.size(), null),
                 new EntityDefinition<>(Dormitory.class, DormitoryGenerator.addresses.size(), null),
@@ -54,23 +54,23 @@ public class GeneratorApplication implements ApplicationRunner {
                 new EntityDefinition<>(Issue.class, baseAmount, null),
                 new EntityDefinition<>(IssuePublicationLink.class, null, Set.of(
                         new DependencyDefinition<>(Issue.class, 1),
-                        new DependencyDefinition<>(Publication.class, 1)
+                        new DependencyDefinition<>(Publication.class, 3)
                 )),
                 new EntityDefinition<>(LibraryRecord.class, null, Set.of(
                         new DependencyDefinition<>(Person.class, 1)
                 )),
                 new EntityDefinition<>(Person.class, baseAmount, null),
                 new EntityDefinition<>(PersonGroupLink.class, null, Set.of(
-                        new DependencyDefinition<>(Person.class, 1),
+                        new DependencyDefinition<>(Person.class, 15),
                         new DependencyDefinition<>(Group.class, 1)
                 )),
                 new EntityDefinition<>(PersonProjectLink.class, null, Set.of(
                         new DependencyDefinition<>(Person.class, 1),
-                        new DependencyDefinition<>(Project.class, 1)
+                        new DependencyDefinition<>(Project.class, 4)
                 )),
                 new EntityDefinition<>(PersonPublicationLink.class, null, Set.of(
                         new DependencyDefinition<>(Person.class, 1),
-                        new DependencyDefinition<>(Publication.class, 1)
+                        new DependencyDefinition<>(Publication.class, 2)
                 )),
                 new EntityDefinition<>(Professor.class, null, Set.of(
                         new DependencyDefinition<>(Person.class, 1),
@@ -90,7 +90,7 @@ public class GeneratorApplication implements ApplicationRunner {
                 )),
                 new EntityDefinition<>(SpecialtyDisciplineLink.class, null, Set.of(
                         new DependencyDefinition<>(Specialty.class, 1),
-                        new DependencyDefinition<>(Discipline.class, 1)
+                        new DependencyDefinition<>(Discipline.class, 6)
                 )),
                 new EntityDefinition<>(Student.class, null, Set.of(
                         new DependencyDefinition<>(Person.class, 15),

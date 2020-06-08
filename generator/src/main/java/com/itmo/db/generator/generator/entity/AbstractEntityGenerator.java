@@ -3,7 +3,10 @@ package com.itmo.db.generator.generator.entity;
 import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.generator.model.EntityDefinition;
 import com.itmo.db.generator.model.entity.AbstractEntity;
+import com.itmo.db.generator.model.entity.Conference;
 import com.itmo.db.generator.model.entity.NumericallyIdentifiableEntity;
+import com.itmo.db.generator.model.entity.Publication;
+import com.itmo.db.generator.model.entity.link.ConferencePublicationLink;
 import com.itmo.db.generator.pool.EntityPool;
 import com.itmo.db.generator.pool.EntityPoolInstance;
 import lombok.AllArgsConstructor;
@@ -11,9 +14,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 // WARN: Generator MUST NOT modify dependency instances
 @Slf4j
@@ -39,6 +40,7 @@ public abstract class AbstractEntityGenerator<T extends AbstractEntity<TId>, TId
         private EntityPoolInstance<T, TId> poolInstance;
         private int amount;
     }
+    protected Random random = new Random();
 
     public AbstractEntityGenerator(EntityDefinition<T, TId> entity,
                                    Generator generator) {
@@ -166,4 +168,5 @@ public abstract class AbstractEntityGenerator<T extends AbstractEntity<TId>, TId
         currentId += 1;
         return returnValue;
     }
+
 }
