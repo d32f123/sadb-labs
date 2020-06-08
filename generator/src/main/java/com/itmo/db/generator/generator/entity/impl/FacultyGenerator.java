@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Slf4j
 public class FacultyGenerator extends AbstractEntityGenerator<Faculty, Integer> {
@@ -30,17 +32,22 @@ public class FacultyGenerator extends AbstractEntityGenerator<Faculty, Integer> 
             "Факультет прикладной оптики", "Военный учебный центр", "Факультет среднего профессионального образования",
     };
 
+    Random random = new Random();
+
     public FacultyGenerator(EntityDefinition<Faculty, Integer> entity, Generator generator) {
         super(entity, generator);
+    }
+
+    private Faculty getEntity(University university) {
+        return new Faculty(null, faculties[random.nextInt(faculties.length)], university.getId());
     }
 
     @Override
     protected List<Faculty> getEntities() {
         log.debug("Creating Faculty");
-        Random random = new Random();
-        University university = this.getDependencyInstances(University.class).get(0);
-
-        return List.of(new Faculty(null, faculties[random.nextInt(faculties.length)], university.getId()));
+        return IntStream.range(1, random.nextInt(5) + 1)
+                .mapToObj(i -> getEntity(this.getDependencyInstances(University.class).get(0)))
+                .collect(Collectors.toList());
     }
 
 }
