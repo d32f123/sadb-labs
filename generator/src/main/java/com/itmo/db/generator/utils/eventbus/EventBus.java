@@ -143,7 +143,7 @@ public class EventBus extends AbstractEventManager<GeneratorEvent> {
             consumers
                     .parallelStream()
                     .map(sub -> (Runnable) () -> sub.accept(message))
-                    .forEach(ThreadPoolFactory.getPool()::submit);
+                    .forEach(ThreadPoolFactory.getPool(ThreadPoolFactory.ThreadPoolType.MISC)::submit);
         }
     }
 }

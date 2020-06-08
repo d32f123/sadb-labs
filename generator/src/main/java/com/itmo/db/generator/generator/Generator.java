@@ -105,7 +105,7 @@ public class Generator {
             }
         }
         log.info("Shutting down pools");
-        this.threadPoolFactory.getPoolInstance().shutdownNow();
+        this.threadPoolFactory.shutdown();
         this.eventBus.shutdown();
         ItmoEntityAbstractPersistenceWorker.shutdown();
         log.info("Main thread exiting now");
@@ -164,8 +164,10 @@ public class Generator {
         log.debug("Level ready to run: '{}'", this.currentEntities.values());
         this.currentEntities.values().forEach(entity -> {
             log.trace("Enqueuing threads for entity '{}'", entity.getEntityClass());
-            entity.setGeneratorThread(this.threadPoolFactory.getPoolInstance().submit(entity.getGenerator()));
-            entity.setPersistenceWorkerThread(this.threadPoolFactory.getPoolInstance().submit(entity.getPersistenceWorker()));
+            entity.setGeneratorThread(this.threadPoolFactory.getPoolInstance(ThreadPoolFactory.ThreadPoolType.GENERATOR)
+                    .submit(entity.getGenerator()));
+            entity.setPersistenceWorkerThread(this.threadPoolFactory.getPoolInstance(ThreadPoolFactory.ThreadPoolType.PERSISTENCE_WORKER)
+                    .submit(entity.getPersistenceWorker()));
         });
     }
 

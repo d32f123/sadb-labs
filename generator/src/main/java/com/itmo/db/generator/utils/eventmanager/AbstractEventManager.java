@@ -42,7 +42,7 @@ public class AbstractEventManager<TEventEnum extends Enum<TEventEnum>> implement
         List<Consumer<T>> eventConsumers = (List<Consumer<T>>) (List) this.consumers.get(eventType);
         this.notifier.submit(() -> {
             for (Consumer<T> listener : eventConsumers) {
-                ThreadPoolFactory.getPool().submit(() -> listener.accept(arg));
+                ThreadPoolFactory.getPool(ThreadPoolFactory.ThreadPoolType.MISC).submit(() -> listener.accept(arg));
             }
         });
     }
