@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 public class StudentSemesterDisciplineGenerator
@@ -78,23 +80,25 @@ public class StudentSemesterDisciplineGenerator
         return 'A';
     }
 
-    @Override
-    protected List<StudentSemesterDiscipline> getEntities() {
-        log.debug("Creating StudentSemesterDiscipline");
-        var random = new Random();
+    private final Random random = new Random();
+
+    private StudentSemesterDiscipline getEntity(Student student,
+                                                Discipline discipline,
+                                                Semester semester,
+                                                Professor professor) {
         Integer score = getScore(random);
         LocalDate scoreDate = getScoreDate(score, random);
         Short mark = getMark(score, random);
         Character markChar = score == null ? null : getMarkChar(score, mark);
         LocalDate markDate = mark == null ? null : getScoreDate(mark.intValue(), random);
 
-        var entity = new StudentSemesterDiscipline(
+        return new StudentSemesterDiscipline(
                 new StudentSemesterDiscipline.StudentSemesterDisciplinePK(
-                        this.getDependencyInstances(Student.class).get(0).getId(),
-                        this.getDependencyInstances(Discipline.class).get(0).getId(),
-                        this.getDependencyInstances(Semester.class).get(0).getId()
+                        student.getId(),
+                        discipline.getId(),
+                        semester.getId()
                 ),
-                this.getDependencyInstances(Professor.class).get(0).getId(),
+                professor.getId(),
                 1,
                 score,
                 scoreDate,
@@ -102,8 +106,21 @@ public class StudentSemesterDisciplineGenerator
                 markChar,
                 markDate
         );
+    }
 
-        return List.of(entity);
+    @Override
+    protected List<StudentSemesterDiscipline> getEntities() {
+        log.debug("Creating StudentSemesterDiscipline");
+        return this.getDependencyInstances(Professor.class).stream().map(
+                professor -> this.getDependencyInstances(Discipline.class).stream().map(
+                        discipline -> this.getDependencyInstances(Semester.class).stream().map(
+                                semester -> this.getDependencyInstances(Student.class).stream().map(
+                                        student -> this.getEntity(student, discipline, semester, professor)
+                                )
+                        ).reduce(Stream::concat).orElseThrow()
+                ).reduce(Stream::concat).orElseThrow()
+        ).reduce(Stream::concat).orElseThrow()
+                .collect(Collectors.toList());
     }
 }
 

@@ -1,6 +1,9 @@
 package com.itmo.db.generator;
 
 import com.itmo.db.generator.generator.Generator;
+import com.itmo.db.generator.generator.entity.impl.DisciplineGenerator;
+import com.itmo.db.generator.generator.entity.impl.DormitoryGenerator;
+import com.itmo.db.generator.generator.entity.impl.UniversityGenerator;
 import com.itmo.db.generator.generator.model.DependencyDefinition;
 import com.itmo.db.generator.generator.model.EntityDefinition;
 import com.itmo.db.generator.model.entity.*;
@@ -36,18 +39,18 @@ public class GeneratorApplication implements ApplicationRunner {
                         new DependencyDefinition<>(Person.class, 2),
                         new DependencyDefinition<>(Room.class, 1)
                 )),
-                new EntityDefinition<>(Conference.class, 2, null),
+                new EntityDefinition<>(Conference.class, 20, null),
                 new EntityDefinition<>(ConferencePublicationLink.class, null, Set.of(
                         new DependencyDefinition<>(Conference.class, 1),
                         new DependencyDefinition<>(Publication.class, 1)
                 )),
-                new EntityDefinition<>(Discipline.class, 2, null),
-                new EntityDefinition<>(Dormitory.class, 2, null),
+                new EntityDefinition<>(Discipline.class, DisciplineGenerator.disciplines.size(), null),
+                new EntityDefinition<>(Dormitory.class, DormitoryGenerator.addresses.size(), null),
                 new EntityDefinition<>(Faculty.class, null, Set.of(
                         new DependencyDefinition<>(University.class, 1)
                 )),
-                new EntityDefinition<>(Group.class, 2, null),
-                new EntityDefinition<>(Issue.class, 2, null),
+                new EntityDefinition<>(Group.class, 20, null),
+                new EntityDefinition<>(Issue.class, 20, null),
                 new EntityDefinition<>(IssuePublicationLink.class, null, Set.of(
                         new DependencyDefinition<>(Issue.class, 1),
                         new DependencyDefinition<>(Publication.class, 1)
@@ -55,7 +58,7 @@ public class GeneratorApplication implements ApplicationRunner {
                 new EntityDefinition<>(LibraryRecord.class, null, Set.of(
                         new DependencyDefinition<>(Person.class, 1)
                 )),
-                new EntityDefinition<>(Person.class, 2, null),
+                new EntityDefinition<>(Person.class, 20, null),
                 new EntityDefinition<>(PersonGroupLink.class, null, Set.of(
                         new DependencyDefinition<>(Person.class, 1),
                         new DependencyDefinition<>(Group.class, 1)
@@ -72,15 +75,15 @@ public class GeneratorApplication implements ApplicationRunner {
                         new DependencyDefinition<>(Person.class, 1),
                         new DependencyDefinition<>(Faculty.class, 1)
                 )),
-                new EntityDefinition<>(Project.class, 2, null),
-                new EntityDefinition<>(Publication.class, 2, null),
+                new EntityDefinition<>(Project.class, 20, null),
+                new EntityDefinition<>(Publication.class, 20, null),
                 new EntityDefinition<>(Room.class, null, Set.of(
                         new DependencyDefinition<>(Dormitory.class, 1)
                 )),
                 new EntityDefinition<>(ScheduleRecord.class, null, Set.of(
                         new DependencyDefinition<>(StudentSemesterDiscipline.class, 1)
                 )),
-                new EntityDefinition<>(Semester.class, 2, null),
+                new EntityDefinition<>(Semester.class, 20, null),
                 new EntityDefinition<>(Specialty.class, null, Set.of(
                         new DependencyDefinition<>(Faculty.class, 1)
                 )),
@@ -98,7 +101,7 @@ public class GeneratorApplication implements ApplicationRunner {
                         new DependencyDefinition<>(Discipline.class, 1),
                         new DependencyDefinition<>(Professor.class, 1)
                 )),
-                new EntityDefinition<>(University.class, 2, null)
+                new EntityDefinition<>(University.class, UniversityGenerator.names.size(), null)
         );
         this.generator.generate(entities);
     }
