@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 public class StudentGenerator extends AbstractEntityGenerator<Student, Integer> {
@@ -18,19 +20,26 @@ public class StudentGenerator extends AbstractEntityGenerator<Student, Integer> 
         super(entity, generator);
     }
 
+    Random random = new Random();
+
     public String getStudyType(Random random) {
         String[] types = new String[]{"очная", "заочная"};
         return types[random.nextInt(types.length)];
+    }
+
+    private Student getEntity(Person person, Specialty specialty) {
+        return new Student(person.getId(), specialty.getId(), getStudyType(random));
     }
 
     @Override
     protected List<Student> getEntities() {
         log.debug("Creating Student");
 
-        Person person = this.getDependencyInstances(Person.class).get(0);
-        Specialty specialty = this.getDependencyInstances(Specialty.class).get(0);
-
-        return List.of(new Student(person.getId(), specialty.getId(), getStudyType(new Random())));
+        return this.getDependencyInstances(Person.class).stream().map(
+                person -> this.getDependencyInstances(Specialty.class).stream().map(
+                        specialty -> getEntity(person, specialty)
+                )
+        ).reduce(Stream::concat).orElseThrow().collect(Collectors.toList());
     }
 }
 
