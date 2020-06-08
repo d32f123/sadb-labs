@@ -12,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Slf4j
 public class ScheduleRecordGenerator extends AbstractEntityGenerator<ScheduleRecord, Integer> {
@@ -51,6 +53,8 @@ public class ScheduleRecordGenerator extends AbstractEntityGenerator<ScheduleRec
                     .build()
     );
 
+    private final Random random = new Random();
+
     public ScheduleRecordGenerator(EntityDefinition<ScheduleRecord, Integer> entity, Generator generator) {
         super(entity, generator);
     }
@@ -63,13 +67,9 @@ public class ScheduleRecordGenerator extends AbstractEntityGenerator<ScheduleRec
         return String.valueOf(random.nextInt(400) + 100);
     }
 
-    @Override
-    protected List<ScheduleRecord> getEntities() {
-        log.debug("Creating ScheduleRecord");
-        Random random = new Random();
-        var studentSemesterDiscipline = this.getDependencyInstances(StudentSemesterDiscipline.class).get(0);
+    private ScheduleRecord getEntity(StudentSemesterDiscipline studentSemesterDiscipline) {
         var entry = getEntry(random);
-        var record = new ScheduleRecord(
+        return new ScheduleRecord(
                 null,
                 studentSemesterDiscipline.getId().getStudentId(),
                 studentSemesterDiscipline.getId().getDisciplineId(),
@@ -78,8 +78,16 @@ public class ScheduleRecordGenerator extends AbstractEntityGenerator<ScheduleRec
                 entry.getEndTime(),
                 getClassroom(random)
         );
+    }
 
-        return List.of(record);
+    @Override
+    protected List<ScheduleRecord> getEntities() {
+        log.debug("Creating ScheduleRecord");
+        var ssd = this.getDependencyInstances(StudentSemesterDiscipline.class).get(0);
+        return IntStream.range(1, random.nextInt(6) + 1)
+                .mapToObj(
+                        i -> this.getEntity(ssd)
+                ).collect(Collectors.toList());
     }
 
     @Data
