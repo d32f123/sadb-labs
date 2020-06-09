@@ -17,10 +17,11 @@ import java.util.Properties;
 public class ProviderHelper {
 
     public static DriverManagerDataSource getDataSource(String prefix, Environment env) {
-        log.debug("Url: '{}', username: '{}', password: '{}'",
-                env.getProperty(prefix + "spring.datasource.url"),
-                env.getProperty(prefix + "spring.datasource.username"),
-                env.getProperty(prefix + "spring.datasource.password"));
+        if (log.isDebugEnabled())
+            log.debug("Url: '{}', username: '{}', password: '{}'",
+                    env.getProperty(prefix + "spring.datasource.url"),
+                    env.getProperty(prefix + "spring.datasource.username"),
+                    env.getProperty(prefix + "spring.datasource.password"));
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setUrl(env.getProperty(prefix + "spring.datasource.url"));
         dataSource.setUsername(env.getProperty(prefix + "spring.datasource.username"));

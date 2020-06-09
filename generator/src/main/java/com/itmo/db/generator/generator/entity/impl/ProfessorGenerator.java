@@ -19,7 +19,8 @@ public class ProfessorGenerator extends AbstractEntityGenerator<Professor, Integ
 
     @Override
     protected List<Professor> getEntities() {
-        log.debug("Creating Professor");
+        if (log.isDebugEnabled())
+            log.debug("Creating Professor");
 
         Person person = this.getDependencyInstances(Person.class).get(0);
         Faculty faculty = this.getDependencyInstances(Faculty.class).get(0);

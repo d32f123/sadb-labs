@@ -8,10 +8,7 @@ import com.itmo.db.generator.utils.eventbus.GeneratorEvent;
 import com.itmo.db.generator.utils.eventbus.GeneratorEventMessage;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 public class EntityPoolImpl<T extends AbstractEntity<TId>, TId> implements EntityPool<T, TId> {
@@ -28,7 +25,7 @@ public class EntityPoolImpl<T extends AbstractEntity<TId>, TId> implements Entit
     public EntityPoolImpl(Class<T> entityClass) {
         this.eventBus = EventBus.getInstance();
         this.availableAmount = 0;
-        this.entities = new ArrayList<>(1024);
+        this.entities = Collections.synchronizedList(new ArrayList<>(1024));
         this.poolInstances = new HashMap<>();
         this.entityClass = entityClass;
         this.frozen = false;
@@ -46,7 +43,8 @@ public class EntityPoolImpl<T extends AbstractEntity<TId>, TId> implements Entit
 
     @Override
     public synchronized void add(T entity) {
-        log.debug("Adding entityClass '{}'. {} entities so far", entity, availableAmount);
+        if (log.isDebugEnabled())
+            log.debug("Adding entityClass '{}'. {} entities so far", entity, availableAmount);
         if (this.frozen) {
             log.warn("Trying to add to a frozen pool: '{}'", entityClass);
             return;
@@ -75,10 +73,12 @@ public class EntityPoolImpl<T extends AbstractEntity<TId>, TId> implements Entit
     @Override
     public synchronized void freeze() {
         if (this.frozen) {
-            log.info("Pool '{}' is already frozen, skipping", entityClass);
+            if (log.isInfoEnabled())
+                log.info("Pool '{}' is already frozen, skipping", entityClass);
             return;
         }
-        log.info("Freezing '{}' at '{}' entities", entityClass, availableAmount);
+        if (log.isInfoEnabled())
+            log.info("Freezing '{}' at '{}' entities", entityClass, availableAmount);
         this.frozen = true;
         this.eventBus.notify(GeneratorEvent.ENTITY_GENERATION_FINISHED, new GeneratorEventMessage<>(entityClass, this.getPool()));
     }

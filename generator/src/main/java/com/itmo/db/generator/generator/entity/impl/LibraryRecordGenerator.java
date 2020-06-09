@@ -5,8 +5,6 @@ import com.itmo.db.generator.generator.entity.AbstractEntityGenerator;
 import com.itmo.db.generator.generator.model.EntityDefinition;
 import com.itmo.db.generator.model.entity.LibraryRecord;
 import com.itmo.db.generator.model.entity.Person;
-import com.itmo.db.generator.model.entity.Publication;
-import com.itmo.db.generator.model.entity.link.PersonPublicationLink;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
@@ -14,7 +12,6 @@ import java.time.Month;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 public class LibraryRecordGenerator extends AbstractEntityGenerator<LibraryRecord, Integer> {
@@ -48,14 +45,12 @@ public class LibraryRecordGenerator extends AbstractEntityGenerator<LibraryRecor
 
     @Override
     protected List<LibraryRecord> getEntities() {
-        log.debug("Generating LibraryRecord");
+        if (log.isDebugEnabled())
+            log.debug("Generating LibraryRecord");
 
         return this.getDependencyInstances(Person.class).stream().map(
-                person -> this.getDependencyInstances(LibraryRecord.class).stream().map(
-                        libraryRecord -> getEntity(person)
-                )
-        ).reduce(Stream::concat).orElseThrow().collect(Collectors.toList());
-
+                person -> getEntity(person)
+        ).collect(Collectors.toList());
     }
 
 }

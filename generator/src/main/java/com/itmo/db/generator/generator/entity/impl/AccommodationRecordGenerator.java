@@ -57,7 +57,8 @@ public class AccommodationRecordGenerator extends AbstractEntityGenerator<Accomm
 
     private Stream<AccommodationRecord> getPersonEntities(Person person) {
         int n = random.nextInt(3) + 1;
-        log.debug("Creating '{}' AccommodationRecords", n);
+        if (log.isDebugEnabled())
+            log.debug("Creating '{}' AccommodationRecords", n);
         return IntStream.range(0, n).mapToObj((i) -> this.getPersonEntity(person));
     }
 

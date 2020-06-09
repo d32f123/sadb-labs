@@ -96,7 +96,8 @@ public class PersonGenerator extends AbstractEntityGenerator<Person, Integer> {
 
     @Override
     protected List<Person> getEntities() {
-        log.debug("Creating Person");
+        if (log.isDebugEnabled())
+            log.debug("Creating Person");
         Random random = new Random();
         Boolean isMale = random.nextInt(100) <= maleFemaleRatio;
 

@@ -4,8 +4,6 @@ import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.generator.entity.AbstractEntityGenerator;
 import com.itmo.db.generator.generator.model.EntityDefinition;
 import com.itmo.db.generator.model.entity.Dormitory;
-import com.itmo.db.generator.model.entity.LibraryRecord;
-import com.itmo.db.generator.model.entity.Person;
 import com.itmo.db.generator.model.entity.Room;
 import lombok.extern.slf4j.Slf4j;
 
@@ -14,7 +12,6 @@ import java.time.Month;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 public class RoomGenerator extends AbstractEntityGenerator<Room, Integer> {
@@ -53,14 +50,10 @@ public class RoomGenerator extends AbstractEntityGenerator<Room, Integer> {
 
     @Override
     protected List<Room> getEntities() {
-        log.debug("Generating Room");
+        if (log.isDebugEnabled())
+            log.debug("Generating Room");
 
-        return this.getDependencyInstances(Dormitory.class).stream().map(
-                dormitory -> this.getDependencyInstances(Room.class).stream().map(
-                        room -> getEntity(dormitory)
-                )
-        ).reduce(Stream::concat).orElseThrow().collect(Collectors.toList());
-
+        return this.getDependencyInstances(Dormitory.class).stream().map(this::getEntity).collect(Collectors.toList());
     }
 }
 

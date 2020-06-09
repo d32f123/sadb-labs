@@ -10,15 +10,16 @@ import java.util.concurrent.Executors;
 @Component
 public class ThreadPoolFactory {
 
-    private static final int MAX_GENERATOR_THREADS = 25;
-    private static final int MAX_PERSISTENCE_WORKER_THREADS = 25;
-    private static final int MAX_THREADS = 50;
+    private static final int MAX_GENERATOR_THREADS = 15;
+    private static final int MAX_PERSISTENCE_WORKER_THREADS = 15;
+    private static final int MAX_ENTITY_POOL_INSTANCE_THREADS = 25;
     private static final Map<ThreadPoolType, ExecutorService> executors = new HashMap<>();
 
     static {
         executors.put(ThreadPoolType.GENERATOR, Executors.newFixedThreadPool(MAX_GENERATOR_THREADS));
         executors.put(ThreadPoolType.PERSISTENCE_WORKER, Executors.newFixedThreadPool(MAX_PERSISTENCE_WORKER_THREADS));
-        executors.put(ThreadPoolType.MISC, Executors.newFixedThreadPool(MAX_THREADS));
+        executors.put(ThreadPoolType.POOL_INSTANCE, Executors.newFixedThreadPool(MAX_ENTITY_POOL_INSTANCE_THREADS));
+        executors.put(ThreadPoolType.MISC, Executors.newCachedThreadPool());
     }
 
     public static ExecutorService getPool(ThreadPoolType threadPoolType) {
@@ -34,7 +35,7 @@ public class ThreadPoolFactory {
     }
 
     public enum ThreadPoolType {
-        GENERATOR, PERSISTENCE_WORKER, MISC
+        GENERATOR, PERSISTENCE_WORKER, POOL_INSTANCE, MISC
     }
 
 

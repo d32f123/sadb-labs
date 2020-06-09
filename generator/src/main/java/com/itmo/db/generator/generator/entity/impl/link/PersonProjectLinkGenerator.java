@@ -5,7 +5,6 @@ import com.itmo.db.generator.generator.entity.AbstractEntityGenerator;
 import com.itmo.db.generator.generator.model.EntityDefinition;
 import com.itmo.db.generator.model.entity.Person;
 import com.itmo.db.generator.model.entity.Project;
-import com.itmo.db.generator.model.entity.Project;
 import com.itmo.db.generator.model.entity.link.PersonProjectLink;
 import lombok.extern.slf4j.Slf4j;
 
@@ -40,7 +39,8 @@ public class PersonProjectLinkGenerator extends AbstractEntityGenerator<PersonPr
 
     @Override
     protected List<PersonProjectLink> getEntities() {
-        log.debug("Generating PersonProjectLink");
+        if (log.isDebugEnabled())
+            log.debug("Generating PersonProjectLink");
 
         return this.getDependencyInstances(Person.class).stream().map(
                 person -> this.getDependencyInstances(Project.class).stream().map(

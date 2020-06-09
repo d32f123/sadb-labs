@@ -31,7 +31,7 @@ public class GeneratorApplication implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        int baseAmount = 25;
+        int baseAmount = 100;
         Set<EntityDefinition<?, ?>> entities = Set.of(
                 new EntityDefinition<>(AcademicRecord.class, null, Set.of(
                         new DependencyDefinition<>(Person.class, 1)

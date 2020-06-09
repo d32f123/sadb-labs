@@ -17,7 +17,8 @@ public class SemesterGenerator extends AbstractEntityGenerator<Semester, Integer
 
     @Override
     protected List<Semester> getEntities() {
-        log.debug("Creating Semester");
+        if (log.isDebugEnabled())
+            log.debug("Creating Semester");
         return List.of(new Semester(null));
     }
 }

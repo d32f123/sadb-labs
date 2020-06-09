@@ -4,10 +4,7 @@ import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.generator.entity.AbstractEntityGenerator;
 import com.itmo.db.generator.generator.model.EntityDefinition;
 import com.itmo.db.generator.model.entity.Discipline;
-import com.itmo.db.generator.model.entity.Person;
-import com.itmo.db.generator.model.entity.Publication;
 import com.itmo.db.generator.model.entity.Specialty;
-import com.itmo.db.generator.model.entity.link.PersonPublicationLink;
 import com.itmo.db.generator.model.entity.link.SpecialtyDisciplineLink;
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,7 +25,8 @@ public class SpecialtyDisciplineLinkGenerator extends AbstractEntityGenerator<Sp
 
     @Override
     protected List<SpecialtyDisciplineLink> getEntities() {
-        log.debug("Generating SpecialtyDisciplineLink");
+        if (log.isDebugEnabled())
+            log.debug("Generating SpecialtyDisciplineLink");
 
         return this.getDependencyInstances(Specialty.class).stream().map(
                 specialty -> this.getDependencyInstances(Discipline.class).stream().map(

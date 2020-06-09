@@ -3,10 +3,8 @@ package com.itmo.db.generator.generator.entity.impl.link;
 import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.generator.entity.AbstractEntityGenerator;
 import com.itmo.db.generator.generator.model.EntityDefinition;
-import com.itmo.db.generator.model.entity.Group;
 import com.itmo.db.generator.model.entity.Person;
 import com.itmo.db.generator.model.entity.Publication;
-import com.itmo.db.generator.model.entity.link.PersonGroupLink;
 import com.itmo.db.generator.model.entity.link.PersonPublicationLink;
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,7 +25,8 @@ public class PersonPublicationLinkGenerator extends AbstractEntityGenerator<Pers
 
     @Override
     protected List<PersonPublicationLink> getEntities() {
-        log.debug("Generating PersonPublicationLink");
+        if (log.isDebugEnabled())
+            log.debug("Generating PersonPublicationLink");
 
         return this.getDependencyInstances(Person.class).stream().map(
                 person -> this.getDependencyInstances(Publication.class).stream().map(

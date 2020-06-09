@@ -72,21 +72,29 @@ public class EventBus extends AbstractEventManager<GeneratorEvent> {
                    Consumer<GeneratorEventMessage<T, TId, TMessage>> consumer) {
         SenderKey<T, TId> key = new SenderKey<>(eventType, sender);
         synchronized (this.consumerMap) {
-            log.info("Adding a subscriber '{}:{}'", eventType, sender);
+            if (log.isDebugEnabled()) {
+                log.debug("Adding a subscriber '{}:{}'", eventType, sender);
+            }
             if (this.consumerMap.containsKey(key)) {
-                log.info("'{}:{}' to existing collection", eventType, sender);
+                if (log.isTraceEnabled()) {
+                    log.trace("'{}:{}' to existing collection", eventType, sender);
+                }
                 this.consumerMap.get(key).getConsumers().add((Consumer) consumer);
                 return;
             }
-            log.info("'{}:{}' to new collection", eventType, sender);
+            if (log.isTraceEnabled()) {
+                log.trace("'{}:{}' to new collection", eventType, sender);
+            }
             this.consumerMap.put(key, new SenderConsumer<T, TId, TMessage>(
                             eventType,
                             sender,
                             new ArrayList<>(),
-                    (message) -> this.messageHandler(eventType, sender, message, key)
+                            (message) -> this.messageHandler(eventType, sender, message, key)
                     )
             );
-            log.info("'{}:{}' adding to new collection", eventType, sender);
+            if (log.isTraceEnabled()) {
+                log.trace("'{}:{}' adding to new collection", eventType, sender);
+            }
             this.consumerMap.get(key).getConsumers().add((Consumer) consumer);
             super.subscribe(eventType, this.consumerMap.get(key).getBaseConsumer());
         }
@@ -111,12 +119,16 @@ public class EventBus extends AbstractEventManager<GeneratorEvent> {
                 return;
             }
             this.consumerMap.get(key).getConsumers().remove(consumer);
-            log.trace("Removed a subscriber from '{}:{}'", eventType, sender);
+            if (log.isTraceEnabled()) {
+                log.trace("Removed a subscriber from '{}:{}'", eventType, sender);
+            }
 
             if (!this.consumerMap.get(key).getConsumers().isEmpty()) {
                 return;
             }
-            log.debug("No more consumers for '{}:{}', removing base subscriber", eventType, sender);
+            if (log.isDebugEnabled()) {
+                log.debug("No more consumers for '{}:{}', removing base subscriber", eventType, sender);
+            }
             super.unsubscribe(eventType, this.consumerMap.get(key).getBaseConsumer());
             this.consumerMap.remove(key);
         }
@@ -135,11 +147,15 @@ public class EventBus extends AbstractEventManager<GeneratorEvent> {
         if (message.getSender() != sender) {
             return;
         }
-        log.info("'{}:{}' callback, notifying consumers", eventType, sender);
+        if (log.isDebugEnabled()) {
+            log.debug("'{}:{}' callback, notifying consumers", eventType, sender);
+        }
         synchronized (this.consumerMap) {
             List<Consumer<GeneratorEventMessage<T, TId, TMessage>>> consumers =
                     (List) this.consumerMap.get(key).getConsumers();
-            log.info("'{}:{}' Acquired lock, CONSUMERS FOUND: '{}', notifying consumers", eventType, sender, consumers);
+            if (log.isDebugEnabled()) {
+                log.debug("'{}:{}' Acquired lock, CONSUMERS FOUND: '{}', notifying consumers", eventType, sender, consumers);
+            }
             consumers
                     .parallelStream()
                     .map(sub -> (Runnable) () -> sub.accept(message))

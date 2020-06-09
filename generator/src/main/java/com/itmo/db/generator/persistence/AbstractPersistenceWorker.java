@@ -31,33 +31,41 @@ public abstract class AbstractPersistenceWorker<T extends AbstractEntity<TId>, T
 
     // Return map of DAOs
     protected abstract List<? extends IdentifiableDAO<?>> doPersist(T entity);
+
     protected abstract void doCommit();
 
     @Override
     public void run() {
         this.shouldContinue = true;
-        while (this.shouldContinue) {
-            log.debug("PersistenceWorker '{}' requesting entity", entityClass);
-            this.pool.request(1, (entities) -> {
-                if (entities == null || entities.isEmpty()) {
-                    log.debug("PersistenceWorker '{}' got null, notifying main thead that should exit", entityClass);
-                    this.shouldContinue = false;
+        synchronized (this) {
+            if (log.isInfoEnabled())
+                log.info("'{}': PersistenceWorker startup", entityClass);
+            while (this.shouldContinue) {
+                if (log.isDebugEnabled())
+                    log.debug("'{}': PersistenceWorker requesting entity", entityClass);
+                this.pool.request(1, (entities) -> {
+                    if (entities == null || entities.isEmpty()) {
+                        if (log.isDebugEnabled())
+                            log.debug("'{}': PersistenceWorker got null, notifying main thead that should exit", entityClass);
+                        synchronized (this) {
+                            this.shouldContinue = false;
+                            this.notify();
+                        }
+                        return;
+                    }
+                    T entity = entities.get(0);
+                    if (log.isDebugEnabled())
+                        log.debug("PersistenceWorker '{}' got entity '{}', persisting", entityClass, entity);
+                    this.persistEntity(entity);
                     synchronized (this) {
                         this.notify();
                     }
-                    return;
-                }
-                T entity = entities.get(0);
-                log.debug("PersistenceWorker '{}' got entity '{}', persisting", entityClass, entity);
-                this.persistEntity(entity);
-                synchronized (this) {
-                    this.notify();
-                }
-            });
-            synchronized (this) {
+                });
+
                 try {
                     this.wait();
-                } catch (InterruptedException ignored) {}
+                } catch (InterruptedException ignored) {
+                }
             }
         }
         this.commit();
@@ -70,8 +78,14 @@ public abstract class AbstractPersistenceWorker<T extends AbstractEntity<TId>, T
     }
 
     private void persistEntity(T entity) {
-        log.info("'{}': ENTITY GENERATED message received, calling doPersist", entityClass);
-        List<? extends IdentifiableDAO<?>> daoValues = this.doPersist(entity);
+        if (log.isInfoEnabled())
+            log.info("'{}': PersistenceWorker persisting", entityClass);
+        List<? extends IdentifiableDAO<?>> daoValues = null;
+        try {
+            daoValues = this.doPersist(entity);
+        } catch (Exception ex) {
+            log.error("'{}': Error during persistence", entityClass, ex);
+        }
         if (daoValues == null) {
             daoValues = Collections.emptyList();
         }
@@ -89,7 +103,8 @@ public abstract class AbstractPersistenceWorker<T extends AbstractEntity<TId>, T
     }
 
     private void commit() {
-        log.info("'{}': ENTITY GENERATION FINISHED message received, calling doCommit", entityClass);
+        if (log.isInfoEnabled())
+            log.info("'{}': PersistenceWorker commiting", entityClass);
         this.doCommit();
         this.eventBus.notify(GeneratorEvent.PERSISTENCE_FINISHED, new GeneratorEventMessage<>(entityClass, null));
     }

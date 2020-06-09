@@ -40,7 +40,8 @@ public class SpecialtyGenerator extends AbstractEntityGenerator<Specialty, Integ
 
     @Override
     protected List<Specialty> getEntities() {
-        log.debug("Creating Specialty");
+        if (log.isDebugEnabled())
+            log.debug("Creating Specialty");
         Random random = new Random();
         Faculty faculty = this.getDependencyInstances(Faculty.class).get(0);
 

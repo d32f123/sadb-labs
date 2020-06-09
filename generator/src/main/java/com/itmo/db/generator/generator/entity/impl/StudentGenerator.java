@@ -33,7 +33,8 @@ public class StudentGenerator extends AbstractEntityGenerator<Student, Integer> 
 
     @Override
     protected List<Student> getEntities() {
-        log.debug("Creating Student");
+        if (log.isDebugEnabled())
+            log.debug("Creating Student");
 
         return this.getDependencyInstances(Person.class).stream().map(
                 person -> this.getDependencyInstances(Specialty.class).stream().map(

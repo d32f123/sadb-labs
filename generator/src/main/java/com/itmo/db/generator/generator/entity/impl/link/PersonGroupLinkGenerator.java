@@ -4,8 +4,6 @@ import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.generator.entity.AbstractEntityGenerator;
 import com.itmo.db.generator.generator.model.EntityDefinition;
 import com.itmo.db.generator.model.entity.Group;
-import com.itmo.db.generator.model.entity.Group;
-import com.itmo.db.generator.model.entity.Person;
 import com.itmo.db.generator.model.entity.Person;
 import com.itmo.db.generator.model.entity.link.PersonGroupLink;
 import lombok.extern.slf4j.Slf4j;
@@ -22,12 +20,13 @@ public class PersonGroupLinkGenerator extends AbstractEntityGenerator<PersonGrou
     }
 
     private PersonGroupLink getEntity(Group group, Person person) {
-        return new PersonGroupLink(group.getId(), person.getId());
+        return new PersonGroupLink(person.getId(), group.getId());
     }
 
     @Override
     protected List<PersonGroupLink> getEntities() {
-        log.debug("Generating PersonGroupLink");
+        if (log.isDebugEnabled())
+            log.debug("Generating PersonGroupLink");
 
         return this.getDependencyInstances(Group.class).stream().map(
                 group -> this.getDependencyInstances(Person.class).stream().map(

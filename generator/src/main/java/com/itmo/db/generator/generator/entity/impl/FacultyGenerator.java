@@ -44,7 +44,8 @@ public class FacultyGenerator extends AbstractEntityGenerator<Faculty, Integer> 
 
     @Override
     protected List<Faculty> getEntities() {
-        log.debug("Creating Faculty");
+        if (log.isDebugEnabled())
+            log.debug("Creating Faculty");
         return IntStream.range(1, random.nextInt(5) + 1)
                 .mapToObj(i -> getEntity(this.getDependencyInstances(University.class).get(0)))
                 .collect(Collectors.toList());

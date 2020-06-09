@@ -5,15 +5,11 @@ import com.itmo.db.generator.generator.entity.AbstractEntityGenerator;
 import com.itmo.db.generator.generator.model.EntityDefinition;
 import com.itmo.db.generator.model.entity.Conference;
 import com.itmo.db.generator.model.entity.Publication;
-import com.itmo.db.generator.model.entity.University;
 import com.itmo.db.generator.model.entity.link.ConferencePublicationLink;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -30,7 +26,8 @@ public class ConferencePublicationLinkGenerator extends AbstractEntityGenerator<
 
     @Override
     protected List<ConferencePublicationLink> getEntities() {
-        log.debug("Generating ConferencePublicationLink");
+        if (log.isDebugEnabled())
+            log.debug("Generating ConferencePublicationLink");
 
         return this.getDependencyInstances(Conference.class).stream().map(
                 conference -> this.getDependencyInstances(Publication.class).stream().map(

@@ -48,7 +48,8 @@ public class DisciplineGenerator extends AbstractEntityGenerator<Discipline, Int
 
     @Override
     protected List<Discipline> getEntities() {
-        log.debug("Creating Discipline");
+        if (log.isDebugEnabled())
+            log.debug("Creating Discipline");
         Random random = new Random();
 
         return List.of(new Discipline(

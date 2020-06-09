@@ -53,7 +53,8 @@ public class PublicationGenerator extends AbstractEntityGenerator<Publication, I
 
     @Override
     protected List<Publication> getEntities() {
-        log.debug("Creating Publication");
+        if (log.isDebugEnabled())
+            log.debug("Creating Publication");
         Random random = new Random();
 
         return List.of(new Publication(null, getName(random), getLanguage(random), getIndex(random), getDate(random)));

@@ -63,24 +63,34 @@ public class Generator {
         this.dependencyTree = new DependencyTree(entities);
 
         this.eventBus.subscribe(GeneratorEvent.ENTITY_GENERATION_FINISHED, (message) -> {
-            log.debug("Received a ENTITY GENERATION FINISHED event from '{}'", message.getSender());
+            if (log.isDebugEnabled()) {
+                log.debug("Received a ENTITY GENERATION FINISHED event from '{}'", message.getSender());
+            }
             synchronized (this.mainThread) {
-                log.trace("'{}': Acquired lock and setting generated to true", message.getSender());
+                if (log.isTraceEnabled()) {
+                    log.trace("'{}': Acquired lock and setting generated to true", message.getSender());
+                }
                 this.currentEntities.get(message.getSender()).setGenerated(true);
             }
         });
 
         this.eventBus.subscribe(GeneratorEvent.PERSISTENCE_FINISHED, (message) -> {
-            log.debug("Received a ENTITY PERSISTENCE FINISHED event from '{}'", message.getSender());
+            if (log.isDebugEnabled()) {
+                log.debug("Received a ENTITY PERSISTENCE FINISHED event from '{}'", message.getSender());
+            }
             synchronized (this.mainThread) {
-                log.trace("'{}': Acquired lock and setting persisted to true", message.getSender());
+                if (log.isTraceEnabled()) {
+                    log.trace("'{}': Acquired lock and setting persisted to true", message.getSender());
+                }
                 this.currentEntities.get(message.getSender()).setPersisted(true);
                 this.checkIfEntitiesAreDone();
             }
         });
 
         this.eventBus.subscribe(GeneratorEvent.LEVEL_GENERATION_FINISHED, (message) -> {
-            log.debug("Received a LEVEL GENERATION FINISHED event");
+            if (log.isDebugEnabled()) {
+                log.debug("Received a LEVEL GENERATION FINISHED event");
+            }
             if (this.currentLevel == this.dependencyTree.getDependencyLevelsCount() - 1) {
                 this.finalizeGeneration();
                 return;
@@ -104,46 +114,61 @@ public class Generator {
                 }
             }
         }
-        log.info("Shutting down pools");
+        if (log.isInfoEnabled())
+            log.info("Shutting down pools");
         this.threadPoolFactory.shutdown();
         this.eventBus.shutdown();
         ItmoEntityAbstractPersistenceWorker.shutdown();
-        log.info("Main thread exiting now");
+        if (log.isInfoEnabled())
+            log.info("Main thread exiting now");
     }
 
     private void finalizeGeneration() {
-        log.info("We are all done, acquiring lock and notifying main thread");
+        if (log.isInfoEnabled())
+            log.info("We are all done, acquiring lock and notifying main thread");
         synchronized (this.mainThread) {
-            log.trace("Acquired lock to finalize");
+            if (log.isTraceEnabled()) {
+                log.trace("Acquired lock to finalize");
+            }
             this.done = true;
             this.mainThread.notifyAll();
         }
     }
 
     private void checkIfEntitiesAreDone() {
-        log.debug("Checking if done");
+        if (log.isDebugEnabled()) {
+            log.debug("Checking if done");
+        }
         if (currentEntities.values().stream().anyMatch(entity -> !entity.isGenerated() || !entity.isPersisted())) {
-            log.trace("Found at least one entity still not generated or persisted: {}",
-                    currentEntities.values()
-                            .stream()
-                            .filter(entity -> !entity.isGenerated() || !entity.isPersisted())
-                            .map(GeneratableEntity::getEntityClass)
-                            .collect(Collectors.toList())
-            );
-
+            if (log.isInfoEnabled()) {
+                log.info("Found at least one entity still not generated or persisted: {}",
+                        currentEntities.values()
+                                .stream()
+                                .filter(entity -> !entity.isGenerated() || !entity.isPersisted())
+                                .map(GeneratableEntity::getEntityClass)
+                                .collect(Collectors.toList())
+                );
+            }
+            return;
         }
 
-        log.trace("Persisted all entities, emitting done");
+        if (log.isInfoEnabled()) {
+            log.info("Persisted all entities,  emitting done");
+        }
         // Notify that we are done generating current level
         this.eventBus.notify(GeneratorEvent.LEVEL_GENERATION_FINISHED, new GeneratorEventMessage<>(null, null));
     }
 
     private void generateCurrentLevelEntities() {
-        log.info("Generating level '{}'", this.currentLevel);
+        if (log.isInfoEnabled()) {
+            log.info("Generating level '{}'", this.currentLevel);
+        }
         this.currentEntities.clear();
         this.dependencyTree.getDependencyLevel(this.currentLevel)
                 .forEach(entity -> {
-                    log.trace("Instantiating generatableEntity for entity '{}'", entity);
+                    if (log.isTraceEnabled()) {
+                        log.trace("Instantiating generatableEntity for entity '{}'", entity);
+                    }
                     GeneratableEntity<?, ?> generatableEntity = new GeneratableEntity(
                             entity.getEntityClass(),
                             new EntityPoolImpl<>(entity.getEntityClass()),
@@ -161,9 +186,13 @@ public class Generator {
                     );
                 });
 
-        log.debug("Level ready to run: '{}'", this.currentEntities.values());
+        if (log.isDebugEnabled()) {
+            log.debug("Level ready to run: '{}'", this.currentEntities.values());
+        }
         this.currentEntities.values().forEach(entity -> {
-            log.trace("Enqueuing threads for entity '{}'", entity.getEntityClass());
+            if (log.isTraceEnabled()) {
+                log.trace("Enqueuing threads for entity '{}'", entity.getEntityClass());
+            }
             entity.setGeneratorThread(this.threadPoolFactory.getPoolInstance(ThreadPoolFactory.ThreadPoolType.GENERATOR)
                     .submit(entity.getGenerator()));
             entity.setPersistenceWorkerThread(this.threadPoolFactory.getPoolInstance(ThreadPoolFactory.ThreadPoolType.PERSISTENCE_WORKER)

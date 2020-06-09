@@ -65,7 +65,8 @@ public class IssueGenerator extends AbstractEntityGenerator<Issue, Integer> {
 
     @Override
     protected List<Issue> getEntities() {
-        log.debug("Creating Issue");
+        if (log.isDebugEnabled())
+            log.debug("Creating Issue");
         Random random = new Random();
 
         return List.of(new Issue(null, getName(random), getLanguage(random), getLocation(random), getLength(random), getFormat(random)));

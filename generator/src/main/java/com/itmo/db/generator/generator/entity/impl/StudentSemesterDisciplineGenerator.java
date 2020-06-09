@@ -110,7 +110,8 @@ public class StudentSemesterDisciplineGenerator
 
     @Override
     protected List<StudentSemesterDiscipline> getEntities() {
-        log.debug("Creating StudentSemesterDiscipline");
+        if (log.isDebugEnabled())
+            log.debug("Creating StudentSemesterDiscipline");
         return this.getDependencyInstances(Professor.class).stream().map(
                 professor -> this.getDependencyInstances(Discipline.class).stream().map(
                         discipline -> this.getDependencyInstances(Semester.class).stream().map(

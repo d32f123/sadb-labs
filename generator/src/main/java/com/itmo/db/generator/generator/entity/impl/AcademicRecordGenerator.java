@@ -86,7 +86,8 @@ public class AcademicRecordGenerator extends AbstractEntityGenerator<AcademicRec
 
     @Override
     protected List<AcademicRecord> getEntities() {
-        log.debug("Creating AcademicRecord");
+        if (log.isDebugEnabled())
+            log.debug("Creating AcademicRecord");
         Random random = new Random();
         LocalDate startDate = getStartDate(random);
         LocalDate endDate = getEndDate(startDate);

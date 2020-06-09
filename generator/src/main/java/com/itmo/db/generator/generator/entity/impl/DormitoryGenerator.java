@@ -36,7 +36,8 @@ public class DormitoryGenerator extends AbstractEntityGenerator<Dormitory, Integ
 
     @Override
     protected List<Dormitory> getEntities() {
-        log.debug("Creating Dormitory");
+        if (log.isDebugEnabled())
+            log.debug("Creating Dormitory");
         Random random = new Random();
 
         return List.of(new Dormitory(null, getAddress(), getRoomCount(random)));

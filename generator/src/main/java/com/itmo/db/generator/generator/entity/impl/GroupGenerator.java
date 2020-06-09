@@ -40,7 +40,8 @@ public class GroupGenerator extends AbstractEntityGenerator<Group, Integer> {
 
     @Override
     protected List<Group> getEntities() {
-        log.debug("Creating Group");
+        if (log.isDebugEnabled())
+            log.debug("Creating Group");
         Random random = new Random();
 
         int course = getCourse(random);

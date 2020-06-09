@@ -40,7 +40,9 @@ public class EntityToDAOMapper<TEntity extends AbstractEntity<TEntityId>, TEntit
     }
 
     public <TDAO extends IdentifiableDAO<TDAOId>, TDAOId> TDAOId getDAOId(TEntityId id, Class<TDAO> daoClass) {
-        log.trace("Getting entity '{}' by id '{}' and class '{}'", entityClass, id, daoClass);
+        if (log.isTraceEnabled()) {
+            log.trace("Getting entity '{}' by id '{}' and class '{}'", entityClass, id, daoClass);
+        }
         return (TDAOId) this.entityToDAOMap.get(id).get(daoClass);
     }
 
@@ -50,7 +52,8 @@ public class EntityToDAOMapper<TEntity extends AbstractEntity<TEntityId>, TEntit
         }
 
         this.entityGeneratedConsumer = (message) -> {
-            log.debug("Mapper '{}' got entity generated with id: '{}'", entityClass, message.getMessage().getId());
+            if (log.isDebugEnabled())
+                log.debug("Mapper '{}' got entity generated with id: '{}'", entityClass, message.getMessage().getId());
             this.entityToDAOMap.put(message.getMessage().getId(), new HashMap<>());
         };
         return this.entityGeneratedConsumer;
@@ -63,8 +66,9 @@ public class EntityToDAOMapper<TEntity extends AbstractEntity<TEntityId>, TEntit
         }
 
         this.entityPersistedConsumer = (message) -> {
-            log.debug("Mapper '{}' got entity persisted with id: '{}'. Map: '{}'",
-                    entityClass, message.getMessage().getEntityId(), message.getMessage().getDaoValuesMap());
+            if (log.isDebugEnabled())
+                log.debug("Mapper '{}' got entity persisted with id: '{}'. Map: '{}'",
+                        entityClass, message.getMessage().getEntityId(), message.getMessage().getDaoValuesMap());
             this.entityToDAOMap.put(
                     message.getMessage().getEntityId(),
                     message.getMessage().getDaoValuesMap() != null
