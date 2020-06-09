@@ -115,7 +115,7 @@ public class StudentSemesterDisciplineGenerator
         return this.getDependencyInstances(Professor.class).stream().map(
                 professor -> this.getDependencyInstances(Discipline.class).stream().map(
                         discipline -> this.getDependencyInstances(Semester.class).stream().map(
-                                semester -> this.getDependencyInstances(Student.class).stream().map(
+                                semester -> this.getDependencyInstances(Student.class).stream().filter(x -> random.nextBoolean()).map(
                                         student -> this.getEntity(student, discipline, semester, professor)
                                 )
                         ).reduce(Stream::concat).orElseThrow()

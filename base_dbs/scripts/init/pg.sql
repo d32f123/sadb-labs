@@ -49,7 +49,8 @@ create table persons
     last_name       text not null,
     first_name      text not null,
     patronymic_name text,
-    role            text not null
+    role            text not null,
+    person_number   text not null
 );
 
 create table students

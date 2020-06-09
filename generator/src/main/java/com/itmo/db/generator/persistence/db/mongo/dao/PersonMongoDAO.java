@@ -31,4 +31,7 @@ public class PersonMongoDAO implements IdentifiableDAO<String> {
 
     @Field(name = "warning_count")
     private Integer warningCount;
+
+    @Field(name = "person_number")
+    private String personNumber;
 }

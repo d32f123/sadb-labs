@@ -78,8 +78,8 @@ public abstract class AbstractPersistenceWorker<T extends AbstractEntity<TId>, T
     }
 
     private void persistEntity(T entity) {
-        if (log.isInfoEnabled())
-            log.info("'{}': PersistenceWorker persisting", entityClass);
+        if (log.isDebugEnabled())
+            log.debug("'{}': PersistenceWorker persisting", entityClass);
         List<? extends IdentifiableDAO<?>> daoValues = null;
         try {
             daoValues = this.doPersist(entity);

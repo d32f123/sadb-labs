@@ -19,7 +19,8 @@ create table persons
     last_name       VARCHAR(60) NOT NULL,
     first_name      VARCHAR(60) NOT NULL,
     patronymic_name VARCHAR(60),
-    role            VARCHAR(20) NOT NULL
+    role            VARCHAR(20) NOT NULL,
+    person_number   VARCHAR(20) NOT NULL
 );
 
 create table projects

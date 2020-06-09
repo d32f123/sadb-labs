@@ -85,7 +85,7 @@ public class ScheduleRecordGenerator extends AbstractEntityGenerator<ScheduleRec
         if (log.isDebugEnabled())
             log.debug("Creating ScheduleRecord");
         var ssd = this.getDependencyInstances(StudentSemesterDiscipline.class).get(0);
-        return IntStream.range(1, random.nextInt(6) + 1)
+        return IntStream.range(0, random.nextInt(5) + 1)
                 .mapToObj(
                         i -> this.getEntity(ssd)
                 ).collect(Collectors.toList());

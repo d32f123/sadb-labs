@@ -14,16 +14,19 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.locks.Lock;
 import java.util.function.Consumer;
 
 @Slf4j
 public class EntityPoolInstanceImpl<T extends AbstractEntity<TId>, TId> implements EntityPoolInstance<T, TId> {
 
     private final EntityPool<T, TId> pool;
+    private final Lock entitiesLock;
     private final EventBus eventBus;
     private int pointer;
     private final Queue<ConsumerWithMeta> consumerQueue;
     private final Class<T> entityClass;
+    private final Class<?> requesterClass;
     private final Object handlerMonitor;
     private boolean isHandlerStarted = false;
     private boolean shouldExit = false;
@@ -35,11 +38,13 @@ public class EntityPoolInstanceImpl<T extends AbstractEntity<TId>, TId> implemen
         int entitiesCount;
     }
 
-    public EntityPoolInstanceImpl(EntityPool<T, TId> pool, Class<T> entityClass) {
+    public EntityPoolInstanceImpl(EntityPool<T, TId> pool, Class<T> entityClass, Class<?> requesterClass) {
         this.pool = pool;
+        this.entitiesLock = pool.getReadLock();
         this.pointer = 0;
         this.consumerQueue = new ConcurrentLinkedQueue<>();
         this.entityClass = entityClass;
+        this.requesterClass = requesterClass;
         this.eventBus = EventBus.getInstance();
         this.handlerMonitor = new Object();
         ThreadPoolFactory.getPool(ThreadPoolFactory.ThreadPoolType.POOL_INSTANCE).submit(this::handleQueue);
@@ -50,21 +55,22 @@ public class EntityPoolInstanceImpl<T extends AbstractEntity<TId>, TId> implemen
     @Override
     public void request(int entitiesCount, Consumer<List<T>> callback) {
         if (log.isDebugEnabled())
-            log.debug("'{}': Got request for {} entities", entityClass, entitiesCount);
+            log.debug("'{}:{}': Got request for {} entities", entityClass, requesterClass, entitiesCount);
         var consumer = new ConsumerWithMeta(callback, entitiesCount);
         synchronized (this.handlerMonitor) {
             if (this.pool.isFrozen() && this.getNumberOfAvailableEntities() < entitiesCount) {
                 if (log.isInfoEnabled())
-                    log.info("'{}': Pool is already frozen and not enough entities available. Sending null", entityClass);
+                    log.info("'{}:{}': Pool is already frozen and not enough entities available. Sending null",
+                            entityClass, requesterClass);
                 this.sendToConsumer(consumer, null);
                 return;
             }
             if (!this.isHandlerStarted) {
-                log.warn("'{}': Handler is not started yet. Waiting", entityClass);
+                log.warn("'{}:{}': Handler is not started yet. Waiting", entityClass, requesterClass);
                 this.waitForMonitor();
             }
             if (log.isDebugEnabled())
-                log.debug("'{}': Notifying main thread main thread", entityClass);
+                log.debug("'{}:{}': Notifying main thread main thread", entityClass, requesterClass);
             this.consumerQueue.offer(consumer);
             this.handlerMonitor.notifyAll();
         }
@@ -81,18 +87,18 @@ public class EntityPoolInstanceImpl<T extends AbstractEntity<TId>, TId> implemen
         }
         while (!shouldExit) {
             if (log.isDebugEnabled())
-                log.debug("'{}': HandleQueue iteration", entityClass);
+                log.debug("'{}:{}': HandleQueue iteration", entityClass, requesterClass);
             ConsumerWithMeta consumer;
             synchronized (handlerMonitor) {
                 consumer = consumerQueue.peek();
 
                 if (consumer == null) {
                     if (log.isTraceEnabled()) {
-                        log.trace("'{}': Peeked at queue but no consumer found", entityClass);
+                        log.trace("'{}:{}': Peeked at queue but no consumer found", entityClass, requesterClass);
                     }
                     if (this.pool.isFrozen() && this.getNumberOfAvailableEntities() == 0) {
                         if (log.isInfoEnabled())
-                            log.info("'{}': Stopping as no consumers and already frozen", entityClass);
+                            log.info("'{}:{}': Stopping as no consumers and already frozen", entityClass, requesterClass);
                         return;
                     }
                     this.waitForMonitor();
@@ -101,16 +107,16 @@ public class EntityPoolInstanceImpl<T extends AbstractEntity<TId>, TId> implemen
 
                 if (this.pool.isFrozen() && this.getNumberOfAvailableEntities() == 0) {
                     if (log.isDebugEnabled())
-                        log.debug("'{}': Pool is already frozen. Sub requests {} but none available. Sending null",
-                                entityClass, consumer.entitiesCount);
+                        log.debug("'{}:{}': Pool is already frozen. Sub requests {} but none available. Sending null",
+                                entityClass, requesterClass, consumer.entitiesCount);
                     this.sendToConsumer(consumerQueue.poll(), null);
                     continue;
                 }
 
                 if (!this.pool.isFrozen() && this.getNumberOfAvailableEntities() < consumer.entitiesCount) {
                     if (log.isDebugEnabled())
-                        log.debug("'{}': Pool is not frozen and not enough entities as of yet ({} / {})",
-                                entityClass, this.getNumberOfAvailableEntities(), consumer.entitiesCount);
+                        log.debug("'{}:{}': Pool is not frozen and not enough entities as of yet ({} / {})",
+                                entityClass, requesterClass, this.getNumberOfAvailableEntities(), consumer.entitiesCount);
                     this.waitForMonitor();
                     continue;
                 }
@@ -118,15 +124,24 @@ public class EntityPoolInstanceImpl<T extends AbstractEntity<TId>, TId> implemen
 
             int entitiesRetrievedCount = Math.min(consumer.entitiesCount, this.getNumberOfAvailableEntities());
             if (log.isDebugEnabled())
-                log.debug("'{}': Enough entities available ({} / {})", entityClass, entitiesRetrievedCount, consumer.entitiesCount);
+                log.debug("'{}:{}': Enough entities available ({} / {})", entityClass, requesterClass,
+                        entitiesRetrievedCount, consumer.entitiesCount);
             synchronized (this.handlerMonitor) {
                 consumerQueue.poll();
             }
 
-            List<T> entitiesRetrieved = List.copyOf(this.pool.getPool().subList(pointer, pointer + entitiesRetrievedCount));
+            List<T> entitiesRetrieved;
+            try {
+                this.entitiesLock.lock();
+                entitiesRetrieved = List.copyOf(this.pool.getPool().subList(pointer, pointer + entitiesRetrievedCount));
+                this.entitiesLock.unlock();
+            } catch (Exception ex) {
+                log.error("'{}:{}': Error while fetching entities", entityClass, requesterClass, ex);
+                continue;
+            }
             pointer += entitiesRetrievedCount;
             if (log.isDebugEnabled())
-                log.debug("'{}': Acquired {} entities", entityClass, consumer.entitiesCount);
+                log.debug("'{}:{}': Acquired {} entities", entityClass, requesterClass, consumer.entitiesCount);
             this.sendToConsumer(consumer, entitiesRetrieved);
         }
     }

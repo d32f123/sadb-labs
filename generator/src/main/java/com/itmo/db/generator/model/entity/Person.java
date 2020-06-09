@@ -26,6 +26,8 @@ public class Person implements NumericallyIdentifiableEntity, OracleEntity {
     private LocalDate birthDate;
     @ItmoAttribute
     private String birthPlace;
+    @ItmoAttribute
+    private String personNumber;
     private boolean isInDormitory;
     private short warningCount;
 

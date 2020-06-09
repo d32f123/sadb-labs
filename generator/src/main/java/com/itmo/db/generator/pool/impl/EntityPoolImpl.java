@@ -8,7 +8,13 @@ import com.itmo.db.generator.utils.eventbus.GeneratorEvent;
 import com.itmo.db.generator.utils.eventbus.GeneratorEventMessage;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 @Slf4j
 public class EntityPoolImpl<T extends AbstractEntity<TId>, TId> implements EntityPool<T, TId> {
@@ -17,6 +23,7 @@ public class EntityPoolImpl<T extends AbstractEntity<TId>, TId> implements Entit
 
     private final EventBus eventBus;
     private final List<T> entities;
+    private final ReadWriteLock entitiesLock;
 
     private final Map<Class<?>, EntityPoolInstanceImpl<T, TId>> poolInstances;
 
@@ -25,24 +32,32 @@ public class EntityPoolImpl<T extends AbstractEntity<TId>, TId> implements Entit
     public EntityPoolImpl(Class<T> entityClass) {
         this.eventBus = EventBus.getInstance();
         this.availableAmount = 0;
-        this.entities = Collections.synchronizedList(new ArrayList<>(1024));
+        this.entities = new ArrayList<>(1024);
+        this.entitiesLock = new ReentrantReadWriteLock();
         this.poolInstances = new HashMap<>();
         this.entityClass = entityClass;
         this.frozen = false;
     }
 
+
     @Override
-    public synchronized int getAvailableAmount() {
-        return this.availableAmount;
+    public int getAvailableAmount() {
+        this.entitiesLock.readLock().lock();
+        int amount = this.availableAmount;
+        this.entitiesLock.readLock().unlock();
+        return amount;
     }
 
     @Override
-    public synchronized boolean isFrozen() {
-        return this.frozen;
+    public boolean isFrozen() {
+        this.entitiesLock.readLock().lock();
+        boolean frozen = this.frozen;
+        this.entitiesLock.readLock().unlock();
+        return frozen;
     }
 
     @Override
-    public synchronized void add(T entity) {
+    public void add(T entity) {
         if (log.isDebugEnabled())
             log.debug("Adding entityClass '{}'. {} entities so far", entity, availableAmount);
         if (this.frozen) {
@@ -52,7 +67,9 @@ public class EntityPoolImpl<T extends AbstractEntity<TId>, TId> implements Entit
 
         this.availableAmount += 1;
 
+        this.entitiesLock.writeLock().lock();
         this.entities.add(entity);
+        this.entitiesLock.writeLock().unlock();
         this.eventBus.notify(GeneratorEvent.ENTITY_GENERATED, new GeneratorEventMessage<>(entityClass, entity));
     }
 
@@ -62,11 +79,20 @@ public class EntityPoolImpl<T extends AbstractEntity<TId>, TId> implements Entit
     }
 
     @Override
+    public Lock getReadLock() {
+        return this.entitiesLock.readLock();
+    }
+
+    @Override
     public EntityPoolInstance<T, TId> getInstance(Class<?> requester) {
         if (this.poolInstances.containsKey(requester)) {
+            if (log.isInfoEnabled())
+                log.info("Got entity pool instance for '{}:{}' from cache", entityClass, requester);
             return this.poolInstances.get(requester);
         }
-        this.poolInstances.put(requester, new EntityPoolInstanceImpl<>(this, this.entityClass));
+        if (log.isInfoEnabled())
+            log.info("Got new entity pool instance for '{}:{}'", entityClass, requester);
+        this.poolInstances.put(requester, new EntityPoolInstanceImpl<>(this, this.entityClass, requester));
         return this.poolInstances.get(requester);
     }
 

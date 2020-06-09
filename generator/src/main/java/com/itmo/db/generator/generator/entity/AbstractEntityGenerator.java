@@ -55,8 +55,8 @@ public abstract class AbstractEntityGenerator<T extends AbstractEntity<TId>, TId
 
     @Override
     public void run() {
-        if (log.isDebugEnabled())
-            log.debug("Running AbstractEntityGenerator for '{}' with deps: '{}'", entity.getEntityClass(), entity.getDependencies());
+        if (log.isInfoEnabled())
+            log.info("Running AbstractEntityGenerator for '{}' with deps: '{}'", entity.getEntityClass(), entity.getDependencies());
         entity.getDependencies().forEach(dep ->
                 this.dependenciesMetaMap.put(
                         dep.getDependencyClass(),
@@ -170,8 +170,8 @@ public abstract class AbstractEntityGenerator<T extends AbstractEntity<TId>, TId
     private void doGenerate() {
         List<T> entities = null;
         try {
-            if (log.isInfoEnabled())
-                log.info("'{}': Generating entity", entity.getEntityClass());
+            if (log.isDebugEnabled())
+                log.debug("'{}': Generating entity", entity.getEntityClass());
             entities = this.getEntities();
         } catch (Exception ex) {
             log.error("'{}': Failed to generate entities", entity.getEntityClass(), ex);

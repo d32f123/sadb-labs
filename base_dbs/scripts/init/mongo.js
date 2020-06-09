@@ -5,7 +5,7 @@ db.createCollection("persons", {
     validator: {
         $jsonSchema: {
             bsonType: "object",
-            required: ["last_name", "first_name", "is_in_dormitory", "warning_count"],
+            required: ["last_name", "first_name", "is_in_dormitory", "warning_count", "person_number"],
             properties: {
                 last_name: {
                     bsonType: "string",
@@ -26,6 +26,9 @@ db.createCollection("persons", {
                 warning_count: {
                     bsonType: "int",
                     description: "must be whole int"
+                },
+                person_number: {
+                    bsonType: "string"
                 }
             }
         }

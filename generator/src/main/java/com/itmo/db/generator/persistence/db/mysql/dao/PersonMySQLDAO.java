@@ -31,4 +31,7 @@ public class PersonMySQLDAO implements IdentifiableDAO<Long> {
     @Column(name = "role")
     private String role;
 
+    @Column(name = "person_number")
+    private String personNumber;
+
 }

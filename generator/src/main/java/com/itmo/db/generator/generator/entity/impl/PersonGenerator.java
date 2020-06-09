@@ -14,6 +14,7 @@ import java.util.Random;
 @Slf4j
 public class PersonGenerator extends AbstractEntityGenerator<Person, Integer> {
     int maleFemaleRatio = 55;
+    private int personNumber = 1;
 
     public PersonGenerator(EntityDefinition<Person, Integer> entity, Generator generator) {
         super(entity, generator);
@@ -71,17 +72,21 @@ public class PersonGenerator extends AbstractEntityGenerator<Person, Integer> {
         return date;
     }
 
+    public String getPersonNumber() {
+        return String.format("s%05d", personNumber++);
+    }
+
     public String getBirthPlace(Random random) {
         String[] cities = new String[]{
                 "Moscow", "Saint-Petersburg", "Abakan", "Azov", "Aleksandrov", "Aleksin", "Al'met'evsk", "Anapa", "Angarsk",
                 "Anzhero-Sudzhensk", "Apatity", "Arzamas", "Armavir", "Arsen'ev", "Artem", "Arhangel'sk", "Asbest", "Astrahan'",
                 "Achinsk", "Balakovo", "Balahna", "Balashiha", "Balashov", "Barnaul", "Batajsk", "Belgorod", "Belebej", "Belovo",
-                "Belogorsk","Beloreck","Belorechensk","Berdsk","Berezniki",
-                "Berezovskij","Bijsk","Birobidzhan","Blagoveshchensk",
-                "Bor","Borisoglebsk","Borovichi","Bratsk","Bryansk","Bugul'ma","Budennovsk","Buzuluk","Bujnaksk",
-                "Velikie Luki","Ve[likij Novgorod","Verhnyaya Pyshma","Vidnoe","Vladivostok","Vladikavkaz","Vladimir",
-                "Volgograd","Volgodonsk","Volzhsk","Volzhskij","Vologda","Vol'sk","Vorkuta","Voronezh","Voskresensk",
-                "Votkinsk","Vsevolozhsk","Vyborg","Vyksa","Vyaz'ma","Gatchina","Gelendzhik"
+                "Belogorsk", "Beloreck", "Belorechensk", "Berdsk", "Berezniki",
+                "Berezovskij", "Bijsk", "Birobidzhan", "Blagoveshchensk",
+                "Bor", "Borisoglebsk", "Borovichi", "Bratsk", "Bryansk", "Bugul'ma", "Budennovsk", "Buzuluk", "Bujnaksk",
+                "Velikie Luki", "Ve[likij Novgorod", "Verhnyaya Pyshma", "Vidnoe", "Vladivostok", "Vladikavkaz", "Vladimir",
+                "Volgograd", "Volgodonsk", "Volzhsk", "Volzhskij", "Vologda", "Vol'sk", "Vorkuta", "Voronezh", "Voskresensk",
+                "Votkinsk", "Vsevolozhsk", "Vyborg", "Vyksa", "Vyaz'ma", "Gatchina", "Gelendzhik"
         };
         return cities[random.nextInt(cities.length)];
     }
@@ -109,6 +114,7 @@ public class PersonGenerator extends AbstractEntityGenerator<Person, Integer> {
                 getRole(random),
                 getBirthDate(random),
                 getBirthPlace(random),
+                getPersonNumber(),
                 getIsInDormitory(random),
                 getWarningCount(random)
         ));

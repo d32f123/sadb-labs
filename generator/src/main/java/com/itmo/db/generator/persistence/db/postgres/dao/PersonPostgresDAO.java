@@ -31,4 +31,7 @@ public class PersonPostgresDAO implements IdentifiableDAO<Integer> {
     @Column(name = "role")
     private String role;
 
+    @Column(name = "person_number")
+    private String personNumber;
+
 }

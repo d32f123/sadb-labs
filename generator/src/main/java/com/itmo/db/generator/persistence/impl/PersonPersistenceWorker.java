@@ -43,14 +43,16 @@ public class PersonPersistenceWorker extends AbstractPersistenceWorker<Person, I
                 entity.getLastName(),
                 entity.getFirstName(),
                 entity.getPatronymicName(),
-                entity.getRole()
+                entity.getRole(),
+                entity.getPersonNumber()
         );
         PersonPostgresDAO personPostgresDAO = new PersonPostgresDAO(
                 null,
                 entity.getLastName(),
                 entity.getFirstName(),
                 entity.getPatronymicName(),
-                entity.getRole()
+                entity.getRole(),
+                entity.getPersonNumber()
         );
         PersonMongoDAO personMongoDAO = new PersonMongoDAO(
                 null,
@@ -58,7 +60,8 @@ public class PersonPersistenceWorker extends AbstractPersistenceWorker<Person, I
                 entity.getFirstName(),
                 entity.getPatronymicName(),
                 entity.isInDormitory(),
-                (int) entity.getWarningCount()
+                (int) entity.getWarningCount(),
+                entity.getPersonNumber()
         );
 
 
