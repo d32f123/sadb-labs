@@ -1,5 +1,7 @@
 package com.itmo.db.generator.model.entity;
 
+import com.itmo.db.generator.persistence.db.merge.annotations.EntityJpaRepository;
+import com.itmo.db.generator.persistence.db.merge.repository.ScheduleRecordMergeRepository;
 import com.itmo.db.generator.persistence.db.oracle.annotations.ItmoAttribute;
 import com.itmo.db.generator.persistence.db.oracle.annotations.ItmoEntity;
 import com.itmo.db.generator.persistence.db.oracle.annotations.ItmoReference;
@@ -7,13 +9,18 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import java.time.LocalTime;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @ItmoEntity(description = "Schedule record")
+@Entity
+@EntityJpaRepository(clazz = ScheduleRecordMergeRepository.class)
 public class ScheduleRecord implements NumericallyIdentifiableEntity, OracleEntity {
+    @Id
     private Integer id;
     @ItmoAttribute
     @ItmoReference(Person.class)

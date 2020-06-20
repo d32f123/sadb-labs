@@ -16,10 +16,8 @@ import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.lang.reflect.Method;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -269,6 +267,21 @@ public class ItmoEntityAbstractPersistenceWorker<T extends AbstractEntity<TId>, 
         return null;
     }
 
+    private Method findSetter(Class <? extends NumericallyIdentifiableEntity> clazz, String fieldName) {
+        PropertyDescriptor pd;
+        try {
+            if (log.isTraceEnabled()) {
+                log.trace("Trying to get setter for property with name '{}'", fieldName);
+            }
+            pd = new PropertyDescriptor(fieldName, clazz);
+            return pd.getWriteMethod();
+        } catch (IntrospectionException | IllegalArgumentException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     private boolean isCompoundField(Field field) {
         return field.getType().isAnnotationPresent(ItmoEntity.class);
     }
@@ -289,4 +302,59 @@ public class ItmoEntityAbstractPersistenceWorker<T extends AbstractEntity<TId>, 
         return string.substring(0, 50);
     }
 
+    public HashMap<Class, List> findAll() throws  NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException{
+        var itmoObjectTypeOracleDAOS = itmoObjectTypeOracleRepository.findAll();
+
+        HashMap<Class, List<ItmoObjectOracleDAO>> itmoEntities = new HashMap<>();
+        HashMap<Class, List> resultEntities = new HashMap<>();
+        HashMap<Class, HashMap<Long, Method>> setters = new HashMap<>();
+
+        itmoObjectTypeOracleDAOS.forEach(
+                itmoObjectTypeOracleDAO -> {
+                    try {
+                        Class clazz = Class.forName(itmoObjectTypeOracleDAO.getName());
+                        List<ItmoObjectOracleDAO> typedEntities = itmoObjectOracleRepository.findByObjectTypeId(itmoObjectTypeOracleDAO.getId());
+                        HashMap<Long, Method> classSpecificSetters = new HashMap<>();
+                        itmoParamOracleRepository
+                                .findByObjectId(typedEntities.get(0).getId())
+                                .forEach(itmoParamOracleDAO -> {
+                                    String attributeName = itmoAttributeOracleRepository
+                                            .findById(itmoParamOracleDAO.getAttributeId())
+                                            .get().getName();
+                                    classSpecificSetters.put(itmoParamOracleDAO.getAttributeId(), findSetter(clazz, attributeName));
+                                });
+                        setters.put(clazz, classSpecificSetters);
+                        itmoEntities.put(clazz, typedEntities);
+                    } catch (ClassNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                }
+        );
+
+        for (Class clazz : itmoEntities.keySet()){
+            List typedEntities = resultEntities.get(clazz);
+            HashMap<Long, Method> classSpecificSetters = setters.get(clazz);
+            itmoEntities.get(clazz).forEach(itmoTypedEntity -> {
+                try {
+                    var resultEntity = clazz.getConstructor().newInstance(null);
+                    itmoParamOracleRepository
+                            .findByObjectId(itmoTypedEntity.getId())
+                            .forEach(itmoParamOracleDAO -> {
+                                try {
+                                    classSpecificSetters.get(itmoParamOracleDAO.getId()).invoke(resultEntity, itmoParamOracleDAO.getValue() != null? itmoParamOracleDAO.getValue() : itmoParamOracleDAO.getReferenceId());
+                                } catch (IllegalAccessException | InvocationTargetException e) {
+                                    e.printStackTrace();
+                                }
+                            
+                            });
+                    typedEntities.add(resultEntity);
+                } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                    e.printStackTrace();
+                }
+                resultEntities.put(clazz, typedEntities);
+            });
+        }
+
+        return resultEntities;
+    }
 }

@@ -55,6 +55,26 @@ public class PersistenceWorkerFactory {
     private final ItmoListValueOracleRepository itmoListValueOracleRepository;
     //Oracle section END
 
+    public ItmoObjectOracleRepository getItmoObjectOracleRepository() {
+        return itmoObjectOracleRepository;
+    }
+
+    public ItmoObjectTypeOracleRepository getItmoObjectTypeOracleRepository() {
+        return itmoObjectTypeOracleRepository;
+    }
+
+    public ItmoAttributeOracleRepository getItmoAttributeOracleRepository() {
+        return itmoAttributeOracleRepository;
+    }
+
+    public ItmoParamOracleRepository getItmoParamOracleRepository() {
+        return itmoParamOracleRepository;
+    }
+
+    public ItmoListValueOracleRepository getItmoListValueOracleRepository() {
+        return itmoListValueOracleRepository;
+    }
+
     //Postgres section START
     private final DisciplinePostgresRepository disciplinePostgresRepository;
 
