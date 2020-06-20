@@ -1,6 +1,10 @@
 package com.itmo.db.generator.persistence.db.mysql.dao;
 
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
+import com.itmo.db.generator.persistence.db.merge.annotations.EntityJpaRepository;
+import com.itmo.db.generator.persistence.db.merge.repository.ConferenceMergeRepository;
+import com.itmo.db.generator.persistence.db.mongo.repository.AccommodationRecordMongoRepository;
+import com.itmo.db.generator.persistence.db.mysql.repository.ConferenceMySQLRepository;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,6 +17,7 @@ import java.sql.Timestamp;
 @Table(name = "conferences")
 @NoArgsConstructor
 @AllArgsConstructor
+@EntityJpaRepository(clazz = ConferenceMySQLRepository.class)
 public class ConferenceMySQLDAO implements IdentifiableDAO<Long> {
 
     @Id

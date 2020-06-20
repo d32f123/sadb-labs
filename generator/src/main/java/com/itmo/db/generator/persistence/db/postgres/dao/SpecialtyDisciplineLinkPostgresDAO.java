@@ -1,6 +1,9 @@
 package com.itmo.db.generator.persistence.db.postgres.dao;
 
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
+import com.itmo.db.generator.persistence.db.merge.annotations.EntityJpaRepository;
+import com.itmo.db.generator.persistence.db.postgres.repository.SemesterPostgresRepository;
+import com.itmo.db.generator.persistence.db.postgres.repository.SpecialtyDisciplineLinkPostgresRepository;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,6 +17,7 @@ import java.io.Serializable;
 @IdClass(SpecialtyDisciplineLinkPostgresDAO.SpecialtyDisciplineLinkPK.class)
 @AllArgsConstructor
 @NoArgsConstructor
+@EntityJpaRepository(clazz = SpecialtyDisciplineLinkPostgresRepository.class)
 public class SpecialtyDisciplineLinkPostgresDAO implements IdentifiableDAO<SpecialtyDisciplineLinkPostgresDAO.SpecialtyDisciplineLinkPK> {
 
     @Id

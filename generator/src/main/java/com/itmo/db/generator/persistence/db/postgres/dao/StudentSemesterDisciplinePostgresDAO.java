@@ -1,6 +1,9 @@
 package com.itmo.db.generator.persistence.db.postgres.dao;
 
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
+import com.itmo.db.generator.persistence.db.merge.annotations.EntityJpaRepository;
+import com.itmo.db.generator.persistence.db.postgres.repository.StudentPostgresRepository;
+import com.itmo.db.generator.persistence.db.postgres.repository.StudentSemesterDisciplinePostgresRepository;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,6 +18,7 @@ import java.sql.Timestamp;
 @IdClass(StudentSemesterDisciplinePostgresDAO.StudentSemesterDisciplinePostgresPK.class)
 @NoArgsConstructor
 @AllArgsConstructor
+@EntityJpaRepository(clazz = StudentSemesterDisciplinePostgresRepository.class)
 public class StudentSemesterDisciplinePostgresDAO implements IdentifiableDAO<StudentSemesterDisciplinePostgresDAO.StudentSemesterDisciplinePostgresPK> {
 
     @Id

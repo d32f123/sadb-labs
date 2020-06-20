@@ -1,6 +1,8 @@
 package com.itmo.db.generator.persistence.db.mysql.dao;
 
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
+import com.itmo.db.generator.persistence.db.merge.annotations.EntityJpaRepository;
+import com.itmo.db.generator.persistence.db.mysql.repository.IssueMySQLRepository;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,6 +14,7 @@ import javax.persistence.*;
 @Table(name = "issues")
 @NoArgsConstructor
 @AllArgsConstructor
+@EntityJpaRepository(clazz = IssueMySQLRepository.class)
 public class IssueMySQLDAO implements IdentifiableDAO<Long> {
 
     @Id

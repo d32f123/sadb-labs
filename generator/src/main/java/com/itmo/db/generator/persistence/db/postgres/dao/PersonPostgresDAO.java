@@ -1,6 +1,9 @@
 package com.itmo.db.generator.persistence.db.postgres.dao;
 
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
+import com.itmo.db.generator.persistence.db.merge.annotations.EntityJpaRepository;
+import com.itmo.db.generator.persistence.db.postgres.repository.FacultyPostgresRepository;
+import com.itmo.db.generator.persistence.db.postgres.repository.PersonPostgresRepository;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,6 +15,7 @@ import javax.persistence.*;
 @Table(name = "persons")
 @NoArgsConstructor
 @AllArgsConstructor
+@EntityJpaRepository(clazz = PersonPostgresRepository.class)
 public class PersonPostgresDAO implements IdentifiableDAO<Integer> {
 
     @Id

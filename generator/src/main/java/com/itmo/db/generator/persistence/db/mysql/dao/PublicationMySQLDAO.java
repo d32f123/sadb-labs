@@ -1,6 +1,9 @@
 package com.itmo.db.generator.persistence.db.mysql.dao;
 
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
+import com.itmo.db.generator.persistence.db.merge.annotations.EntityJpaRepository;
+import com.itmo.db.generator.persistence.db.mysql.repository.ProjectMySQLRepository;
+import com.itmo.db.generator.persistence.db.mysql.repository.PublicationMySQLRepository;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,6 +16,7 @@ import java.sql.Timestamp;
 @Table(name = "publications")
 @NoArgsConstructor
 @AllArgsConstructor
+@EntityJpaRepository(clazz = PublicationMySQLRepository.class)
 public class PublicationMySQLDAO implements IdentifiableDAO<Long> {
 
     @Id

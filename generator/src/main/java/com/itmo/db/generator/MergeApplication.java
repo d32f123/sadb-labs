@@ -3,6 +3,7 @@ package com.itmo.db.generator;
 import com.itmo.db.generator.model.entity.StudentSemesterDiscipline;
 import com.itmo.db.generator.model.entity.link.PersonGroupLink;
 import com.itmo.db.generator.persistence.PersistenceWorkerFactory;
+import com.itmo.db.generator.persistence.db.merge.annotations.DAO;
 import com.itmo.db.generator.persistence.db.merge.annotations.EntityJpaRepository;
 import com.itmo.db.generator.persistence.db.merge.annotations.MergeRepository;
 import com.itmo.db.generator.persistence.db.oracle.dao.ItmoObjectOracleDAO;
@@ -13,14 +14,19 @@ import com.itmo.db.generator.persistence.db.oracle.repository.ItmoObjectTypeOrac
 import com.itmo.db.generator.persistence.db.oracle.repository.ItmoParamOracleRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
+import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.mongodb.core.aggregation.Fields;
 
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.time.Duration;
@@ -30,6 +36,7 @@ import java.time.LocalTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+import javax.persistence.Entity;
 
 @SpringBootApplication
 @Slf4j
@@ -228,12 +235,12 @@ public class MergeApplication implements ApplicationRunner {
                             .forEach(itmoParamOracleDAO -> {
                                 try {
                                     //log.info("fetching: " + itmoParamOracleDAO);
-                                    Method method = classSpecificSetters.get(itmoParamOracleDAO.getAttributeId());
+                                    Method setter = classSpecificSetters.get(itmoParamOracleDAO.getAttributeId());
                                     var arg = itmoParamOracleDAO.getValue() != null ? itmoParamOracleDAO.getValue() : itmoParamOracleDAO.getReferenceId();
                                     try {
-                                        setValueWithSpecifiedMethods(resultEntity, arg, method, parsers.get(method));
+                                        setValueWithSpecifiedMethods(resultEntity, setter, arg, parsers.get(setter));
                                     } catch (IllegalArgumentException e) {
-                                        log.error("Error invoking value " + arg + " from " + arg.getClass() + " for " + method.getParameterTypes()[0]);
+                                        log.error("Error invoking value " + arg + " from " + arg.getClass() + " for " + setter.getParameterTypes()[0]);
                                         throw e;
                                     }
 
@@ -260,17 +267,28 @@ public class MergeApplication implements ApplicationRunner {
         return resultEntities;
     }
 
-    public void saveAll() throws ClassNotFoundException {
+    public void saveAll() throws Exception {
         HashMap<Class, JpaRepository> mergeRepositoryClassMergeRepositoryMap = new HashMap<>();
+        HashMap<Class, JpaRepository> fetchRepositoryClassFetchRepositoryMap = new HashMap<>();
+
         HashMap<Class, JpaRepository> entityClassMergeRepositoryMap = new HashMap<>();
         HashMap<Class, JpaRepository> daoClassRepositoryMap = new HashMap<>();
-        HashMap<Class, List> entityClassDaoListMap = new HashMap<>();
+        HashMap<Class, Class[]> entityClassDaoListClassMap = new HashMap<>();
+        HashMap<Class, HashMap<String, Method>> fieldEntitySetterMap = new HashMap<>();
+        HashMap<Class, HashMap<String, Method>> fieldDaoGetterMap = new HashMap<>();
+        HashMap<Class, List<Object>> entityClassDaoListMap = new HashMap<>();
+        HashMap<Class, List<Field>> entityFields = new HashMap<>();
+        HashMap<Method, Method> parsers = new HashMap<>();
+        HashMap<Class, List> resultEntities = new HashMap<>();
 
         Arrays.stream(PersistenceWorkerFactory.class.getFields())
                 .filter(field -> field.getClass().isAnnotationPresent(MergeRepository.class))
                 .forEach(field -> {
                     try {
-                        mergeRepositoryClassMergeRepositoryMap.put(field.getClass() , (JpaRepository)findGetter(PersistenceWorkerFactory.class, field.getName()).invoke(persistenceWorkerFactory, null));
+                        //find all merge repos and bind instance to class
+                        mergeRepositoryClassMergeRepositoryMap.put(field.getClass(), (JpaRepository) findGetter(PersistenceWorkerFactory.class, field.getName()).invoke(persistenceWorkerFactory, null));
+                        //find all fetch repos and bind instance to class
+                        fetchRepositoryClassFetchRepositoryMap.put(field.getClass(), (JpaRepository) findGetter(PersistenceWorkerFactory.class, field.getName()).invoke(persistenceWorkerFactory, null));
                     } catch (IllegalAccessException | InvocationTargetException e) {
                         e.printStackTrace();
                     }
@@ -278,18 +296,69 @@ public class MergeApplication implements ApplicationRunner {
         ClassPathScanningCandidateComponentProvider scanner =
                 new ClassPathScanningCandidateComponentProvider(false);
         scanner.addIncludeFilter(new AnnotationTypeFilter(Entity.class));
-        Class clazz;
+        Class entityClass, daoClass;
         for (BeanDefinition bd : scanner.findCandidateComponents("com.itmo.db.generator.model.entity")) {
-            clazz = Class.forName(bd.getBeanClassName());
-            entityClassMergeRepositoryMap.put(clazz, mergeRepositoryClassMergeRepositoryMap.get(((EntityJpaRepository)clazz.getAnnotation(EntityJpaRepository.class)).clazz()));
-            Arrays.stream((((DAO) clazz.getAnnotation(DAO.class)).clazzes())).forEach( dao->
-                    //TODO: receive all repostieries of daos
-                    ///daoClassRepositoryMap.put(dao, dao.getAnnotation())
+            entityClass = Class.forName(bd.getBeanClassName());
+            //find all entities and bind merge repository to entity
+            entityClassMergeRepositoryMap.put(entityClass, mergeRepositoryClassMergeRepositoryMap.get(((EntityJpaRepository) entityClass.getAnnotation(EntityJpaRepository.class)).clazz()));
+            Class[] daos = (((DAO) entityClass.getAnnotation(DAO.class)).clazzes());
+            //find all daos for entity and bind all daos to entity
+            entityClassDaoListClassMap.put(entityClass, daos);
+            //find all fetch repos instances for dao and bind all repos to all daos
+            Arrays.stream(daos).forEach(dao ->
+                    daoClassRepositoryMap.put(dao, fetchRepositoryClassFetchRepositoryMap.get(((EntityJpaRepository) dao.getAnnotation(EntityJpaRepository.class)).clazz()))
             );
         }
 
+        for (Map.Entry<Class, Class[]> entry : entityClassDaoListClassMap.entrySet()) {
+            Class finalEntityClass = entry.getKey();
+            //TODO implement logic for multiple daos ....
+            Class finalDaoClass = entry.getValue()[0];
+            ArrayList<Field> fields = new ArrayList<>();
+            HashMap<String, Method> entityClassSpecificSetters = new HashMap<>();
+            HashMap<String, Method> daoClassSpecificGetters = new HashMap<>();
+            Arrays.stream(finalEntityClass.getFields()).forEach(field -> {
+                        //save field for future
+                        fields.add(field);
+                        //fetch all setters and bind to getters
+                        Method setter = findSetter(finalEntityClass, field.getName());
+                        entityClassSpecificSetters.put(field.getName(), setter);
+                        daoClassSpecificGetters.put(field.getName(), findGetter(finalEntityClass, field.getName()));
+                        //bind parsers
 
+                        parsers.put(setter, getParser(setter));
+                        //fetch all data from db
+                        entityClassDaoListMap.put(
+                                entry.getKey(),
+                                fetchRepositoryClassFetchRepositoryMap.get(
+                                        daoClassRepositoryMap.get(finalDaoClass)
+                                ).findAll());
+                    }
+            );
+            fieldDaoGetterMap.put(finalEntityClass, daoClassSpecificGetters);
+            fieldEntitySetterMap.put(finalEntityClass, entityClassSpecificSetters);
+            entityFields.put(finalEntityClass, fields);
+        };
 
+        for (Map.Entry<Class, List<Object>> entry : entityClassDaoListMap.entrySet()) {
+            entityClass = entry.getKey();
+            ArrayList entities = new ArrayList(entry.getValue().size());
+            for (Object daoInstance : entry.getValue()) {
+                var resultEntity = entityClass.getConstructor().newInstance(null);
+                for (Field field : daoInstance.getClass().getFields()) {
+                    Method setter = (Method) fieldDaoGetterMap.get(daoInstance.getClass()).get(field.getName()).invoke(daoInstance, null);
+                    setValueWithSpecifiedMethods(resultEntity,
+                            setter,
+                            fieldEntitySetterMap.get(entityClass).get(field.getName()),
+                            parsers.get(setter));
+
+                }
+                //todo save one-by-one or batch?
+                entityClassMergeRepositoryMap.get(entityClass).save(resultEntity);
+                entities.add(resultEntity);
+            }
+            resultEntities.put(entityClass, entities);
+        }
 
     }
 }

@@ -1,6 +1,9 @@
 package com.itmo.db.generator.persistence.db.mysql.dao;
 
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
+import com.itmo.db.generator.persistence.db.merge.annotations.EntityJpaRepository;
+import com.itmo.db.generator.persistence.db.mysql.repository.PersonMySQLRepository;
+import com.itmo.db.generator.persistence.db.mysql.repository.PersonProjectLinkMySQLRepository;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,6 +18,7 @@ import java.sql.Timestamp;
 @IdClass(PersonProjectLinkMySQLDAO.PersonProjectLinkPK.class)
 @AllArgsConstructor
 @NoArgsConstructor
+@EntityJpaRepository(clazz = PersonProjectLinkMySQLRepository.class)
 public class PersonProjectLinkMySQLDAO implements IdentifiableDAO<PersonProjectLinkMySQLDAO.PersonProjectLinkPK> {
 
     @Data

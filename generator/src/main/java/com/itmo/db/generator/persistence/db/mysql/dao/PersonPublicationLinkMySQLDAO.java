@@ -1,6 +1,9 @@
 package com.itmo.db.generator.persistence.db.mysql.dao;
 
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
+import com.itmo.db.generator.persistence.db.merge.annotations.EntityJpaRepository;
+import com.itmo.db.generator.persistence.db.mysql.repository.PersonMySQLRepository;
+import com.itmo.db.generator.persistence.db.mysql.repository.PersonPublicationLinkMySQLRepository;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,6 +17,7 @@ import java.io.Serializable;
 @IdClass(PersonPublicationLinkMySQLDAO.PersonPublicationLinkPK.class)
 @AllArgsConstructor
 @NoArgsConstructor
+@EntityJpaRepository(clazz = PersonPublicationLinkMySQLRepository.class)
 public class PersonPublicationLinkMySQLDAO implements IdentifiableDAO<PersonPublicationLinkMySQLDAO.PersonPublicationLinkPK> {
 
     @Data

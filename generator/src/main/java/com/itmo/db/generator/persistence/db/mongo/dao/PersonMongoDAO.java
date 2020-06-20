@@ -3,7 +3,9 @@ package com.itmo.db.generator.persistence.db.mongo.dao;
 import com.itmo.db.generator.model.entity.AccommodationRecord;
 import com.itmo.db.generator.model.entity.Person;
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
-import com.itmo.db.generator.persistence.db.merge.annotations.TargetEntity;
+import com.itmo.db.generator.persistence.db.merge.annotations.EntityJpaRepository;
+import com.itmo.db.generator.persistence.db.mongo.repository.AccommodationRecordMongoRepository;
+import com.itmo.db.generator.persistence.db.mongo.repository.PersonMongoRepository;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,6 +18,7 @@ import javax.persistence.Id;
 @AllArgsConstructor
 @NoArgsConstructor
 @Document("persons")
+@EntityJpaRepository(clazz = PersonMongoRepository.class)
 public class PersonMongoDAO implements IdentifiableDAO<String> {
     @Id
     private String id;
