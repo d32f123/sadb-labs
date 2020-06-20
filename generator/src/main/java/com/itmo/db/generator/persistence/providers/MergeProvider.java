@@ -14,11 +14,11 @@ import org.springframework.transaction.PlatformTransactionManager;
 import javax.sql.DataSource;
 
 @Configuration
-@PropertySource({"classpath:/oracle-provider.properties"})
+@PropertySource({"classpath:/merge-provider.properties"})
 @EnableJpaRepositories(
-        basePackages = "com.itmo.db.generator.persistence.db.merge",
-        entityManagerFactoryRef = "oracleEntityManager",
-        transactionManagerRef = "oracleTransactionManager"
+        basePackages = "com.itmo.db.generator.model.entity",
+        entityManagerFactoryRef = "mergeEntityManager",
+        transactionManagerRef = "mergeTransactionManager"
 )
 @EntityScan(basePackages = "com.itmo.db.generator.model.entity.*")
 public class MergeProvider {
@@ -45,7 +45,7 @@ public class MergeProvider {
 
     @Bean
     public PlatformTransactionManager oracleTransactionManager(
-            @Autowired @Qualifier("oracleEntityManager") LocalContainerEntityManagerFactoryBean entityManager
+            @Autowired @Qualifier("mergeEntityManager") LocalContainerEntityManagerFactoryBean entityManager
     ) {
         return ProviderHelper.getTransactionManager(entityManager);
     }
