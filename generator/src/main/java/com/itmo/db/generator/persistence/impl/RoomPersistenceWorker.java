@@ -29,7 +29,7 @@ public class RoomPersistenceWorker extends AbstractPersistenceWorker<Room, Integ
                 entity.getRoomNumber(),
                 (int) entity.getCapacity(),
                 (int) entity.getEngaged(),
-                entity.isBugs(),
+                entity.getBugs(),
                 entity.getLastCleaningDate() != null
                         ? Date.valueOf(entity.getLastCleaningDate())
                         : null,

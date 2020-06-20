@@ -2,6 +2,7 @@ package com.itmo.db.generator.persistence.db.mysql.dao;
 
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
 import com.itmo.db.generator.persistence.db.merge.annotations.EntityJpaRepository;
+import com.itmo.db.generator.persistence.db.merge.annotations.FieldSource;
 import com.itmo.db.generator.persistence.db.mysql.repository.PersonMySQLRepository;
 import com.itmo.db.generator.persistence.db.mysql.repository.PersonPublicationLinkMySQLRepository;
 import lombok.AllArgsConstructor;
@@ -18,6 +19,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @EntityJpaRepository(clazz = PersonPublicationLinkMySQLRepository.class)
+
 public class PersonPublicationLinkMySQLDAO implements IdentifiableDAO<PersonPublicationLinkMySQLDAO.PersonPublicationLinkPK> {
 
     @Data
@@ -34,6 +36,7 @@ public class PersonPublicationLinkMySQLDAO implements IdentifiableDAO<PersonPubl
 
     @Id
     @Column(name = "publication_id")
+    @FieldSource(source = PublicationMySQLDAO.class)
     private Long publicationId;
 
     public PersonPublicationLinkPK getId() {

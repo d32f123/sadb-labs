@@ -12,6 +12,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.time.LocalTime;
 
@@ -23,6 +24,7 @@ import java.time.LocalTime;
 @EntityJpaRepository(clazz = ScheduleRecordMergeRepository.class)
 public class ScheduleRecord implements NumericallyIdentifiableEntity, OracleEntity {
     @Id
+    @GeneratedValue
     private Integer id;
     @ItmoAttribute
     @ItmoReference(Person.class)

@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.util.Objects;
 
@@ -26,6 +27,7 @@ import java.util.Objects;
 public class Discipline implements NumericallyIdentifiableEntity, OracleEntity {
 
     @Id
+    @GeneratedValue
     private Integer id;
     @ItmoAttribute
     private String name;

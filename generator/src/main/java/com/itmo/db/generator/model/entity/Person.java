@@ -15,6 +15,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.time.LocalDate;
 import java.util.Objects;
@@ -29,6 +30,7 @@ import java.util.Objects;
 public class Person implements NumericallyIdentifiableEntity, OracleEntity {
 
     @Id
+    @GeneratedValue
     private Integer id;
     @ItmoAttribute
     private String firstName;
@@ -43,8 +45,8 @@ public class Person implements NumericallyIdentifiableEntity, OracleEntity {
     private String birthPlace;
     @ItmoAttribute
     private String personNumber;
-    private boolean isInDormitory;
-    private short warningCount;
+    private Boolean isInDormitory;
+    private Short warningCount;
 
     public String getName() {
         return String.join(" ", this.lastName, this.firstName, this.patronymicName);
@@ -62,5 +64,17 @@ public class Person implements NumericallyIdentifiableEntity, OracleEntity {
     @MergeKey
     public int hashCode() {
         return Objects.hash(personNumber);
+    }
+
+    public Boolean isIsInDormitory(){
+        return isInDormitory;
+    }
+
+    public void setIsInDormitory(Boolean isInDormitory){
+        this.isInDormitory = isInDormitory;
+    }
+
+    public Boolean isInDormitory() {
+        return isInDormitory;
     }
 }

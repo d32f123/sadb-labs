@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.time.LocalDate;
 
@@ -21,13 +22,14 @@ import java.time.LocalDate;
 public class AccommodationRecord implements NumericallyIdentifiableEntity {
 
     @Id
+    @GeneratedValue
     private Integer id;
     private Integer personId;
     private Integer roomId;
 
-    private boolean facilities;
-    private boolean budget;
-    private double payment;
+    private Boolean facilities;
+    private Boolean budget;
+    private Double payment;
     private LocalDate livingStartDate;
     private LocalDate livingEndDate;
     private String course;

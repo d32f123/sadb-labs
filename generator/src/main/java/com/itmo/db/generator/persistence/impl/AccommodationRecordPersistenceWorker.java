@@ -27,8 +27,8 @@ public class AccommodationRecordPersistenceWorker extends AbstractPersistenceWor
     protected List<? extends IdentifiableDAO<?>> doPersist(AccommodationRecord entity) {
         AccommodationRecordMongoDAO dao = new AccommodationRecordMongoDAO(
                 null,
-                entity.isFacilities(),
-                entity.isBudget(),
+                entity.getFacilities(),
+                entity.getBudget(),
                 entity.getPayment(),
                 Date.valueOf(entity.getLivingStartDate()),
                 entity.getLivingEndDate() != null

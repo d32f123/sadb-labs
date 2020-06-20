@@ -3,6 +3,7 @@ package com.itmo.db.generator.persistence;
 import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.model.entity.*;
 import com.itmo.db.generator.model.entity.link.*;
+import com.itmo.db.generator.persistence.db.merge.repository.*;
 import com.itmo.db.generator.persistence.db.mongo.repository.AccommodationRecordMongoRepository;
 import com.itmo.db.generator.persistence.db.mongo.repository.DormitoryMongoRepository;
 import com.itmo.db.generator.persistence.db.mongo.repository.PersonMongoRepository;
@@ -13,46 +14,48 @@ import com.itmo.db.generator.persistence.db.postgres.repository.*;
 import com.itmo.db.generator.persistence.impl.*;
 import com.itmo.db.generator.persistence.impl.itmo.ItmoEntityAbstractPersistenceWorker;
 import com.itmo.db.generator.persistence.impl.itmo.ItmoGroupPersistenceWorker;
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
+@Data
 public class PersistenceWorkerFactory {
 
-    private final Generator generator;
+    private  Generator generator;
 
     //MySQL section START
-    private final ConferenceMySQLRepository conferenceMySQLRepository;
+    private  ConferenceMySQLRepository conferenceMySQLRepository;
 
-    private final ConferencePublicationLinkMySQLRepository conferencePublicationLinkMySQLRepository;
+    private  ConferencePublicationLinkMySQLRepository conferencePublicationLinkMySQLRepository;
 
-    private final IssueMySQLRepository issueMySQLRepository;
+    private  IssueMySQLRepository issueMySQLRepository;
 
-    private final IssuePublicationLinkMySQLRepository issuePublicationLinkMySQLRepository;
+    private  IssuePublicationLinkMySQLRepository issuePublicationLinkMySQLRepository;
 
-    private final LibraryRecordMySQLRepository libraryRecordMySQLRepository;
+    private  LibraryRecordMySQLRepository libraryRecordMySQLRepository;
 
-    private final PersonMySQLRepository personMySQLRepository;
+    private  PersonMySQLRepository personMySQLRepository;
 
-    private final PersonProjectLinkMySQLRepository personProjectRepository;
+    private  PersonProjectLinkMySQLRepository personProjectRepository;
 
-    private final PersonPublicationLinkMySQLRepository personPublicationLinkMySQLRepository;
+    private  PersonPublicationLinkMySQLRepository personPublicationLinkMySQLRepository;
 
-    private final ProjectMySQLRepository projectMySQLRepository;
+    private  ProjectMySQLRepository projectMySQLRepository;
 
-    private final PublicationMySQLRepository publicationMySQLRepository;
+    private  PublicationMySQLRepository publicationMySQLRepository;
     //MySQL section END
 
     //Oracle section START
-    private final ItmoObjectOracleRepository itmoObjectOracleRepository;
+    private  ItmoObjectOracleRepository itmoObjectOracleRepository;
 
-    private final ItmoObjectTypeOracleRepository itmoObjectTypeOracleRepository;
+    private  ItmoObjectTypeOracleRepository itmoObjectTypeOracleRepository;
 
-    private final ItmoAttributeOracleRepository itmoAttributeOracleRepository;
+    private  ItmoAttributeOracleRepository itmoAttributeOracleRepository;
 
-    private final ItmoParamOracleRepository itmoParamOracleRepository;
+    private  ItmoParamOracleRepository itmoParamOracleRepository;
 
-    private final ItmoListValueOracleRepository itmoListValueOracleRepository;
+    private  ItmoListValueOracleRepository itmoListValueOracleRepository;
     //Oracle section END
 
     public ItmoObjectOracleRepository getItmoObjectOracleRepository() {
@@ -76,38 +79,67 @@ public class PersistenceWorkerFactory {
     }
 
     //Postgres section START
-    private final DisciplinePostgresRepository disciplinePostgresRepository;
+    private  DisciplinePostgresRepository disciplinePostgresRepository;
 
-    private final FacultyPostgresRepository facultyPostgresRepository;
+    private  FacultyPostgresRepository facultyPostgresRepository;
 
-    private final PersonPostgresRepository personPostgresRepository;
+    private  PersonPostgresRepository personPostgresRepository;
 
-    private final ProfessorPostgresRepository professorPostgresRepository;
+    private  ProfessorPostgresRepository professorPostgresRepository;
 
-    private final SemesterPostgresRepository semesterPostgresRepository;
+    private  SemesterPostgresRepository semesterPostgresRepository;
 
-    private final SpecialtyDisciplineLinkPostgresRepository specialtyDisciplineLinkPostgresRepository;
+    private  SpecialtyDisciplineLinkPostgresRepository specialtyDisciplineLinkPostgresRepository;
 
-    private final SpecialtyPostgresRepository specialtyPostgresRepository;
+    private  SpecialtyPostgresRepository specialtyPostgresRepository;
 
-    private final StudentPostgresRepository studentPostgresRepository;
+    private  StudentPostgresRepository studentPostgresRepository;
 
-    private final StudentSemesterDisciplinePostgresRepository studentSemesterDisciplinePostgresRepository;
+    private  StudentSemesterDisciplinePostgresRepository studentSemesterDisciplinePostgresRepository;
 
-    private final UniversityPostgresRepository universityPostgresRepository;
+    private  UniversityPostgresRepository universityPostgresRepository;
     //Postgres section END
 
     // MongoDB section START
-    private final AccommodationRecordMongoRepository accommodationRecordMongoRepository;
+    private  AccommodationRecordMongoRepository accommodationRecordMongoRepository;
 
-    private final DormitoryMongoRepository dormitoryMongoRepository;
+    private  DormitoryMongoRepository dormitoryMongoRepository;
 
-    private final PersonMongoRepository personMongoRepository;
+    private  PersonMongoRepository personMongoRepository;
 
-    private final RoomMongoRepository roomMongoRepository;
+    private  RoomMongoRepository roomMongoRepository;
     // MongoDB section END
 
 
+    // Merge section start
+    AcademicRecordMergeRepository academicRecordMergeRepository;
+    AccommodationRecordMergeRepository accommodationRecordMergeRepository;
+    ConferenceMergeRepository conferenceMergeRepository;
+    ConferencePublicationLinkMergeRepository conferencePublicationLinkMergeRepository;
+    DisciplineMergeRepository disciplineMergeRepository;
+    DormitoryMergeRepository dormitoryMergeRepository;
+    FacultyMergeRepository facultyMergeRepository;
+    GroupMergeRepository groupMergeRepository;
+    IssueMergeRepository issueMergeRepository;
+    IssuePublicationLinkMergeRepository issuePublicationLinkMergeRepository;
+    LibraryRecordMergeRepository libraryRecordMergeRepository;
+    PersonGroupLinkMergeRepository personGroupLinkMergeRepository;
+    PersonMergeRepository personMergeRepository;
+    PersonProjectLinkMergeRepository personProjectLinkMergeRepository;
+    PersonPublicationLinkMergeRepository personPublicationLinkMergeRepository;
+    ProfessorMergeRepository professorMergeRepository;
+    ProjectMergeRepository projectMergeRepository;
+    PublicationMergeRepository publicationMergeRepository;
+    RoomMergeRepository roomMergeRepository;
+    ScheduleRecordMergeRepository scheduleRecordMergeRepository;
+    SemesterMergeRepository semesterMergeRepository;
+    SpecialtyDisciplineLinkMergeRepository specialtyDisciplineLinkMergeRepository;
+    SpecialtyMergeRepository specialtyMergeRepository;
+    StudentMergeRepository studentMergeRepository;
+    StudentSemesterDisciplineMergeRepository studentSemesterDisciplineMergeRepository;
+    UniversityMergeRepository universityMergeRepository;
+
+    // Merge section end
     @Autowired
     public PersistenceWorkerFactory(ConferenceMySQLRepository conferenceMySQLRepository,
                                     Generator generator,
@@ -138,7 +170,33 @@ public class PersistenceWorkerFactory {
                                     ItmoListValueOracleRepository itmoListValueOracleRepository,
                                     SpecialtyDisciplineLinkPostgresRepository specialtyDisciplineLinkPostgresRepository,
                                     PublicationMySQLRepository publicationMySQLRepository,
-                                    RoomMongoRepository roomMongoRepository) {
+                                    RoomMongoRepository roomMongoRepository,
+                                    AcademicRecordMergeRepository academicRecordMergeRepository,
+                                    AccommodationRecordMergeRepository accommodationRecordMergeRepository,
+                                    ConferenceMergeRepository conferenceMergeRepository,
+                                    ConferencePublicationLinkMergeRepository conferencePublicationLinkMergeRepository,
+                                    DisciplineMergeRepository disciplineMergeRepository,
+                                    DormitoryMergeRepository dormitoryMergeRepository,
+                                    FacultyMergeRepository facultyMergeRepository,
+                                    GroupMergeRepository groupMergeRepository,
+                                    IssueMergeRepository issueMergeRepository,
+                                    IssuePublicationLinkMergeRepository issuePublicationLinkMergeRepository,
+                                    LibraryRecordMergeRepository libraryRecordMergeRepository,
+                                    PersonGroupLinkMergeRepository personGroupLinkMergeRepository,
+                                    PersonMergeRepository personMergeRepository,
+                                    PersonProjectLinkMergeRepository personProjectLinkMergeRepository,
+                                    PersonPublicationLinkMergeRepository personPublicationLinkMergeRepository,
+                                    ProfessorMergeRepository professorMergeRepository,
+                                    ProjectMergeRepository projectMergeRepository,
+                                    PublicationMergeRepository publicationMergeRepository,
+                                    RoomMergeRepository roomMergeRepository,
+                                    ScheduleRecordMergeRepository scheduleRecordMergeRepository,
+                                    SemesterMergeRepository semesterMergeRepository,
+                                    SpecialtyDisciplineLinkMergeRepository specialtyDisciplineLinkMergeRepository,
+                                    SpecialtyMergeRepository specialtyMergeRepository,
+                                    StudentMergeRepository studentMergeRepository,
+                                    StudentSemesterDisciplineMergeRepository studentSemesterDisciplineMergeRepository,
+                                    UniversityMergeRepository universityMergeRepository) {
         this.conferenceMySQLRepository = conferenceMySQLRepository;
         this.generator = generator;
         this.conferencePublicationLinkMySQLRepository = conferencePublicationLinkMySQLRepository;
@@ -169,6 +227,32 @@ public class PersistenceWorkerFactory {
         this.specialtyDisciplineLinkPostgresRepository = specialtyDisciplineLinkPostgresRepository;
         this.publicationMySQLRepository = publicationMySQLRepository;
         this.roomMongoRepository = roomMongoRepository;
+        this.academicRecordMergeRepository = academicRecordMergeRepository;
+        this.accommodationRecordMergeRepository = accommodationRecordMergeRepository;
+        this.conferenceMergeRepository = conferenceMergeRepository;
+        this.conferencePublicationLinkMergeRepository = conferencePublicationLinkMergeRepository;
+        this.disciplineMergeRepository = disciplineMergeRepository;
+        this.dormitoryMergeRepository = dormitoryMergeRepository;
+        this.facultyMergeRepository = facultyMergeRepository;
+        this.groupMergeRepository = groupMergeRepository;
+        this.issueMergeRepository = issueMergeRepository;
+        this.issuePublicationLinkMergeRepository = issuePublicationLinkMergeRepository;
+        this.libraryRecordMergeRepository = libraryRecordMergeRepository;
+        this.personGroupLinkMergeRepository = personGroupLinkMergeRepository;
+        this.personMergeRepository = personMergeRepository;
+        this.personProjectLinkMergeRepository = personProjectLinkMergeRepository;
+        this.personPublicationLinkMergeRepository = personPublicationLinkMergeRepository;
+        this.professorMergeRepository = professorMergeRepository;
+        this.projectMergeRepository = projectMergeRepository;
+        this.publicationMergeRepository = publicationMergeRepository;
+        this.roomMergeRepository = roomMergeRepository;
+        this.scheduleRecordMergeRepository = scheduleRecordMergeRepository;
+        this.semesterMergeRepository = semesterMergeRepository;
+        this.specialtyDisciplineLinkMergeRepository = specialtyDisciplineLinkMergeRepository;
+        this.specialtyMergeRepository = specialtyMergeRepository;
+        this.studentMergeRepository = studentMergeRepository;
+        this.studentSemesterDisciplineMergeRepository = studentSemesterDisciplineMergeRepository;
+        this.universityMergeRepository = universityMergeRepository;
         ItmoEntityAbstractPersistenceWorker.init(
                 itmoAttributeOracleRepository,
                 itmoListValueOracleRepository,

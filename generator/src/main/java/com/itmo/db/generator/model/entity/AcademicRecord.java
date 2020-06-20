@@ -10,6 +10,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import java.time.LocalDate;
 
@@ -22,6 +24,7 @@ import java.time.LocalDate;
 public class AcademicRecord implements NumericallyIdentifiableEntity, OracleEntity {
 
     @Id
+    @GeneratedValue
     private Integer id;
     @ItmoAttribute
     @ItmoReference(Person.class)
@@ -31,9 +34,9 @@ public class AcademicRecord implements NumericallyIdentifiableEntity, OracleEnti
     @ItmoAttribute
     private String degree;
     @ItmoAttribute
-    private boolean budget;
+    private Boolean budget;
     @ItmoAttribute
-    private boolean fullTime;
+    private Boolean fullTime;
     @ItmoAttribute
     private String direction;
     @ItmoAttribute

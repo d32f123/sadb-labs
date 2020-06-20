@@ -9,7 +9,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Table;
 import java.time.LocalDate;
 
 @Data
@@ -18,9 +20,11 @@ import java.time.LocalDate;
 @ItmoEntity(description = "Group of students")
 @Entity
 @EntityJpaRepository(clazz = GroupMergeRepository.class)
+@Table(name = "groups")
 public class Group implements NumericallyIdentifiableEntity, OracleEntity {
 
     @Id
+    @GeneratedValue
     private Integer id;
     @ItmoAttribute
     private String name;

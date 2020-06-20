@@ -13,8 +13,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.Embeddable;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Objects;
 
@@ -29,7 +32,7 @@ public class StudentSemesterDiscipline implements AbstractEntity<StudentSemester
         OracleEntity {
 
     @ItmoAttribute
-    @Id
+    @EmbeddedId
     private StudentSemesterDisciplinePK id;
 
     private Integer professorId;
@@ -52,7 +55,8 @@ public class StudentSemesterDiscipline implements AbstractEntity<StudentSemester
     @AllArgsConstructor
     @NoArgsConstructor
     @ItmoEntity(description = "Student Semester Discipline Key mapping")
-    public static class StudentSemesterDisciplinePK implements OracleEntity {
+    @Embeddable
+    public static class StudentSemesterDisciplinePK implements OracleEntity, Serializable {
         @ItmoAttribute
         @ItmoReference(Person.class)
         public Integer studentId;
