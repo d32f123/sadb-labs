@@ -11,12 +11,19 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.Embeddable;
+import javax.persistence.EmbeddedId;
+import javax.persistence.Entity;
+import java.io.Serializable;
+
 @Data
 @NoArgsConstructor
 @ItmoEntity(description = "PersonGroup link")
+@Entity
 public class PersonGroupLink implements AbstractEntity<PersonGroupLink.PersonGroupLinkPK>, OracleEntity {
 
     @ItmoAttribute
+    @EmbeddedId
     private PersonGroupLink.PersonGroupLinkPK id;
 
     public PersonGroupLink(Integer person_id, Integer group_id) {
@@ -28,11 +35,12 @@ public class PersonGroupLink implements AbstractEntity<PersonGroupLink.PersonGro
         return this.toString();
     }
 
+    @Embeddable
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
     @ItmoEntity(description = "PersonGroupLink primary key")
-    public static class PersonGroupLinkPK implements OracleEntity {
+    public static class PersonGroupLinkPK implements OracleEntity, Serializable {
         @ItmoAttribute
         @ItmoReference(Person.class)
         public Integer personId;

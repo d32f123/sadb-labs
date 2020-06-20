@@ -5,21 +5,30 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.Embeddable;
+import javax.persistence.EmbeddedId;
+import javax.persistence.Entity;
+import java.io.Serializable;
+
 @Data
 @NoArgsConstructor
+@Entity
 public class ConferencePublicationLink implements AbstractEntity<ConferencePublicationLink.ConferencePublicationLinkPK> {
 
-    public ConferencePublicationLink(Integer conferenceId, Integer publicationId){
+    public ConferencePublicationLink(Integer conferenceId, Integer publicationId) {
         this.id = new ConferencePublicationLinkPK(conferenceId, publicationId);
     }
+
+    // ?????
+    @EmbeddedId
+    private ConferencePublicationLinkPK id;
 
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class ConferencePublicationLinkPK {
+    @Embeddable
+    public static class ConferencePublicationLinkPK implements Serializable {
         public Integer conferenceId;
         public Integer publicationId;
     }
-
-    private ConferencePublicationLinkPK id;
 }

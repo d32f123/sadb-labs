@@ -1,17 +1,15 @@
 package com.itmo.db.generator;
 
-import com.itmo.db.generator.model.entity.StudentSemesterDiscipline;
-import com.itmo.db.generator.model.entity.link.PersonGroupLink;
 import com.itmo.db.generator.persistence.PersistenceWorkerFactory;
 import com.itmo.db.generator.persistence.db.merge.annotations.DAO;
 import com.itmo.db.generator.persistence.db.merge.annotations.EntityJpaRepository;
 import com.itmo.db.generator.persistence.db.merge.annotations.MergeRepository;
 import com.itmo.db.generator.persistence.db.oracle.dao.ItmoObjectOracleDAO;
-import com.itmo.db.generator.persistence.db.oracle.dao.ItmoParamOracleDAO;
 import com.itmo.db.generator.persistence.db.oracle.repository.ItmoAttributeOracleRepository;
 import com.itmo.db.generator.persistence.db.oracle.repository.ItmoObjectOracleRepository;
 import com.itmo.db.generator.persistence.db.oracle.repository.ItmoObjectTypeOracleRepository;
 import com.itmo.db.generator.persistence.db.oracle.repository.ItmoParamOracleRepository;
+import com.itmo.db.generator.utils.merge.MergeUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -22,21 +20,16 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.mongodb.core.aggregation.Fields;
 
-import java.beans.IntrospectionException;
-import java.beans.PropertyDescriptor;
+import javax.persistence.Entity;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
-import javax.persistence.Entity;
 
 @SpringBootApplication
 @Slf4j
@@ -44,10 +37,16 @@ public class MergeApplication implements ApplicationRunner {
 
     @Autowired
     PersistenceWorkerFactory persistenceWorkerFactory;
+    @Autowired
     ItmoAttributeOracleRepository itmoAttributeOracleRepository;
+    @Autowired
     ItmoObjectOracleRepository itmoObjectOracleRepository;
+    @Autowired
     ItmoObjectTypeOracleRepository itmoObjectTypeOracleRepository;
+    @Autowired
     ItmoParamOracleRepository itmoParamOracleRepository;
+    @Autowired
+    MergeUtils mergeUtils;
 
     public MergeApplication() {
     }
@@ -62,124 +61,8 @@ public class MergeApplication implements ApplicationRunner {
         System.out.println("fetched");
     }
 
-    private Method findSetter(Class clazz, String fieldName) {
-        PropertyDescriptor pd;
-        try {
-            if (log.isTraceEnabled()) {
-                log.trace("Trying to get setter for property with name '{}'", fieldName);
-            }
-            pd = new PropertyDescriptor(fieldName, clazz);
-            return pd.getWriteMethod();
-        } catch (IntrospectionException | IllegalArgumentException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    private Method findGetter(Class clazz, String fieldName) {
-        PropertyDescriptor pd;
-        try {
-            if (log.isTraceEnabled()) {
-                log.trace("Trying to get setter for property with name '{}'", fieldName);
-            }
-            pd = new PropertyDescriptor(fieldName, clazz);
-            return pd.getReadMethod();
-        } catch (IntrospectionException | IllegalArgumentException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    private Function getConverter(Class<?> source, Class<?> target) {
-        if (target.isAssignableFrom(source)) {
-            return (x) -> x;
-        }
-        if (Character.class.equals(target)) {
-            if (String.class.equals(source)) {
-                return (Function<String, Character>) x -> x.charAt(0);
-            }
-        }
-        if (Short.class.equals(target)) {
-            if (String.class.equals(source)) {
-                return (Function<String, Short>) Short::valueOf;
-            }
-        }
-        if (Integer.class.equals(target)) {
-            if (String.class.equals(source)) {
-                return (Function<String, Integer>) Integer::valueOf;
-            }
-        }
-        if (LocalDate.class.equals(target)) {
-            if (CharSequence.class.isAssignableFrom(source)) {
-                return (Function<CharSequence, LocalDate>) LocalDate::parse;
-            }
-        }
-        if (LocalTime.class.equals(target)) {
-            if (CharSequence.class.isAssignableFrom(source)) {
-                return (Function<CharSequence, LocalTime>) LocalTime::parse;
-            }
-        }
-        if (Boolean.class.equals(target)) {
-            if (String.class.equals(source)) {
-                return (Function<String, Boolean>) Boolean::getBoolean;
-            }
-        }
-        if (PersonGroupLink.PersonGroupLinkPK.class.equals(target)) {
-            if (Long.class.equals(source)) {
-                return (Function<Long, PersonGroupLink.PersonGroupLinkPK>) (x) -> {
-                    var keys = getOracleCompositeKey(x);
-                    return new PersonGroupLink.PersonGroupLinkPK(
-                            keys.get(0).getReferenceId().intValue(),
-                            keys.get(1).getReferenceId().intValue()
-                    );
-                };
-            }
-        }
-        if (StudentSemesterDiscipline.StudentSemesterDisciplinePK.class.equals(target)) {
-            if (Long.class.equals(source)) {
-                return (Function<Long, StudentSemesterDiscipline.StudentSemesterDisciplinePK>) (x) -> {
-                    var keys = getOracleCompositeKey(x);
-                    return new StudentSemesterDiscipline.StudentSemesterDisciplinePK(
-                            keys.get(0).getReferenceId().intValue(),
-                            keys.get(1).getReferenceId().intValue(),
-                            Integer.parseInt(keys.get(2).getValue())
-                    );
-                };
-            }
-        }
-
-        log.error("Error during receiving converter from '{}' to '{}'", source.getSimpleName(), target.getSimpleName());
-        return null;
-    }
-
-    private List<ItmoParamOracleDAO> getOracleCompositeKey(Long keyId) {
-        List<ItmoParamOracleDAO> keys = itmoParamOracleRepository.findByObjectId(keyId);
-        keys.sort(Comparator.comparing(ItmoParamOracleDAO::getId));
-        return keys;
-    }
-
-    public void setValueWithSpecifiedMethods(Object instance, Method setter, Object arg, Function converter)
-            throws InvocationTargetException, IllegalAccessException {
-        try {
-            if (arg == null || arg.equals("null"))
-                return;
-            setter.invoke(instance, converter.apply(arg));
-        } catch (NullPointerException | InvocationTargetException e) {
-            log.error("Failed to set arg '{}' to setter '{}' of instance '{}'", arg, setter, instance);
-            throw e;
-        }
-    }
-
-
     public HashMap<Class, List> findAll() throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
         Instant start = Instant.now();
-
-        itmoAttributeOracleRepository = persistenceWorkerFactory.getItmoAttributeOracleRepository();
-        itmoObjectOracleRepository = persistenceWorkerFactory.getItmoObjectOracleRepository();
-        itmoObjectTypeOracleRepository = persistenceWorkerFactory.getItmoObjectTypeOracleRepository();
-        itmoParamOracleRepository = persistenceWorkerFactory.getItmoParamOracleRepository();
 
         // TODO: Build map of Entities and their setters
         // TODO: Build map of Entities to DAOs (+ ItmoEntity)
@@ -191,7 +74,7 @@ public class MergeApplication implements ApplicationRunner {
         HashMap<Class, List<ItmoObjectOracleDAO>> itmoEntities = new HashMap<>();
         HashMap<Class, List> resultEntities = new HashMap<>();
         HashMap<Class, HashMap<Long, Method>> setters = new HashMap<>();
-        HashMap<Method, Method> parsers = new HashMap<>();
+        HashMap<Method, Function> parsers = new HashMap<>();
 
         itmoObjectTypeOracleDAOS.forEach(
                 itmoObjectTypeOracleDAO -> {
@@ -205,9 +88,10 @@ public class MergeApplication implements ApplicationRunner {
                                     String attributeName = itmoAttributeOracleRepository
                                             .findById(itmoParamOracleDAO.getAttributeId())
                                             .get().getName();
-                                    Method setter = findSetter(clazz, attributeName);
+                                    Method setter = mergeUtils.findSetter(clazz, attributeName);
+                                    Method getter = mergeUtils.findGetter(clazz, attributeName);
                                     classSpecificSetters.put(itmoParamOracleDAO.getAttributeId(), setter);
-                                    parsers.put(setter, getParser(setter));
+                                    parsers.put(setter, mergeUtils.getConverter(getter.getReturnType(), setter.getParameterTypes()[0]));
                                 });
                         setters.put(clazz, classSpecificSetters);
                         itmoEntities.put(clazz, typedEntities);
@@ -238,7 +122,7 @@ public class MergeApplication implements ApplicationRunner {
                                     Method setter = classSpecificSetters.get(itmoParamOracleDAO.getAttributeId());
                                     var arg = itmoParamOracleDAO.getValue() != null ? itmoParamOracleDAO.getValue() : itmoParamOracleDAO.getReferenceId();
                                     try {
-                                        setValueWithSpecifiedMethods(resultEntity, setter, arg, parsers.get(setter));
+                                        mergeUtils.setValueWithSpecifiedMethods(resultEntity, setter, arg, parsers.get(setter)); // lol
                                     } catch (IllegalArgumentException e) {
                                         log.error("Error invoking value " + arg + " from " + arg.getClass() + " for " + setter.getParameterTypes()[0]);
                                         throw e;
@@ -278,7 +162,7 @@ public class MergeApplication implements ApplicationRunner {
         HashMap<Class, HashMap<String, Method>> fieldDaoGetterMap = new HashMap<>();
         HashMap<Class, List<Object>> entityClassDaoListMap = new HashMap<>();
         HashMap<Class, List<Field>> entityFields = new HashMap<>();
-        HashMap<Method, Method> parsers = new HashMap<>();
+        HashMap<Method, Function> parsers = new HashMap<>();
         HashMap<Class, List> resultEntities = new HashMap<>();
 
         Arrays.stream(PersistenceWorkerFactory.class.getFields())
@@ -286,9 +170,9 @@ public class MergeApplication implements ApplicationRunner {
                 .forEach(field -> {
                     try {
                         //find all merge repos and bind instance to class
-                        mergeRepositoryClassMergeRepositoryMap.put(field.getClass(), (JpaRepository) findGetter(PersistenceWorkerFactory.class, field.getName()).invoke(persistenceWorkerFactory, null));
+                        mergeRepositoryClassMergeRepositoryMap.put(field.getClass(), (JpaRepository) mergeUtils.findGetter(PersistenceWorkerFactory.class, field.getName()).invoke(persistenceWorkerFactory, null));
                         //find all fetch repos and bind instance to class
-                        fetchRepositoryClassFetchRepositoryMap.put(field.getClass(), (JpaRepository) findGetter(PersistenceWorkerFactory.class, field.getName()).invoke(persistenceWorkerFactory, null));
+                        fetchRepositoryClassFetchRepositoryMap.put(field.getClass(), (JpaRepository) mergeUtils.findGetter(PersistenceWorkerFactory.class, field.getName()).invoke(persistenceWorkerFactory, null));
                     } catch (IllegalAccessException | InvocationTargetException e) {
                         e.printStackTrace();
                     }
@@ -318,27 +202,27 @@ public class MergeApplication implements ApplicationRunner {
             HashMap<String, Method> entityClassSpecificSetters = new HashMap<>();
             HashMap<String, Method> daoClassSpecificGetters = new HashMap<>();
             Arrays.stream(finalEntityClass.getFields()).forEach(field -> {
-                        //save field for future
-                        fields.add(field);
-                        //fetch all setters and bind to getters
-                        Method setter = findSetter(finalEntityClass, field.getName());
-                        entityClassSpecificSetters.put(field.getName(), setter);
-                        daoClassSpecificGetters.put(field.getName(), findGetter(finalEntityClass, field.getName()));
-                        //bind parsers
-
-                        parsers.put(setter, getParser(setter));
-                        //fetch all data from db
-                        entityClassDaoListMap.put(
-                                entry.getKey(),
-                                fetchRepositoryClassFetchRepositoryMap.get(
-                                        daoClassRepositoryMap.get(finalDaoClass)
-                                ).findAll());
-                    }
-            );
+                //save field for future
+                fields.add(field);
+                //fetch all setters and bind to getters
+                Method setter = mergeUtils.findSetter(finalEntityClass, field.getName());
+                entityClassSpecificSetters.put(field.getName(), setter);
+                // ??? vFinal
+                Method getter = mergeUtils.findGetter(finalEntityClass, field.getName());
+                daoClassSpecificGetters.put(field.getName(), getter);
+                //bind parsers
+                parsers.put(setter, mergeUtils.getConverter(getter.getReturnType(), setter.getParameterTypes()[0])); // yes
+                //fetch all data from db
+                entityClassDaoListMap.put(
+                        entry.getKey(),
+                        fetchRepositoryClassFetchRepositoryMap.get(
+                                daoClassRepositoryMap.get(finalDaoClass)
+                        ).findAll());
+            });
             fieldDaoGetterMap.put(finalEntityClass, daoClassSpecificGetters);
             fieldEntitySetterMap.put(finalEntityClass, entityClassSpecificSetters);
             entityFields.put(finalEntityClass, fields);
-        };
+        }
 
         for (Map.Entry<Class, List<Object>> entry : entityClassDaoListMap.entrySet()) {
             entityClass = entry.getKey();
@@ -347,7 +231,7 @@ public class MergeApplication implements ApplicationRunner {
                 var resultEntity = entityClass.getConstructor().newInstance(null);
                 for (Field field : daoInstance.getClass().getFields()) {
                     Method setter = (Method) fieldDaoGetterMap.get(daoInstance.getClass()).get(field.getName()).invoke(daoInstance, null);
-                    setValueWithSpecifiedMethods(resultEntity,
+                    mergeUtils.setValueWithSpecifiedMethods(resultEntity,
                             setter,
                             fieldEntitySetterMap.get(entityClass).get(field.getName()),
                             parsers.get(setter));
