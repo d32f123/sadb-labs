@@ -2,6 +2,7 @@ package com.itmo.db.generator.persistence.db.postgres.dao;
 
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
 import com.itmo.db.generator.persistence.db.merge.annotations.EntityJpaRepository;
+import com.itmo.db.generator.persistence.db.merge.annotations.FieldSource;
 import com.itmo.db.generator.persistence.db.postgres.repository.StudentPostgresRepository;
 import com.itmo.db.generator.persistence.db.postgres.repository.StudentSemesterDisciplinePostgresRepository;
 import lombok.AllArgsConstructor;
@@ -23,12 +24,15 @@ public class StudentSemesterDisciplinePostgresDAO implements IdentifiableDAO<Stu
 
     @Id
     @Column(name = "student_id")
+    @FieldSource(source = StudentPostgresDAO.class)
     private Integer studentId;
     @Id
     @Column(name = "semester_id")
+    @FieldSource(source = SemesterPostgresDAO.class)
     private Integer semesterId;
     @Id
     @Column(name = "discipline_id")
+    @FieldSource(source = DisciplinePostgresDAO.class)
     private Integer disciplineId;
     @Column(name = "professor_id")
     private Integer professorId;

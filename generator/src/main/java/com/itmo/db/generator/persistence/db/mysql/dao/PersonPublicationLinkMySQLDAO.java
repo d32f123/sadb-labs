@@ -32,6 +32,7 @@ public class PersonPublicationLinkMySQLDAO implements IdentifiableDAO<PersonPubl
 
     @Id
     @Column(name = "person_id")
+    @FieldSource(source = PersonMySQLDAO.class)
     private Long personId;
 
     @Id

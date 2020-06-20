@@ -2,6 +2,8 @@ package com.itmo.db.generator.persistence.db.postgres.dao;
 
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
 import com.itmo.db.generator.persistence.db.merge.annotations.EntityJpaRepository;
+import com.itmo.db.generator.persistence.db.merge.annotations.FieldSource;
+import com.itmo.db.generator.persistence.db.mysql.dao.PublicationMySQLDAO;
 import com.itmo.db.generator.persistence.db.postgres.repository.SemesterPostgresRepository;
 import com.itmo.db.generator.persistence.db.postgres.repository.SpecialtyDisciplineLinkPostgresRepository;
 import lombok.AllArgsConstructor;
@@ -22,9 +24,11 @@ public class SpecialtyDisciplineLinkPostgresDAO implements IdentifiableDAO<Speci
 
     @Id
     @Column(name = "specialty_id")
+    @FieldSource(source = SpecialtyPostgresDAO.class)
     private Integer specialtyId;
     @Id
     @Column(name = "discipline_id")
+    @FieldSource(source = DisciplinePostgresDAO.class)
     private Integer disciplineId;
 
     public SpecialtyDisciplineLinkPK getId() {

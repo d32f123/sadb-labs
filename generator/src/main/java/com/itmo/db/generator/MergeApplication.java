@@ -3,10 +3,8 @@ package com.itmo.db.generator;
 import com.itmo.db.generator.model.entity.AbstractEntity;
 import com.itmo.db.generator.model.entity.NumericallyIdentifiableEntity;
 import com.itmo.db.generator.persistence.PersistenceWorkerFactory;
-import com.itmo.db.generator.persistence.db.merge.annotations.DAO;
-import com.itmo.db.generator.persistence.db.merge.annotations.EntityJpaRepository;
-import com.itmo.db.generator.persistence.db.merge.annotations.FetchRepository;
-import com.itmo.db.generator.persistence.db.merge.annotations.MergeRepository;
+import com.itmo.db.generator.persistence.db.merge.annotations.*;
+import com.itmo.db.generator.persistence.db.oracle.annotations.ItmoEntity;
 import com.itmo.db.generator.persistence.db.oracle.dao.ItmoObjectOracleDAO;
 import com.itmo.db.generator.persistence.db.oracle.repository.ItmoAttributeOracleRepository;
 import com.itmo.db.generator.persistence.db.oracle.repository.ItmoObjectOracleRepository;
@@ -34,6 +32,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @SpringBootApplication
 @Slf4j
@@ -255,7 +254,8 @@ public class MergeApplication implements ApplicationRunner {
             entityFields.put(finalEntityClass, fields);
         }
     }
-//todo rename methgod..
+
+    //todo rename methgod..
     public void saveAll() throws Exception {
         this.initializeMaps();
 
@@ -263,77 +263,94 @@ public class MergeApplication implements ApplicationRunner {
         boolean doBreak = false;
         for (Set<Class> entityClasses : mergeUtils.getEntities()) {
             //TODO parallel execution
-            Map.Entry<Class, List<Object>> entry : entityClassDaoListMap.entrySet()?
-            Class entityClass = entry.getKey();
-            int total = entry.getValue().size();
-            int step = total / 10;
-            ArrayList entities = new ArrayList(entry.getValue().size());
-            HashMap<Object, Object> classSpecifiedOldNewIdMap = new HashMap<>();
-            Object temporalId = null;
-            counter.set(0);
-            log.info("Starting fetching of entities " + entityClass.getName() + " with " + total + " entities total.");
-            Class daoClass =  entityClassDaoListClassMap.get(entityClass)[0];
-            for (Object daoInstance : entry.getValue()) {
-                if (doBreak) {
-                    doBreak = false;
-                    break;
-                }
-                if (counter.incrementAndGet() % step == 0)
-                    log.info("Fetched " + counter + " of " + total + " elements");
-                var resultEntity = entityClass.getConstructor().newInstance();
-
-                if (daoInstance.getClass().getName().contains("Link") || daoInstance.getClass().getName().contains("StudentSemesterDiscipline")) {
-                    Method setter = fieldEntitySetterMap.get(entityClass).get("id");
-                    Method getter = fieldDaoGetterMap.get(daoInstance.getClass()).get("id");
-                    temporalId = getter.invoke(daoInstance);
-                    try {
-                        // TODO: Fetch from oldNewIdMap
-                        mergeUtils.setValueWithSpecifiedMethods(resultEntity,
-                                setter,
-                                temporalId,
-                                parsers.get(setter));
-                    } catch (Exception e) {
-                        log.error("lol");
-                        throw e;
-                    }
-                }
-                // pigeons
-                for (Field field : daoInstance.getClass().getDeclaredFields()) {
-                    if (field.isAnnotationPresent(Id.class) &&
-                            !daoClass.getName().contains("Link") &&
-                            !daoInstance.getClass().getName().contains("StudentSemesterDiscipline")) {
-                        temporalId = fieldDaoGetterMap.get(daoInstance.getClass()).get(field.getName()).invoke(daoInstance);
-                    }
-                    if (field.isAnnotationPresent(Id.class)) {
-                        continue;
-                    }
-                    Method setter = fieldEntitySetterMap.get(entityClass).get(field.getName());
-                    Method getter = fieldDaoGetterMap.get(daoInstance.getClass()).get(field.getName());
-                    try {
-                        mergeUtils.setValueWithSpecifiedMethods(resultEntity,
-                                setter,
-                                getter.invoke(daoInstance),
-                                parsers.get(setter));
-
-                    } catch (Exception e) {
-                        throw e;
-                    }
-
-                }
-
-                //todo save one-by-one or batch?
+            for (Class entityClass : entityClasses.stream().filter(es ->
+                                    es.isAnnotationPresent(DAO.class)).collect(Collectors.toSet())) {
+                int total;
                 try {
-                    entityClassMergeRepositoryMap.get(entityClass).save(resultEntity);
-                } catch (Exception XD) {
-                    throw XD;
+                    total = entityClassDaoListMap.get(entityClass).size();
+                }catch (NullPointerException e){
+                    throw e;
                 }
-                classSpecifiedOldNewIdMap.put(temporalId, ((AbstractEntity)resultEntity).getId());
-                entities.add(resultEntity);
-            }
-            log.info("Finished fetching of entities " + entityClass.getName() + " with " + total + " entities total.");
-            oldNewObjectsIdMap.put(daoClass, classSpecifiedOldNewIdMap);
-            resultEntities.put(entityClass, entities);
-        }
+                int step = total / 10;
+                ArrayList entities = new ArrayList(total);
+                HashMap<Object, Object> classSpecifiedOldNewIdMap = new HashMap<>();
+                Object temporalId = null;
+                counter.set(0);
+                log.info("Starting fetching of entities " + entityClass.getName() + " with " + total + " entities total.");
+                Class daoClass = entityClassDaoListClassMap.get(entityClass)[0];
+                for (Object daoInstance : entityClassDaoListMap.get(entityClass)) {
+                    if (doBreak) {
+                        doBreak = false;
+                        break;
+                    }
+                    if (counter.incrementAndGet() % step == 0)
+                        log.info("Fetched " + counter + " of " + total + " elements");
+                    var resultEntity = entityClass.getConstructor().newInstance();
 
+                    if (daoInstance.getClass().getName().contains("Link") || daoInstance.getClass().getName().contains("StudentSemesterDiscipline")) {
+                        Method setter = fieldEntitySetterMap.get(entityClass).get("id");
+                        Method getter = fieldDaoGetterMap.get(daoInstance.getClass()).get("id");
+                        //Method getter = oldNewObjectsIdMap.get()
+                        temporalId = getter.invoke(daoInstance);
+                        try {
+
+                            // TODO: Fetch from oldNewIdMap
+                            mergeUtils.setValueWithSpecifiedMethods(resultEntity,
+                                    setter,
+                                    temporalId,
+                                    parsers.get(setter));
+                        } catch (Exception e) {
+                            log.error("lol");
+                            throw e;
+                        }
+                    }
+                    // pigeons
+                    for (Field field : daoInstance.getClass().getDeclaredFields()) {
+                        if (field.isAnnotationPresent(Id.class) &&
+                                (daoClass.getName().contains("Link") ||
+                                daoInstance.getClass().getName().contains("StudentSemesterDiscipline")) ){
+                            if (field.isAnnotationPresent(FieldSource.class)) {
+                                Method setter = fieldEntitySetterMap.get(entityClass).get(field.getName());
+                                Object oldId = fieldDaoGetterMap.get(daoInstance.getClass()).get(field.getName()).invoke(daoInstance);
+                                Object newId = oldNewObjectsIdMap.get(field.getAnnotation(FieldSource.class).source()).get(oldId);
+                                mergeUtils.setValueWithSpecifiedMethods(resultEntity,
+                                        setter,
+                                        newId,
+                                        parsers.get(setter));
+                                continue;
+                            }
+                        }
+                        if (field.isAnnotationPresent(Id.class)) {
+                            temporalId = fieldDaoGetterMap.get(daoInstance.getClass()).get(field.getName()).invoke(daoInstance);
+                            continue;
+                        }
+                        Method setter = fieldEntitySetterMap.get(entityClass).get(field.getName());
+                        Method getter = fieldDaoGetterMap.get(daoInstance.getClass()).get(field.getName());
+                        try {
+                            mergeUtils.setValueWithSpecifiedMethods(resultEntity,
+                                    setter,
+                                    getter.invoke(daoInstance),
+                                    parsers.get(setter));
+
+                        } catch (Exception e) {
+                            throw e;
+                        }
+
+                    }
+
+                    //todo save one-by-one or batch?
+                    try {
+                        entityClassMergeRepositoryMap.get(entityClass).save(resultEntity);
+                    } catch (Exception XD) {
+                        throw XD;
+                    }
+                    classSpecifiedOldNewIdMap.put(temporalId, ((AbstractEntity) resultEntity).getId());
+                    entities.add(resultEntity);
+                }
+                log.info("Finished fetching of entities " + entityClass.getName() + " with " + total + " entities total.");
+                oldNewObjectsIdMap.put(daoClass, classSpecifiedOldNewIdMap);
+                resultEntities.put(entityClass, entities);
+            }
+        }
     }
 }

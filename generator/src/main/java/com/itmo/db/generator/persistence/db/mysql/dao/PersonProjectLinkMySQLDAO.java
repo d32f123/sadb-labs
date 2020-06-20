@@ -2,6 +2,7 @@ package com.itmo.db.generator.persistence.db.mysql.dao;
 
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
 import com.itmo.db.generator.persistence.db.merge.annotations.EntityJpaRepository;
+import com.itmo.db.generator.persistence.db.merge.annotations.FieldSource;
 import com.itmo.db.generator.persistence.db.mysql.repository.PersonMySQLRepository;
 import com.itmo.db.generator.persistence.db.mysql.repository.PersonProjectLinkMySQLRepository;
 import lombok.AllArgsConstructor;
@@ -30,10 +31,12 @@ public class PersonProjectLinkMySQLDAO implements IdentifiableDAO<PersonProjectL
     }
 
     @Id
+    @FieldSource(source = PersonMySQLDAO.class)
     @Column(name = "person_id")
     private Long personId;
 
     @Id
+    @FieldSource(source = ProjectMySQLDAO.class)
     @Column(name = "project_id")
     private Long projectId;
 
