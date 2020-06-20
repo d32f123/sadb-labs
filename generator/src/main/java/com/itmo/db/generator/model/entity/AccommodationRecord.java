@@ -1,7 +1,9 @@
 package com.itmo.db.generator.model.entity;
 
+import com.itmo.db.generator.persistence.db.merge.annotations.DAO;
 import com.itmo.db.generator.persistence.db.merge.annotations.EntityJpaRepository;
 import com.itmo.db.generator.persistence.db.merge.repository.AccommodationRecordMergeRepository;
+import com.itmo.db.generator.persistence.db.mongo.dao.AccommodationRecordMongoDAO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,6 +17,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Entity
 @EntityJpaRepository(clazz = AccommodationRecordMergeRepository.class)
+@DAO(clazzes = AccommodationRecordMongoDAO.class)
 public class AccommodationRecord implements NumericallyIdentifiableEntity {
 
     @Id

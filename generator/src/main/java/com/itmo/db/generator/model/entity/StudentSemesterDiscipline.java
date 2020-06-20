@@ -1,11 +1,14 @@
 package com.itmo.db.generator.model.entity;
 
+import com.itmo.db.generator.persistence.db.merge.annotations.DAO;
 import com.itmo.db.generator.persistence.db.merge.annotations.EntityJpaRepository;
 import com.itmo.db.generator.persistence.db.merge.annotations.MergeKey;
 import com.itmo.db.generator.persistence.db.merge.repository.StudentSemesterDisciplineMergeRepository;
 import com.itmo.db.generator.persistence.db.oracle.annotations.ItmoAttribute;
 import com.itmo.db.generator.persistence.db.oracle.annotations.ItmoEntity;
 import com.itmo.db.generator.persistence.db.oracle.annotations.ItmoReference;
+import com.itmo.db.generator.persistence.db.postgres.dao.StudentPostgresDAO;
+import com.itmo.db.generator.persistence.db.postgres.dao.StudentSemesterDisciplinePostgresDAO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,6 +24,7 @@ import java.util.Objects;
 @ItmoEntity(description = "Student Semester Discipline mapping")
 @Entity
 @EntityJpaRepository(clazz = StudentSemesterDisciplineMergeRepository.class)
+@DAO(clazzes = {StudentSemesterDisciplinePostgresDAO.class})
 public class StudentSemesterDiscipline implements AbstractEntity<StudentSemesterDiscipline.StudentSemesterDisciplinePK>,
         OracleEntity {
 

@@ -1,6 +1,9 @@
 package com.itmo.db.generator.persistence.db.mongo.dao;
 
+import com.itmo.db.generator.model.entity.AccommodationRecord;
+import com.itmo.db.generator.model.entity.Dormitory;
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
+import com.itmo.db.generator.persistence.db.merge.annotations.TargetEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

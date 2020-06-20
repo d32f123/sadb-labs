@@ -1,7 +1,9 @@
 package com.itmo.db.generator.model.entity;
 
+import com.itmo.db.generator.persistence.db.merge.annotations.DAO;
 import com.itmo.db.generator.persistence.db.merge.annotations.EntityJpaRepository;
 import com.itmo.db.generator.persistence.db.merge.repository.ScheduleRecordMergeRepository;
+import com.itmo.db.generator.persistence.db.mongo.dao.RoomMongoDAO;
 import com.itmo.db.generator.persistence.db.oracle.annotations.ItmoAttribute;
 import com.itmo.db.generator.persistence.db.oracle.annotations.ItmoEntity;
 import com.itmo.db.generator.persistence.db.oracle.annotations.ItmoReference;

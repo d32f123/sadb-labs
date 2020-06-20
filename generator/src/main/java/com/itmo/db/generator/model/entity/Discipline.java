@@ -1,10 +1,12 @@
 package com.itmo.db.generator.model.entity;
 
+import com.itmo.db.generator.persistence.db.merge.annotations.DAO;
 import com.itmo.db.generator.persistence.db.merge.annotations.EntityJpaRepository;
 import com.itmo.db.generator.persistence.db.merge.annotations.MergeKey;
 import com.itmo.db.generator.persistence.db.merge.repository.DisciplineMergeRepository;
 import com.itmo.db.generator.persistence.db.oracle.annotations.ItmoAttribute;
 import com.itmo.db.generator.persistence.db.oracle.annotations.ItmoEntity;
+import com.itmo.db.generator.persistence.db.postgres.dao.DisciplinePostgresDAO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,6 +22,7 @@ import java.util.Objects;
 @ItmoEntity(description = "University subject used to map other entities")
 @Entity
 @EntityJpaRepository(clazz = DisciplineMergeRepository.class)
+@DAO(clazzes = DisciplinePostgresDAO.class)
 public class Discipline implements NumericallyIdentifiableEntity, OracleEntity {
 
     @Id

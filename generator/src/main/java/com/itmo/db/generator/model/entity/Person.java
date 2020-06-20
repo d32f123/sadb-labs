@@ -1,10 +1,15 @@
 package com.itmo.db.generator.model.entity;
 
+import com.itmo.db.generator.persistence.db.merge.annotations.DAO;
 import com.itmo.db.generator.persistence.db.merge.annotations.EntityJpaRepository;
 import com.itmo.db.generator.persistence.db.merge.annotations.MergeKey;
 import com.itmo.db.generator.persistence.db.merge.repository.PersonMergeRepository;
+import com.itmo.db.generator.persistence.db.mongo.dao.DormitoryMongoDAO;
+import com.itmo.db.generator.persistence.db.mongo.dao.PersonMongoDAO;
+import com.itmo.db.generator.persistence.db.mysql.dao.PersonMySQLDAO;
 import com.itmo.db.generator.persistence.db.oracle.annotations.ItmoAttribute;
 import com.itmo.db.generator.persistence.db.oracle.annotations.ItmoEntity;
+import com.itmo.db.generator.persistence.db.postgres.dao.PersonPostgresDAO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,6 +25,7 @@ import java.util.Objects;
 @ItmoEntity(description = "Basic person entity")
 @Entity
 @EntityJpaRepository(clazz = PersonMergeRepository.class)
+@DAO(clazzes = {PersonMySQLDAO.class, PersonPostgresDAO.class, PersonMongoDAO.class})
 public class Person implements NumericallyIdentifiableEntity, OracleEntity {
 
     @Id

@@ -4,6 +4,7 @@ import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.model.entity.*;
 import com.itmo.db.generator.model.entity.link.*;
 import com.itmo.db.generator.persistence.PersistenceWorkerFactory;
+import com.itmo.db.generator.persistence.db.merge.annotations.DAO;
 import com.itmo.db.generator.persistence.db.merge.annotations.EntityJpaRepository;
 import com.itmo.db.generator.persistence.db.merge.annotations.MergeRepository;
 import com.itmo.db.generator.persistence.db.oracle.dao.ItmoObjectOracleDAO;
@@ -233,22 +234,36 @@ public class MergeApplication implements ApplicationRunner {
         return resultEntities;
     }
 
-    public void saveAll() {
-        HashMap<Class, JpaRepository> repositoryMap = new HashMap<>();
+    public void saveAll() throws ClassNotFoundException {
+        HashMap<Class, JpaRepository> mergeRepositoryClassMergeRepositoryMap = new HashMap<>();
+        HashMap<Class, JpaRepository> entityClassMergeRepositoryMap = new HashMap<>();
+        HashMap<Class, JpaRepository> daoClassRepositoryMap = new HashMap<>();
+        HashMap<Class, List> entityClassDaoListMap = new HashMap<>();
+
         Arrays.stream(PersistenceWorkerFactory.class.getFields())
                 .filter(field -> field.getClass().isAnnotationPresent(MergeRepository.class))
                 .forEach(field -> {
                     try {
-                        repositoryMap.put(field.getClass() , (JpaRepository)findGetter(PersistenceWorkerFactory.class, field.getName()).invoke(persistenceWorkerFactory, null));
+                        mergeRepositoryClassMergeRepositoryMap.put(field.getClass() , (JpaRepository)findGetter(PersistenceWorkerFactory.class, field.getName()).invoke(persistenceWorkerFactory, null));
                     } catch (IllegalAccessException | InvocationTargetException e) {
                         e.printStackTrace();
                     }
                 });
+        ClassPathScanningCandidateComponentProvider scanner =
+                new ClassPathScanningCandidateComponentProvider(false);
+        scanner.addIncludeFilter(new AnnotationTypeFilter(Entity.class));
+        Class clazz;
+        for (BeanDefinition bd : scanner.findCandidateComponents("com.itmo.db.generator.model.entity")) {
+            clazz = Class.forName(bd.getBeanClassName());
+            entityClassMergeRepositoryMap.put(clazz, mergeRepositoryClassMergeRepositoryMap.get(((EntityJpaRepository)clazz.getAnnotation(EntityJpaRepository.class)).clazz()));
+            Arrays.stream((((DAO) clazz.getAnnotation(DAO.class)).clazzes())).forEach( dao->
+                    //TODO: receive all repostieries of daos
+                    ///daoClassRepositoryMap.put(dao, dao.getAnnotation())
+            );
+        }
 
-        HashMap<Class, JpaRepository> entityMap = new HashMap<>();
-        entityMap.forEach(entry -> {
-            repositoryMap.get(entry).findAll();
-        });
+
+
 
     }
 }
