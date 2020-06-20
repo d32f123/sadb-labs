@@ -4,6 +4,8 @@ import com.itmo.db.generator.model.entity.AbstractEntity;
 import com.itmo.db.generator.model.entity.Group;
 import com.itmo.db.generator.model.entity.OracleEntity;
 import com.itmo.db.generator.model.entity.Person;
+import com.itmo.db.generator.persistence.db.merge.annotations.EntityJpaRepository;
+import com.itmo.db.generator.persistence.db.merge.repository.PersonGroupLinkMergeRepository;
 import com.itmo.db.generator.persistence.db.oracle.annotations.ItmoAttribute;
 import com.itmo.db.generator.persistence.db.oracle.annotations.ItmoEntity;
 import com.itmo.db.generator.persistence.db.oracle.annotations.ItmoReference;
@@ -20,6 +22,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @ItmoEntity(description = "PersonGroup link")
 @Entity
+@EntityJpaRepository(clazz = PersonGroupLinkMergeRepository.class)
 public class PersonGroupLink implements AbstractEntity<PersonGroupLink.PersonGroupLinkPK>, OracleEntity {
 
     @ItmoAttribute

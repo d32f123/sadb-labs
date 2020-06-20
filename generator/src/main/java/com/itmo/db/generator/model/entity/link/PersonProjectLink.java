@@ -1,6 +1,10 @@
 package com.itmo.db.generator.model.entity.link;
 
 import com.itmo.db.generator.model.entity.AbstractEntity;
+import com.itmo.db.generator.persistence.db.merge.annotations.DAO;
+import com.itmo.db.generator.persistence.db.merge.annotations.EntityJpaRepository;
+import com.itmo.db.generator.persistence.db.merge.repository.PersonProjectLinkMergeRepository;
+import com.itmo.db.generator.persistence.db.mysql.dao.PersonProjectLinkMySQLDAO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,6 +18,8 @@ import java.sql.Timestamp;
 @Data
 @NoArgsConstructor
 @Entity
+@EntityJpaRepository(clazz = PersonProjectLinkMergeRepository.class)
+@DAO(clazzes = PersonProjectLinkMySQLDAO.class)
 public class PersonProjectLink implements AbstractEntity<PersonProjectLink.PersonProjectLinkPK> {
 
     public PersonProjectLink(Integer person_id, Integer project_id, Timestamp participationStart, Timestamp endDate) {
