@@ -30,21 +30,21 @@ public class MergeProvider {
     }
 
     @Bean
-    public DataSource oracleDataSource() {
-        var oracleDataSource = ProviderHelper.getDataSource("merge.", env);
-        oracleDataSource.setSchema(env.getProperty("merge.spring.datasource.schema"));
-        return oracleDataSource;
+    public DataSource mergeDataSource() {
+        var mergeDataSource = ProviderHelper.getDataSource("merge.", env);
+        mergeDataSource.setSchema(env.getProperty("merge.spring.datasource.schema"));
+        return mergeDataSource;
     }
 
     @Bean
-    public LocalContainerEntityManagerFactoryBean oracleEntityManager(
+    public LocalContainerEntityManagerFactoryBean mergeEntityManager(
             @Autowired @Qualifier("mergeDataSource") DataSource dataSource
     ) {
         return ProviderHelper.getEntityManager("merge.", env, dataSource, "com.itmo.db.generator.persistence.db.merge");
     }
 
     @Bean
-    public PlatformTransactionManager oracleTransactionManager(
+    public PlatformTransactionManager mergeTransactionManager(
             @Autowired @Qualifier("mergeEntityManager") LocalContainerEntityManagerFactoryBean entityManager
     ) {
         return ProviderHelper.getTransactionManager(entityManager);

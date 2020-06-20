@@ -37,7 +37,7 @@ public class Generator {
     @Autowired
     private EventBus eventBus;
 
-    @Autowired
+    //@Autowired
     private PersistenceWorkerFactory persistenceWorkerFactory;
 
     @Autowired

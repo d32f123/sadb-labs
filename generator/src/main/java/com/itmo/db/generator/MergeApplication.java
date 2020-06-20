@@ -4,6 +4,7 @@ import com.itmo.db.generator.persistence.PersistenceWorkerFactory;
 import com.itmo.db.generator.persistence.db.merge.annotations.DAO;
 import com.itmo.db.generator.persistence.db.merge.annotations.EntityJpaRepository;
 import com.itmo.db.generator.persistence.db.merge.annotations.MergeRepository;
+import com.itmo.db.generator.persistence.db.oracle.annotations.ItmoEntity;
 import com.itmo.db.generator.persistence.db.oracle.dao.ItmoObjectOracleDAO;
 import com.itmo.db.generator.persistence.db.oracle.repository.ItmoAttributeOracleRepository;
 import com.itmo.db.generator.persistence.db.oracle.repository.ItmoObjectOracleRepository;
@@ -37,18 +38,20 @@ public class MergeApplication implements ApplicationRunner {
 
     @Autowired
     PersistenceWorkerFactory persistenceWorkerFactory;
-    @Autowired
     ItmoAttributeOracleRepository itmoAttributeOracleRepository;
-    @Autowired
     ItmoObjectOracleRepository itmoObjectOracleRepository;
-    @Autowired
     ItmoObjectTypeOracleRepository itmoObjectTypeOracleRepository;
-    @Autowired
     ItmoParamOracleRepository itmoParamOracleRepository;
     @Autowired
     MergeUtils mergeUtils;
 
-    public MergeApplication() {
+    @Autowired
+    public MergeApplication(PersistenceWorkerFactory persistenceWorkerFactory, MergeUtils mergeUtils) {
+        itmoAttributeOracleRepository = persistenceWorkerFactory.getItmoAttributeOracleRepository();
+        itmoObjectOracleRepository = persistenceWorkerFactory.getItmoObjectOracleRepository();
+        itmoObjectTypeOracleRepository = persistenceWorkerFactory.getItmoObjectTypeOracleRepository();
+        itmoParamOracleRepository = persistenceWorkerFactory.getItmoParamOracleRepository();
+        this.mergeUtils = mergeUtils;
     }
 
     public static void main(String[] args) {
@@ -57,7 +60,8 @@ public class MergeApplication implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        var result = findAll();
+        //var result = findAll();
+        saveAll();
         System.out.println("fetched");
     }
 
@@ -152,6 +156,7 @@ public class MergeApplication implements ApplicationRunner {
     }
 
     public void saveAll() throws Exception {
+
         HashMap<Class, JpaRepository> mergeRepositoryClassMergeRepositoryMap = new HashMap<>();
         HashMap<Class, JpaRepository> fetchRepositoryClassFetchRepositoryMap = new HashMap<>();
 
@@ -183,15 +188,24 @@ public class MergeApplication implements ApplicationRunner {
         Class entityClass, daoClass;
         for (BeanDefinition bd : scanner.findCandidateComponents("com.itmo.db.generator.model.entity")) {
             entityClass = Class.forName(bd.getBeanClassName());
+            if (entityClass.isAnnotationPresent(ItmoEntity.class))
+                continue;
             //find all entities and bind merge repository to entity
-            entityClassMergeRepositoryMap.put(entityClass, mergeRepositoryClassMergeRepositoryMap.get(((EntityJpaRepository) entityClass.getAnnotation(EntityJpaRepository.class)).clazz()));
-            Class[] daos = (((DAO) entityClass.getAnnotation(DAO.class)).clazzes());
-            //find all daos for entity and bind all daos to entity
-            entityClassDaoListClassMap.put(entityClass, daos);
-            //find all fetch repos instances for dao and bind all repos to all daos
-            Arrays.stream(daos).forEach(dao ->
-                    daoClassRepositoryMap.put(dao, fetchRepositoryClassFetchRepositoryMap.get(((EntityJpaRepository) dao.getAnnotation(EntityJpaRepository.class)).clazz()))
-            );
+            try {
+                entityClassMergeRepositoryMap.put(entityClass, mergeRepositoryClassMergeRepositoryMap.get(((EntityJpaRepository) entityClass.getAnnotation(EntityJpaRepository.class)).clazz()));
+            }
+            catch (NullPointerException e){
+                throw e;
+            }
+            if (entityClass.isAnnotationPresent(DAO.class)) {
+                Class[] daos = (((DAO) entityClass.getAnnotation(DAO.class)).clazzes());
+                //find all daos for entity and bind all daos to entity
+                entityClassDaoListClassMap.put(entityClass, daos);
+                //find all fetch repos instances for dao and bind all repos to all daos
+                Arrays.stream(daos).forEach(dao ->
+                        daoClassRepositoryMap.put(dao, fetchRepositoryClassFetchRepositoryMap.get(((EntityJpaRepository) dao.getAnnotation(EntityJpaRepository.class)).clazz()))
+                );
+            }
         }
 
         for (Map.Entry<Class, Class[]> entry : entityClassDaoListClassMap.entrySet()) {
