@@ -32,6 +32,7 @@ import java.lang.reflect.Method;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
@@ -76,13 +77,13 @@ public class MergeApplication implements ApplicationRunner {
     MergeUtils mergeUtils;
 
     private final AtomicInteger counter = new AtomicInteger();
-    Map<Class, CrudRepository> mergeRepositoryClassMergeRepositoryMap = new HashMap<>();
-    Map<Class, CrudRepository> fetchRepositoryClassFetchRepositoryMap = new HashMap<>();
-    Map<Class<? extends AbstractEntity>, EntityMeta> entityMetaMap = new HashMap<>();
+    Map<Class, CrudRepository> mergeRepositoryClassMergeRepositoryMap = new ConcurrentHashMap<>();
+    Map<Class, CrudRepository> fetchRepositoryClassFetchRepositoryMap = new ConcurrentHashMap<>();
+    Map<Class<? extends AbstractEntity>, EntityMeta> entityMetaMap = new ConcurrentHashMap<>();
     // DAO Class to DAO class ID to EntityId
     // PersonPostgresDAO -> [daoIds] -> [entityIds]
-    Map<Class<? extends IdentifiableDAO>, HashMap<Object, Object>> oldNewObjectsIdMap = new HashMap<>();
-    Map<Class<? extends AbstractEntity>, HashMap<Long, Object>> oldNewOracleObjectsIdMap = new HashMap<>();
+    Map<Class<? extends IdentifiableDAO>, HashMap<Object, Object>> oldNewObjectsIdMap = new ConcurrentHashMap<>();
+    Map<Class<? extends AbstractEntity>, HashMap<Long, Object>> oldNewOracleObjectsIdMap = new ConcurrentHashMap<>();
 
     final Object generatorStartMonitor = new Object();
     Semaphore generatorSemaphore;
@@ -90,18 +91,43 @@ public class MergeApplication implements ApplicationRunner {
     //todo rename methgod..
     public void saveAll() throws Exception {
         this.initializeEntities();
+        fetchEntitiesFromOracle();
 
         boolean doBreak = false;
         for (Set<Class<? extends AbstractEntity<?>>> entityClasses : mergeUtils.getEntities()) {
             //TODO parallel execution
-            for (Class<? extends AbstractEntity<?>> entityClass : entityClasses.stream().filter(es ->
-                    es.isAnnotationPresent(DAO.class)).collect(Collectors.toSet())) {
-                var entityMeta = this.entityMetaMap.get(entityClass);
-                fetchEntitiesFromOracle();
-                for (var daoMeta : entityMeta.daoClasses) {
-                    this.saveEntityDAO(entityMeta, daoMeta);
+            this.generatorSemaphore = new Semaphore(entityClasses.size());
+            synchronized (this.generatorStartMonitor) {
+                if (entityClasses.stream().noneMatch(cls -> cls.isAnnotationPresent(DAO.class))) {
+                    continue;
                 }
+                for (var entityClass : entityClasses) {
+                    new Thread(() -> {
+                        if (!entityClass.isAnnotationPresent(DAO.class)) {
+                            return;
+                        }
+                        this.generatorSemaphore.acquireUninterruptibly(1);
+                        synchronized (this.generatorStartMonitor) {
+                            this.generatorStartMonitor.notify();
+                        }
+
+                        var entityMeta = this.entityMetaMap.get(entityClass);
+                        for (var daoMeta : entityMeta.daoClasses) {
+                            try {
+                                this.saveEntityDAO(entityMeta, daoMeta);
+                            } catch (Exception exception) {
+                                log.error("Error during generation of entity '{}', dao '{}'", entityMeta, daoMeta);
+                            }
+                        }
+
+                        this.generatorSemaphore.release(1);
+                    }).start();
+                }
+
+                this.generatorStartMonitor.wait();
             }
+            this.generatorSemaphore.acquireUninterruptibly(entityClasses.size());
+            this.generatorSemaphore.release(entityClasses.size());
         }
     }
 
@@ -169,90 +195,92 @@ public class MergeApplication implements ApplicationRunner {
         AtomicInteger counter = new AtomicInteger();
         for (var entityLevel : this.mergeUtils.getEntities()) {
             this.generatorSemaphore = new Semaphore(entityLevel.size());
-            entityLevel.forEach(entityClass -> new Thread(() -> {
-                this.generatorSemaphore.acquireUninterruptibly(1);
-                synchronized (this.generatorStartMonitor) {
-                    this.generatorStartMonitor.notify();
-                }
-                if (!itmoEntities.containsKey(entityClass)) {
-                    this.generatorSemaphore.release(1);
-                    return;
-                }
-
-                int total = itmoEntities.get(entityClass).size();
-                int step = (total >= 100) ? total / 100 : total;
-                boolean doBreak = false;
-                counter.set(0);
-
-                this.oldNewOracleObjectsIdMap.put(entityClass, new HashMap<>());
-                EntityMeta entityMeta = entityMetaMap.get(entityClass);
-                ArrayList typedEntities = new ArrayList(total);
-                HashMap<Long, Method> classSpecificSetters = setters.get(entityClass);
-                log.info("Starting fetching of entities " + entityClass.getName() + " with " + total + " entities total.");
-                Instant entityStart = Instant.now();
-                Instant entityEnd = Instant.now();
-                for (ItmoObjectOracleDAO itmoTypedEntity : itmoEntities.get(entityClass)) {
-                    try {
-                        if (doBreak) {
-                            doBreak = false;
-                            break;
-                        }
-
-                        if (counter.incrementAndGet() % step == 0) {
-                            entityEnd = Instant.now();
-                            log.info("Fetched {} of {} elements. Elapsed {} seconds.",counter, total, Duration.between(entityStart, entityEnd).toSeconds());
-                            entityStart = Instant.now();
-                        }
-                        AbstractEntity entityInstance = entityClass.getConstructor().newInstance();
-                        itmoParamOracleRepository
-                                .findByObjectId(itmoTypedEntity.getId())
-                                .forEach(itmoParamOracleDAO -> {
-                                    try {
-                                        //log.info("fetching: " + itmoParamOracleDAO);
-                                        Method setter = classSpecificSetters.get(itmoParamOracleDAO.getAttributeId());
-                                        var isReference = itmoParamOracleDAO.getReferenceId() != null;
-                                        Function parser = parsers.get(setter);
-                                        Object arg = !isReference
-                                                ? itmoParamOracleDAO.getValue()
-                                                : itmoParamOracleDAO.getReferenceId();
-                                        try {
-                                            mergeUtils.setValueWithSpecifiedMethods(
-                                                    entityInstance,
-                                                    setter,
-                                                    arg,
-                                                    parser
-                                            ); // lol
-                                        } catch (Exception e) {
-                                            log.error("Error invoking value " + arg + " from " + arg.getClass() + " for " + setter.getParameterTypes()[0]);
-                                            throw e;
-                                        }
-
-                                    } catch (IllegalAccessException | InvocationTargetException e) {
-                                        log.error("HELP" + e.getMessage());
-                                    } catch (NullPointerException npe) {
-                                        log.error("NPE on entity " + itmoTypedEntity + ". Params: " + itmoParamOracleDAO + "\n" + npe.getMessage());
-                                        throw npe;
-                                    }
-                                });
-                        entityMeta.mergeRepository.save(entityInstance);
-
-                        // K P A C U B O
-                        this.oldNewOracleObjectsIdMap.get(entityClass).put(itmoTypedEntity.getId(), entityInstance.getId());
-                        entityMeta.resultInstances.put(entityInstance.getMergeKey(), entityInstance);
-                    } catch (Exception e) {
-                        e.printStackTrace();
+            if (entityLevel.stream().noneMatch(itmoEntities::containsKey)) {
+                continue;
+            }
+            synchronized (this.generatorStartMonitor) {
+                entityLevel.forEach(entityClass -> new Thread(() -> {
+                    if (!itmoEntities.containsKey(entityClass)) {
+                        return;
                     }
-                }
-                log.info("Finished fetching and saving of entities " + entityClass.getName() + " with " + typedEntities.size() + " entities total.");
-                this.generatorSemaphore.release(1);
-            }).start());
+                    this.generatorSemaphore.acquireUninterruptibly(1);
+                    synchronized (this.generatorStartMonitor) {
+                        this.generatorStartMonitor.notify();
+                    }
 
-            try {
-                synchronized (this.generatorStartMonitor) {
+                    int total = itmoEntities.get(entityClass).size();
+                    int step = (total >= 100) ? total / 100 : total;
+                    boolean doBreak = false;
+                    counter.set(0);
+
+                    this.oldNewOracleObjectsIdMap.put(entityClass, new HashMap<>());
+                    EntityMeta entityMeta = entityMetaMap.get(entityClass);
+                    ArrayList typedEntities = new ArrayList(total);
+                    HashMap<Long, Method> classSpecificSetters = setters.get(entityClass);
+                    log.info("Starting fetching of entities " + entityClass.getName() + " with " + total + " entities total.");
+                    Instant entityStart = Instant.now();
+                    Instant entityEnd = Instant.now();
+                    for (ItmoObjectOracleDAO itmoTypedEntity : itmoEntities.get(entityClass)) {
+                        try {
+                            if (doBreak) {
+                                doBreak = false;
+                                break;
+                            }
+
+                            if (counter.incrementAndGet() % step == 0) {
+                                entityEnd = Instant.now();
+                                log.info("Fetched {} of {} elements. Elapsed {} seconds.", counter, total, Duration.between(entityStart, entityEnd).toSeconds());
+                                entityStart = Instant.now();
+                            }
+                            AbstractEntity entityInstance = entityClass.getConstructor().newInstance();
+                            itmoParamOracleRepository
+                                    .findByObjectId(itmoTypedEntity.getId())
+                                    .forEach(itmoParamOracleDAO -> {
+                                        try {
+                                            //log.info("fetching: " + itmoParamOracleDAO);
+                                            Method setter = classSpecificSetters.get(itmoParamOracleDAO.getAttributeId());
+                                            var isReference = itmoParamOracleDAO.getReferenceId() != null;
+                                            Function parser = parsers.get(setter);
+                                            Object arg = !isReference
+                                                    ? itmoParamOracleDAO.getValue()
+                                                    : itmoParamOracleDAO.getReferenceId();
+                                            try {
+                                                mergeUtils.setValueWithSpecifiedMethods(
+                                                        entityInstance,
+                                                        setter,
+                                                        arg,
+                                                        parser
+                                                ); // lol
+                                            } catch (Exception e) {
+                                                log.error("Error invoking value " + arg + " from " + arg.getClass() + " for " + setter.getParameterTypes()[0]);
+                                                throw e;
+                                            }
+
+                                        } catch (IllegalAccessException | InvocationTargetException e) {
+                                            log.error("HELP" + e.getMessage());
+                                        } catch (NullPointerException npe) {
+                                            log.error("NPE on entity " + itmoTypedEntity + ". Params: " + itmoParamOracleDAO + "\n" + npe.getMessage());
+                                            throw npe;
+                                        }
+                                    });
+                            entityMeta.mergeRepository.save(entityInstance);
+
+                            // K P A C U B O
+                            this.oldNewOracleObjectsIdMap.get(entityClass).put(itmoTypedEntity.getId(), entityInstance.getId());
+                            entityMeta.resultInstances.put(entityInstance.getMergeKey(), entityInstance);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    log.info("Finished fetching and saving of entities " + entityClass.getName() + " with " + typedEntities.size() + " entities total.");
+                    this.generatorSemaphore.release(1);
+                }).start());
+
+                try {
                     this.generatorStartMonitor.wait();
+                } catch (InterruptedException e) {
+                    log.error("heheh", e);
                 }
-            } catch (InterruptedException e) {
-                log.error("heheh", e);
             }
             this.generatorSemaphore.acquireUninterruptibly(entityLevel.size());
             this.generatorSemaphore.release(entityLevel.size());
