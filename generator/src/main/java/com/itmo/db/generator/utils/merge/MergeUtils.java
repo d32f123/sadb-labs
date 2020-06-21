@@ -4,15 +4,16 @@ import com.itmo.db.generator.generator.model.DependencyDefinition;
 import com.itmo.db.generator.generator.model.EntityDefinition;
 import com.itmo.db.generator.model.entity.*;
 import com.itmo.db.generator.model.entity.link.*;
-import com.itmo.db.generator.persistence.db.mysql.dao.ConferencePublicationLinkMySQLDAO;
-import com.itmo.db.generator.persistence.db.mysql.dao.IssuePublicationLinkMySQLDAO;
-import com.itmo.db.generator.persistence.db.mysql.dao.PersonProjectLinkMySQLDAO;
-import com.itmo.db.generator.persistence.db.mysql.dao.PersonPublicationLinkMySQLDAO;
+import com.itmo.db.generator.persistence.db.IdentifiableDAO;
+import com.itmo.db.generator.persistence.db.mysql.dao.*;
 import com.itmo.db.generator.persistence.db.oracle.dao.ItmoParamOracleDAO;
 import com.itmo.db.generator.persistence.db.oracle.repository.ItmoAttributeOracleRepository;
 import com.itmo.db.generator.persistence.db.oracle.repository.ItmoObjectOracleRepository;
 import com.itmo.db.generator.persistence.db.oracle.repository.ItmoObjectTypeOracleRepository;
 import com.itmo.db.generator.persistence.db.oracle.repository.ItmoParamOracleRepository;
+import com.itmo.db.generator.persistence.db.postgres.dao.DisciplinePostgresDAO;
+import com.itmo.db.generator.persistence.db.postgres.dao.SemesterPostgresDAO;
+import com.itmo.db.generator.persistence.db.postgres.dao.StudentPostgresDAO;
 import com.itmo.db.generator.persistence.db.postgres.dao.StudentSemesterDisciplinePostgresDAO;
 import com.itmo.db.generator.utils.dependencytree.DependencyTree;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +22,6 @@ import org.springframework.stereotype.Service;
 
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Timestamp;
@@ -44,6 +44,9 @@ public class MergeUtils {
     ItmoObjectTypeOracleRepository itmoObjectTypeOracleRepository;
     @Autowired
     ItmoParamOracleRepository itmoParamOracleRepository;
+
+    public Map<Class<? extends IdentifiableDAO>, HashMap<Object, Object>> oldNewObjectsIdMap;
+
 
     public Method findSetter(Class clazz, String fieldName) {
         PropertyDescriptor pd;
@@ -135,7 +138,51 @@ public class MergeUtils {
                 };
             }
         }
+        if (PersonPublicationLink.PersonPublicationLinkPK.class.equals(target)) {
+            if (PersonPublicationLinkMySQLDAO.PersonPublicationLinkPK.class.equals(source)) {
+                return (Function<PersonPublicationLinkMySQLDAO.PersonPublicationLinkPK, PersonPublicationLink.PersonPublicationLinkPK>) (x) ->
+                        new PersonPublicationLink.PersonPublicationLinkPK(
+                                (int) this.oldNewObjectsIdMap.get(PersonMySQLDAO.class).get(x.getPersonId()),
+                                (int) this.oldNewObjectsIdMap.get(PublicationMySQLDAO.class).get(x.getPublicationId())
+                        );
+            }
+        }
+        if (PersonProjectLink.PersonProjectLinkPK.class.equals(target)) {
+            if (PersonProjectLinkMySQLDAO.PersonProjectLinkPK.class.equals(source)) {
+                return (Function<PersonProjectLinkMySQLDAO.PersonProjectLinkPK, PersonProjectLink.PersonProjectLinkPK>) (x) ->
+                        new PersonProjectLink.PersonProjectLinkPK(
+                                (int) this.oldNewObjectsIdMap.get(PersonMySQLDAO.class).get(x.getPersonId()),
+                                (int) this.oldNewObjectsIdMap.get(ProjectMySQLDAO.class).get(x.getProjectId())
+                        );
+            }
+        }
+        if (IssuePublicationLink.IssuePublicationLinkPK.class.equals(target)) {
+            if (IssuePublicationLinkMySQLDAO.IssuePublicationLinkPK.class.equals(source)) {
+                return (Function<IssuePublicationLinkMySQLDAO.IssuePublicationLinkPK, IssuePublicationLink.IssuePublicationLinkPK>) (x) ->
+                        new IssuePublicationLink.IssuePublicationLinkPK(
+                                (int) this.oldNewObjectsIdMap.get(IssueMySQLDAO.class).get(x.getIssueId()),
+                                (int) this.oldNewObjectsIdMap.get(PublicationMySQLDAO.class).get(x.getPublicationId())
+                        );
+            }
+        }
+        if (ConferencePublicationLink.ConferencePublicationLinkPK.class.equals(target)) {
+            if (ConferencePublicationLinkMySQLDAO.ConferencePublicationLinkPK.class.equals(source)) {
+                return (Function<ConferencePublicationLinkMySQLDAO.ConferencePublicationLinkPK, ConferencePublicationLink.ConferencePublicationLinkPK>) (x) ->
+                        new ConferencePublicationLink.ConferencePublicationLinkPK(
+                                (int) this.oldNewObjectsIdMap.get(ConferenceMySQLDAO.class).get(x.getConferenceId()),
+                                (int) this.oldNewObjectsIdMap.get(PublicationMySQLDAO.class).get(x.getPublicationId())
+                        );
+            }
+        }
         if (StudentSemesterDiscipline.StudentSemesterDisciplinePK.class.equals(target)) {
+            if (StudentSemesterDisciplinePostgresDAO.StudentSemesterDisciplinePostgresPK.class.equals(source)) {
+                return (Function<StudentSemesterDisciplinePostgresDAO.StudentSemesterDisciplinePostgresPK, StudentSemesterDiscipline.StudentSemesterDisciplinePK>) (x) ->
+                        new StudentSemesterDiscipline.StudentSemesterDisciplinePK(
+                                (int) this.oldNewObjectsIdMap.get(StudentPostgresDAO.class).get(x.getStudentId()),
+                                (int) this.oldNewObjectsIdMap.get(DisciplinePostgresDAO.class).get(x.getDisciplineId()),
+                                (int) this.oldNewObjectsIdMap.get(SemesterPostgresDAO.class).get(x.getSemesterId())
+                        );
+            }
             if (Long.class.equals(source)) {
                 return (Function<Long, StudentSemesterDiscipline.StudentSemesterDisciplinePK>) (x) -> {
                     var keys = getOracleCompositeKey(x);
@@ -145,36 +192,6 @@ public class MergeUtils {
                             Integer.parseInt(keys.get(2).getValue())
                     );
                 };
-            }
-        }
-        if (PersonPublicationLink.PersonPublicationLinkPK.class.equals(target)) {
-            if (PersonPublicationLinkMySQLDAO.PersonPublicationLinkPK.class.equals(source)) {
-                return (Function<PersonPublicationLinkMySQLDAO.PersonPublicationLinkPK, PersonPublicationLink.PersonPublicationLinkPK>)
-                        (x) -> new PersonPublicationLink.PersonPublicationLinkPK(x.getPersonId().intValue(), x.getPublicationId().intValue());
-            }
-        }
-        if (PersonProjectLink.PersonProjectLinkPK.class.equals(target)) {
-            if (PersonProjectLinkMySQLDAO.PersonProjectLinkPK.class.equals(source)) {
-                return (Function<PersonProjectLinkMySQLDAO.PersonProjectLinkPK, PersonProjectLink.PersonProjectLinkPK>)
-                        (x) -> new PersonProjectLink.PersonProjectLinkPK(x.getPersonId().intValue(), x.getProjectId().intValue());
-            }
-        }
-        if (IssuePublicationLink.IssuePublicationLinkPK.class.equals(target)) {
-            if (IssuePublicationLinkMySQLDAO.IssuePublicationLinkPK.class.equals(source)) {
-                return (Function<IssuePublicationLinkMySQLDAO.IssuePublicationLinkPK, IssuePublicationLink.IssuePublicationLinkPK>)
-                        (x) -> new IssuePublicationLink.IssuePublicationLinkPK(x.getIssueId().intValue(), x.getPublicationId().intValue());
-            }
-        }
-        if (ConferencePublicationLink.ConferencePublicationLinkPK.class.equals(target)) {
-            if (ConferencePublicationLinkMySQLDAO.ConferencePublicationLinkPK.class.equals(source)) {
-                return (Function<ConferencePublicationLinkMySQLDAO.ConferencePublicationLinkPK, ConferencePublicationLink.ConferencePublicationLinkPK>)
-                        (x) -> new ConferencePublicationLink.ConferencePublicationLinkPK(x.getConferenceId().intValue(), x.getPublicationId().intValue());
-            }
-        }
-        if (StudentSemesterDiscipline.StudentSemesterDisciplinePK.class.equals(target)) {
-            if (StudentSemesterDisciplinePostgresDAO.StudentSemesterDisciplinePostgresPK.class.equals(source)) {
-                return (Function<StudentSemesterDisciplinePostgresDAO.StudentSemesterDisciplinePostgresPK, StudentSemesterDiscipline.StudentSemesterDisciplinePK>)
-                        (x) -> new StudentSemesterDiscipline.StudentSemesterDisciplinePK(x.getStudentId(), x.getDisciplineId(), x.getSemesterId());
             }
         }
 
@@ -280,10 +297,6 @@ public class MergeUtils {
                 item.stream().map((Function<EntityDefinition, Class>) EntityDefinition::getEntityClass).collect(Collectors.toSet())
         ));
         return retList; // ????/
-    }
-
-    public List<String> getClassFieldNames(Class<?> clazz) {
-        return Arrays.stream(clazz.getDeclaredFields()).map(Field::getName).collect(Collectors.toUnmodifiableList());
     }
 
 }

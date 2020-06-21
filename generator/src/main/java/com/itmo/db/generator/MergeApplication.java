@@ -78,6 +78,7 @@ public class MergeApplication implements ApplicationRunner {
         itmoObjectTypeOracleRepository = persistenceWorkerFactory.getItmoObjectTypeOracleRepository();
         itmoParamOracleRepository = persistenceWorkerFactory.getItmoParamOracleRepository();
         this.mergeUtils = mergeUtils;
+        this.mergeUtils.oldNewObjectsIdMap = this.oldNewObjectsIdMap;
     }
 
     public static void main(String[] args) {
@@ -205,10 +206,11 @@ public class MergeApplication implements ApplicationRunner {
             }
             if (counter.incrementAndGet() % step == 0)
                 log.info("Fetched " + counter + " of " + total + " elements");
+
             var entityInstance = entityClass.getConstructor().newInstance();
 
             if (entityMeta.isLink) {
-                // Set id from fieldSource
+                entityInstance.setId(daoMeta.converters.get("id").apply(daoInstance.getId()));
             }
             for (Field field : daoInstance.getClass().getDeclaredFields()) {
                 var fieldName = field.getName();
@@ -266,18 +268,24 @@ public class MergeApplication implements ApplicationRunner {
         scanner.addIncludeFilter(new AnnotationTypeFilter(Entity.class));
         for (BeanDefinition bd : scanner.findCandidateComponents("com.itmo.db.generator.model.entity")) {
             Class<AbstractEntity> entityClass = (Class<AbstractEntity>) Class.forName(bd.getBeanClassName());
-            List<String> entityFields = this.mergeUtils.getClassFieldNames(entityClass);
+            List<Field> entityFields = Arrays.asList(entityClass.getDeclaredFields());
             Map<String, Method> entitySetters = new HashMap<>();
-            entityFields.forEach(fieldName -> {
+            String mergeFieldName = null;
+
+            for (var field : entityFields) {
                 entitySetters.put(
-                        fieldName,
-                        this.mergeUtils.findSetter(entityClass, fieldName)
+                        field.getName(),
+                        this.mergeUtils.findSetter(entityClass, field.getName())
                 );
-            });
+                if (field.isAnnotationPresent(MergeKey.class)) {
+                    mergeFieldName = field.getName();
+                }
+            }
+            assert mergeFieldName != null;
 
             var entityMeta = EntityMeta.builder()
                     .entityClass(entityClass)
-                    .fields(mergeUtils.getClassFieldNames(entityClass))
+                    .fields(entityFields.stream().map(Field::getName).collect(Collectors.toUnmodifiableList()))
                     .mergeRepository(
                             this.mergeRepositoryClassMergeRepositoryMap.get(
                                     entityClass.getAnnotation(EntityJpaRepository.class).clazz()
@@ -287,7 +295,8 @@ public class MergeApplication implements ApplicationRunner {
                     .isLink(
                             entityClass.getName().contains("Link") ||
                                     entityClass.getName().contains("StudentSemesterDiscipline")
-                    ).resultInstances(new ArrayList<>())
+                    ).resultInstances(new HashMap<>())
+                    .mergeFieldName(mergeFieldName)
                     .build();
             this.entityMetaMap.put(entityClass, entityMeta);
 
@@ -328,7 +337,6 @@ public class MergeApplication implements ApplicationRunner {
         List<DAOMeta> ret = new ArrayList<>();
 
         for (Class<? extends IdentifiableDAO> daoClass : daos) {
-            var fields = this.mergeUtils.getClassFieldNames(daoClass);
             HashMap<String, Method> getters = new HashMap<>();
             HashMap<String, Function> converters = new HashMap<>();
 
@@ -347,8 +355,9 @@ public class MergeApplication implements ApplicationRunner {
 
             var daoMeta = DAOMeta.builder()
                     .daoClass(daoClass)
-                    .fields(fields)
-                    .getters(getters)
+                    .fields(
+                            Arrays.stream(daoClass.getDeclaredFields()).map(Field::getName).collect(Collectors.toUnmodifiableList())
+                    ).getters(getters)
                     .converters(converters)
                     .daoRepository(
                             fetchRepositoryClassFetchRepositoryMap.get(daoClass.getAnnotation(EntityJpaRepository.class).clazz())
@@ -373,8 +382,9 @@ public class MergeApplication implements ApplicationRunner {
         public Map<String, Method> setters;
         public List<DAOMeta> daoClasses;
         public boolean isLink;
+        public String mergeFieldName;
 
-        public List<AbstractEntity> resultInstances;
+        public Map<Object, AbstractEntity> resultInstances;
     }
 
     @Builder

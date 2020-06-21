@@ -4,7 +4,6 @@ import com.itmo.db.generator.persistence.db.merge.annotations.DAO;
 import com.itmo.db.generator.persistence.db.merge.annotations.EntityJpaRepository;
 import com.itmo.db.generator.persistence.db.merge.annotations.MergeKey;
 import com.itmo.db.generator.persistence.db.merge.repository.PersonMergeRepository;
-import com.itmo.db.generator.persistence.db.mongo.dao.DormitoryMongoDAO;
 import com.itmo.db.generator.persistence.db.mongo.dao.PersonMongoDAO;
 import com.itmo.db.generator.persistence.db.mysql.dao.PersonMySQLDAO;
 import com.itmo.db.generator.persistence.db.oracle.annotations.ItmoAttribute;
@@ -44,6 +43,7 @@ public class Person implements NumericallyIdentifiableEntity, OracleEntity {
     @ItmoAttribute
     private String birthPlace;
     @ItmoAttribute
+    @MergeKey
     private String personNumber;
     private Boolean isInDormitory;
     private Short warningCount;
@@ -61,7 +61,6 @@ public class Person implements NumericallyIdentifiableEntity, OracleEntity {
     }
 
     @Override
-    @MergeKey
     public int hashCode() {
         return Objects.hash(personNumber);
     }
