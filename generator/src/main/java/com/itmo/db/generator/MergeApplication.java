@@ -389,13 +389,16 @@ public class MergeApplication implements ApplicationRunner {
                 return;
             }
             try {
+                if (daoMeta.daoClass.getDeclaredField(fieldName).isAnnotationPresent(Id.class)) {
+                    return;
+                }
                 this.mergeUtils.setValueWithSpecifiedMethods(
                         oldEntity,
                         entityMeta.setters.get(fieldName),
                         entityMeta.getters.get(fieldName).invoke(newEntity),
                         (x) -> x
                 );
-            } catch (IllegalAccessException | InvocationTargetException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         });
