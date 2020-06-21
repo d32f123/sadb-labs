@@ -24,6 +24,7 @@ import java.util.Objects;
 @Entity
 @EntityJpaRepository(clazz = DisciplineMergeRepository.class)
 @DAO(clazzes = DisciplinePostgresDAO.class)
+@MergeKey
 public class Discipline implements NumericallyIdentifiableEntity, OracleEntity {
 
     @Id
@@ -45,8 +46,7 @@ public class Discipline implements NumericallyIdentifiableEntity, OracleEntity {
     }
 
     @Override
-    @MergeKey
-    public int hashCode() {
+    public int getMergeKey() {
         return Objects.hash(name);
     }
 }

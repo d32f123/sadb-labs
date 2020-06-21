@@ -30,6 +30,7 @@ import java.lang.reflect.Method;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -37,6 +38,28 @@ import java.util.stream.Collectors;
 @SpringBootApplication
 @Slf4j
 public class MergeApplication implements ApplicationRunner {
+
+    @Builder
+    private static class EntityMeta {
+        public Class<AbstractEntity> entityClass;
+        public CrudRepository<AbstractEntity, ?> mergeRepository;
+        public List<String> fields;
+        public Map<String, Method> setters;
+        public List<DAOMeta> daoClasses;
+        public boolean isLink;
+        public Map<Integer, AbstractEntity> resultInstances;
+    }
+
+    @Builder
+    private static class DAOMeta {
+        public Class<? extends IdentifiableDAO> daoClass;
+        public List<String> fields;
+        public Map<String, Method> getters;
+        public Map<String, Function> converters;
+        public CrudRepository<? extends IdentifiableDAO, ?> daoRepository;
+
+        public List<? extends IdentifiableDAO> daoInstances;
+    }
 
     @Autowired
     PersistenceWorkerFactory persistenceWorkerFactory;
@@ -52,18 +75,24 @@ public class MergeApplication implements ApplicationRunner {
     Map<Class, CrudRepository> fetchRepositoryClassFetchRepositoryMap = new HashMap<>();
     Map<Class<? extends AbstractEntity>, EntityMeta> entityMetaMap = new HashMap<>();
     // DAO Class to DAO class ID to EntityId
+    // PersonPostgresDAO -> [daoIds] -> [entityIds]
     Map<Class<? extends IdentifiableDAO>, HashMap<Object, Object>> oldNewObjectsIdMap = new HashMap<>();
+    Map<Class<? extends AbstractEntity>, HashMap<Long, Object>> oldNewOracleObjectsIdMap = new HashMap<>();
+
+    Object generatorStartMonitor = new Object();
+    Semaphore generatorSemaphore;
 
     //todo rename methgod..
     public void saveAll() throws Exception {
         this.initializeEntities();
 
         boolean doBreak = false;
-        for (Set<Class> entityClasses : mergeUtils.getEntities()) {
+        for (Set<Class<? extends AbstractEntity<?>>> entityClasses : mergeUtils.getEntities()) {
             //TODO parallel execution
-            for (Class entityClass : entityClasses.stream().filter(es ->
+            for (Class<? extends AbstractEntity<?>> entityClass : entityClasses.stream().filter(es ->
                     es.isAnnotationPresent(DAO.class)).collect(Collectors.toSet())) {
-                var entityMeta = this.entityMetaMap.get(entityClasses);
+                var entityMeta = this.entityMetaMap.get(entityClass);
+                fetchEntitiesFromOracle();
                 for (var daoMeta : entityMeta.daoClasses) {
                     this.saveEntityDAO(entityMeta, daoMeta);
                 }
@@ -79,6 +108,7 @@ public class MergeApplication implements ApplicationRunner {
         itmoParamOracleRepository = persistenceWorkerFactory.getItmoParamOracleRepository();
         this.mergeUtils = mergeUtils;
         this.mergeUtils.oldNewObjectsIdMap = this.oldNewObjectsIdMap;
+        this.mergeUtils.oldNewOracleObjectsIdMap = this.oldNewOracleObjectsIdMap;
     }
 
     public static void main(String[] args) {
@@ -93,7 +123,7 @@ public class MergeApplication implements ApplicationRunner {
     }
 
     //todo rename methgod..
-    public HashMap<Class, List> findAll() throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
+    public void fetchEntitiesFromOracle() throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
         Instant start = Instant.now();
 
         // TODO: Build map of Entities and their setters
@@ -103,15 +133,14 @@ public class MergeApplication implements ApplicationRunner {
         //receive all classes
         var itmoObjectTypeOracleDAOS = itmoObjectTypeOracleRepository.findAll();
 
-        HashMap<Class, List<ItmoObjectOracleDAO>> itmoEntities = new HashMap<>();
-        HashMap<Class, List> resultEntities = new HashMap<>();
-        HashMap<Class, HashMap<Long, Method>> setters = new HashMap<>();
+        HashMap<Class<? extends AbstractEntity>, List<ItmoObjectOracleDAO>> itmoEntities = new HashMap<>();
+        HashMap<Class<? extends AbstractEntity>, HashMap<Long, Method>> setters = new HashMap<>();
         HashMap<Method, Function> parsers = new HashMap<>();
 
         itmoObjectTypeOracleDAOS.forEach(
                 itmoObjectTypeOracleDAO -> {
                     try {
-                        Class clazz = Class.forName(itmoObjectTypeOracleDAO.getName());
+                        Class<? extends AbstractEntity> entityClass = (Class<? extends AbstractEntity>) Class.forName(itmoObjectTypeOracleDAO.getName());
                         List<ItmoObjectOracleDAO> typedEntities = itmoObjectOracleRepository.findByObjectTypeId(itmoObjectTypeOracleDAO.getId());
                         HashMap<Long, Method> classSpecificSetters = new HashMap<>();
                         itmoParamOracleRepository
@@ -120,13 +149,12 @@ public class MergeApplication implements ApplicationRunner {
                                     String attributeName = itmoAttributeOracleRepository
                                             .findById(itmoParamOracleDAO.getAttributeId())
                                             .get().getName();
-                                    Method setter = mergeUtils.findSetter(clazz, attributeName);
-                                    Method getter = mergeUtils.findGetter(clazz, attributeName);
+                                    Method setter = mergeUtils.findSetter(entityClass, attributeName);
                                     classSpecificSetters.put(itmoParamOracleDAO.getAttributeId(), setter);
-                                    parsers.put(setter, mergeUtils.getConverter(getter.getReturnType(), setter.getParameterTypes()[0]));
+                                    parsers.put(setter, mergeUtils.getConverter(itmoParamOracleDAO.getReferenceId() != null ? Long.class : String.class, setter.getParameterTypes()[0]));
                                 });
-                        setters.put(clazz, classSpecificSetters);
-                        itmoEntities.put(clazz, typedEntities);
+                        setters.put(entityClass, classSpecificSetters);
+                        itmoEntities.put(entityClass, typedEntities);
                     } catch (ClassNotFoundException e) {
                         e.printStackTrace();
                     }
@@ -134,53 +162,97 @@ public class MergeApplication implements ApplicationRunner {
         );
 
         AtomicInteger counter = new AtomicInteger();
-        for (Class clazz : itmoEntities.keySet()) {
-            int total = itmoEntities.get(clazz).size();
-            int step = total / 10;
-            counter.set(0);
-            ArrayList typedEntities = new ArrayList(total);
-            HashMap<Long, Method> classSpecificSetters = setters.get(clazz);
-            log.info("Starting fetching of entities " + clazz.getName() + " with " + total + " entities total.");
-            itmoEntities.get(clazz).forEach(itmoTypedEntity -> {
-                try {
-                    if (counter.incrementAndGet() % step == 0)
-                        log.info("Fetched " + counter + " of " + total + " elements");
-                    var resultEntity = clazz.getConstructor().newInstance(null);
-                    itmoParamOracleRepository
-                            .findByObjectId(itmoTypedEntity.getId())
-                            .forEach(itmoParamOracleDAO -> {
-                                try {
-                                    //log.info("fetching: " + itmoParamOracleDAO);
-                                    Method setter = classSpecificSetters.get(itmoParamOracleDAO.getAttributeId());
-                                    var arg = itmoParamOracleDAO.getValue() != null ? itmoParamOracleDAO.getValue() : itmoParamOracleDAO.getReferenceId();
-                                    try {
-                                        mergeUtils.setValueWithSpecifiedMethods(resultEntity, setter, arg, parsers.get(setter)); // lol
-                                    } catch (IllegalArgumentException e) {
-                                        log.error("Error invoking value " + arg + " from " + arg.getClass() + " for " + setter.getParameterTypes()[0]);
-                                        throw e;
-                                    }
-
-                                } catch (IllegalAccessException | InvocationTargetException e) {
-                                    log.error("HELP" + e.getMessage());
-                                } catch (NullPointerException npe) {
-                                    log.error("NPE on entity " + itmoTypedEntity + ". Params: " + itmoParamOracleDAO + "\n" + npe.getMessage());
-                                    throw npe;
-                                }
-
-                            });
-                    // log.info("mergred: " + resultEntity);
-                    typedEntities.add(resultEntity);
-                } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                    e.printStackTrace();
+        for (var entityLevel : this.mergeUtils.getEntities()) {
+            this.generatorSemaphore = new Semaphore(entityLevel.size());
+            entityLevel.forEach(entityClass -> new Thread(() -> {
+                this.generatorSemaphore.acquireUninterruptibly(1);
+                this.generatorStartMonitor.notify();
+                if (!itmoEntities.containsKey(entityClass)) {
+                    this.generatorSemaphore.release(1);
+                    return;
                 }
-            });
-            log.info("Finished fetching of entities " + clazz.getName() + " with " + typedEntities.size() + " entities total.");
-            resultEntities.put(clazz, typedEntities);
+
+                int total = itmoEntities.get(entityClass).size();
+                int step = (total >= 100) ? total / 100 : total;
+                boolean doBreak = false;
+                counter.set(0);
+
+                this.oldNewOracleObjectsIdMap.put(entityClass, new HashMap<>());
+                EntityMeta entityMeta = entityMetaMap.get(entityClass);
+                ArrayList typedEntities = new ArrayList(total);
+                HashMap<Long, Method> classSpecificSetters = setters.get(entityClass);
+                log.info("Starting fetching of entities " + entityClass.getName() + " with " + total + " entities total.");
+                Instant entityStart = Instant.now();
+                Instant entityEnd = Instant.now();
+                for (ItmoObjectOracleDAO itmoTypedEntity : itmoEntities.get(entityClass)) {
+                    try {
+                        if (doBreak) {
+                            doBreak = false;
+                            break;
+                        }
+
+                        if (counter.incrementAndGet() % step == 0) {
+                            entityEnd = Instant.now();
+                            log.info("Fetched {} of {} elements. Elapsed {} seconds.",counter, total, Duration.between(entityStart, entityEnd).toSeconds());
+                            entityStart = Instant.now();
+                            doBreak = true;
+                        }
+                        AbstractEntity entityInstance = entityClass.getConstructor().newInstance();
+                        itmoParamOracleRepository
+                                .findByObjectId(itmoTypedEntity.getId())
+                                .forEach(itmoParamOracleDAO -> {
+                                    try {
+                                        //log.info("fetching: " + itmoParamOracleDAO);
+                                        Method setter = classSpecificSetters.get(itmoParamOracleDAO.getAttributeId());
+                                        var isReference = itmoParamOracleDAO.getReferenceId() != null;
+                                        Function parser = parsers.get(setter);
+                                        Object arg = !isReference
+                                                ? itmoParamOracleDAO.getValue()
+                                                : itmoParamOracleDAO.getReferenceId();
+                                        try {
+                                            mergeUtils.setValueWithSpecifiedMethods(
+                                                    entityInstance,
+                                                    setter,
+                                                    arg,
+                                                    parser
+                                            ); // lol
+                                        } catch (Exception e) {
+                                            log.error("Error invoking value " + arg + " from " + arg.getClass() + " for " + setter.getParameterTypes()[0]);
+                                            throw e;
+                                        }
+
+                                    } catch (IllegalAccessException | InvocationTargetException e) {
+                                        log.error("HELP" + e.getMessage());
+                                    } catch (NullPointerException npe) {
+                                        log.error("NPE on entity " + itmoTypedEntity + ". Params: " + itmoParamOracleDAO + "\n" + npe.getMessage());
+                                        throw npe;
+                                    }
+                                });
+                        entityMeta.mergeRepository.save(entityInstance);
+
+                        // K P A C U B O
+                        this.oldNewOracleObjectsIdMap.get(entityClass).put(itmoTypedEntity.getId(), entityInstance.getId());
+                        entityMeta.resultInstances.put(entityInstance.getMergeKey(), entityInstance);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                log.info("Finished fetching and saving of entities " + entityClass.getName() + " with " + typedEntities.size() + " entities total.");
+                this.generatorSemaphore.release(1);
+            }).start());
+
+            try {
+                this.generatorStartMonitor.wait();
+            } catch (InterruptedException e) {
+                log.error("heheh", e);
+            }
+            this.generatorSemaphore.acquireUninterruptibly(entityLevel.size());
+            this.generatorSemaphore.release(entityLevel.size());
         }
+
 
         Instant end = Instant.now();
         log.info("Elapsed: " + Duration.between(start, end));
-        return resultEntities;
     }
 
     public void saveEntityDAO(EntityMeta entityMeta, DAOMeta daoMeta) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
@@ -204,46 +276,17 @@ public class MergeApplication implements ApplicationRunner {
                 doBreak = false;
                 break;
             }
+
             if (counter.incrementAndGet() % step == 0)
                 log.info("Fetched " + counter + " of " + total + " elements");
+            var entityInstance = this.convertDAOToEntity(entityMeta, daoMeta, daoInstance);
 
-            var entityInstance = entityClass.getConstructor().newInstance();
-
-            if (entityMeta.isLink) {
-                entityInstance.setId(daoMeta.converters.get("id").apply(daoInstance.getId()));
-            }
-            for (Field field : daoInstance.getClass().getDeclaredFields()) {
-                var fieldName = field.getName();
-                Method setter = entityMeta.setters.get(fieldName);
-                Method getter = daoMeta.getters.get(fieldName);
-                Function converter = daoMeta.converters.get(fieldName);
-
-                if (field.isAnnotationPresent(FieldSource.class) && !entityMeta.isLink) {
-                    Object oldId = getter.invoke(daoInstance);
-                    Object newId = oldNewObjectsIdMap.get(field.getAnnotation(FieldSource.class).source()).get(oldId);
-                    mergeUtils.setValueWithSpecifiedMethods(
-                            entityInstance,
-                            setter,
-                            newId,
-                            converter
-                    );
-                    continue;
-                }
-                if (field.isAnnotationPresent(Id.class)) {
-                    continue;
-                }
-
-                try {
-                    mergeUtils.setValueWithSpecifiedMethods(
-                            entityInstance,
-                            setter,
-                            getter.invoke(daoInstance),
-                            converter
-                    );
-                } catch (Exception e) {
-                    throw e;
-                }
-
+            var mergeKey = entityInstance.getMergeKey();
+            if (entityMeta.resultInstances.containsKey(mergeKey)) {
+                // Merge into existing instance
+                AbstractEntity existingEntity = entityMeta.resultInstances.get(mergeKey);
+                this.mergeFields(daoMeta, entityMeta, daoInstance, existingEntity);
+                entityInstance = existingEntity;
             }
 
             //todo save one-by-one or batch?
@@ -254,58 +297,69 @@ public class MergeApplication implements ApplicationRunner {
             }
 
             daoMergeIdMap.put(daoInstance.getId(), entityInstance.getId());
-            entityMeta.resultInstances.add(entityInstance);
+            entityMeta.resultInstances.put(entityInstance.getMergeKey(), entityInstance);
         }
         log.info("Finished fetching of entities " + entityClass.getName() + " with " + total + " entities total.");
         oldNewObjectsIdMap.put(daoClass, daoMergeIdMap);
     }
 
-    public void initializeEntities() throws ClassNotFoundException {
-        this.initializeRepositories();
+    public AbstractEntity convertDAOToEntity(EntityMeta entityMeta, DAOMeta daoMeta, IdentifiableDAO daoInstance)
+            throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, InstantiationException {
+        var entityClass = entityMeta.entityClass;
 
-        ClassPathScanningCandidateComponentProvider scanner =
-                new ClassPathScanningCandidateComponentProvider(false);
-        scanner.addIncludeFilter(new AnnotationTypeFilter(Entity.class));
-        for (BeanDefinition bd : scanner.findCandidateComponents("com.itmo.db.generator.model.entity")) {
-            Class<AbstractEntity> entityClass = (Class<AbstractEntity>) Class.forName(bd.getBeanClassName());
-            List<Field> entityFields = Arrays.asList(entityClass.getDeclaredFields());
-            Map<String, Method> entitySetters = new HashMap<>();
-            String mergeFieldName = null;
+        AbstractEntity entityInstance = entityClass.getConstructor().newInstance();
 
-            for (var field : entityFields) {
-                entitySetters.put(
-                        field.getName(),
-                        this.mergeUtils.findSetter(entityClass, field.getName())
+        if (entityMeta.isLink) {
+            entityInstance.setId(daoMeta.converters.get("id").apply(daoInstance.getId()));
+        }
+        for (Field field : daoInstance.getClass().getDeclaredFields()) {
+            var fieldName = field.getName();
+            Method setter = entityMeta.setters.get(fieldName);
+            Method getter = daoMeta.getters.get(fieldName);
+            Function converter = daoMeta.converters.get(fieldName);
+
+            if (field.isAnnotationPresent(FieldSource.class) && !entityMeta.isLink) {
+                Object oldId = getter.invoke(daoInstance);
+                Object newId = oldNewObjectsIdMap.get(field.getAnnotation(FieldSource.class).source()).get(oldId);
+                mergeUtils.setValueWithSpecifiedMethods(
+                        entityInstance,
+                        setter,
+                        newId,
+                        converter
                 );
-                if (field.isAnnotationPresent(MergeKey.class)) {
-                    mergeFieldName = field.getName();
-                }
+                continue;
             }
-            assert mergeFieldName != null;
-
-            var entityMeta = EntityMeta.builder()
-                    .entityClass(entityClass)
-                    .fields(entityFields.stream().map(Field::getName).collect(Collectors.toUnmodifiableList()))
-                    .mergeRepository(
-                            this.mergeRepositoryClassMergeRepositoryMap.get(
-                                    entityClass.getAnnotation(EntityJpaRepository.class).clazz()
-                            )
-                    ).setters(entitySetters)
-                    .daoClasses(new ArrayList<>())
-                    .isLink(
-                            entityClass.getName().contains("Link") ||
-                                    entityClass.getName().contains("StudentSemesterDiscipline")
-                    ).resultInstances(new HashMap<>())
-                    .mergeFieldName(mergeFieldName)
-                    .build();
-            this.entityMetaMap.put(entityClass, entityMeta);
-
-            if (!entityClass.isAnnotationPresent(DAO.class)) {
+            if (field.isAnnotationPresent(Id.class)) {
                 continue;
             }
 
-            entityMeta.daoClasses = this.initializeEntityDAO(entityMeta);
+            try {
+                mergeUtils.setValueWithSpecifiedMethods(
+                        entityInstance,
+                        setter,
+                        getter.invoke(daoInstance),
+                        converter
+                );
+            } catch (Exception e) {
+                throw e;
+            }
         }
+        return entityInstance;
+    }
+
+    public void mergeFields(DAOMeta daoMeta, EntityMeta entityMeta, IdentifiableDAO newDAO, AbstractEntity oldEntity) {
+        daoMeta.fields.forEach(fieldName -> {
+            try {
+                this.mergeUtils.setValueWithSpecifiedMethods(
+                        oldEntity,
+                        entityMeta.setters.get(fieldName),
+                        daoMeta.getters.get(fieldName).invoke(newDAO),
+                        daoMeta.converters.get(fieldName)
+                );
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     private void initializeRepositories() {
@@ -329,6 +383,49 @@ public class MergeApplication implements ApplicationRunner {
                         e.printStackTrace();
                     }
                 });
+    }
+
+    public void initializeEntities() throws ClassNotFoundException {
+        this.initializeRepositories();
+
+        ClassPathScanningCandidateComponentProvider scanner =
+                new ClassPathScanningCandidateComponentProvider(false);
+        scanner.addIncludeFilter(new AnnotationTypeFilter(Entity.class));
+        for (BeanDefinition bd : scanner.findCandidateComponents("com.itmo.db.generator.model.entity")) {
+            Class<AbstractEntity> entityClass = (Class<AbstractEntity>) Class.forName(bd.getBeanClassName());
+            List<Field> entityFields = Arrays.asList(entityClass.getDeclaredFields());
+            Map<String, Method> entitySetters = new HashMap<>();
+            String mergeFieldName = null;
+
+            for (var field : entityFields) {
+                entitySetters.put(
+                        field.getName(),
+                        this.mergeUtils.findSetter(entityClass, field.getName())
+                );
+            }
+
+            var entityMeta = EntityMeta.builder()
+                    .entityClass(entityClass)
+                    .fields(entityFields.stream().map(Field::getName).collect(Collectors.toUnmodifiableList()))
+                    .mergeRepository(
+                            this.mergeRepositoryClassMergeRepositoryMap.get(
+                                    entityClass.getAnnotation(EntityJpaRepository.class).clazz()
+                            )
+                    ).setters(entitySetters)
+                    .daoClasses(new ArrayList<>())
+                    .isLink(
+                            entityClass.getName().contains("Link") ||
+                                    entityClass.getName().contains("StudentSemesterDiscipline")
+                    ).resultInstances(new HashMap<Integer, AbstractEntity>())
+                    .build();
+            this.entityMetaMap.put(entityClass, entityMeta);
+
+            if (!entityClass.isAnnotationPresent(DAO.class)) {
+                continue;
+            }
+
+            entityMeta.daoClasses = this.initializeEntityDAO(entityMeta);
+        }
     }
 
     private List<DAOMeta> initializeEntityDAO(EntityMeta entityMeta) {
@@ -374,27 +471,4 @@ public class MergeApplication implements ApplicationRunner {
         return ret;
     }
 
-    @Builder
-    private static class EntityMeta {
-        public Class<AbstractEntity> entityClass;
-        public CrudRepository<AbstractEntity, ?> mergeRepository;
-        public List<String> fields;
-        public Map<String, Method> setters;
-        public List<DAOMeta> daoClasses;
-        public boolean isLink;
-        public String mergeFieldName;
-
-        public Map<Object, AbstractEntity> resultInstances;
-    }
-
-    @Builder
-    private static class DAOMeta {
-        public Class<? extends IdentifiableDAO> daoClass;
-        public List<String> fields;
-        public Map<String, Method> getters;
-        public Map<String, Function> converters;
-        public CrudRepository<? extends IdentifiableDAO, ?> daoRepository;
-
-        public List<? extends IdentifiableDAO> daoInstances;
-    }
 }

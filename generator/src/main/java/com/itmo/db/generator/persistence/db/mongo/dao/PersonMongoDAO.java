@@ -30,7 +30,7 @@ public class PersonMongoDAO implements IdentifiableDAO<String> {
     private String patronymicName;
 
     @Field(name = "is_in_dormitory")
-    private Boolean inDormitory;
+    private Boolean isInDormitory;
 
     @Field(name = "warning_count")
     private Integer warningCount;

@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.Embeddable;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import java.io.Serializable;
 import java.sql.Timestamp;
 

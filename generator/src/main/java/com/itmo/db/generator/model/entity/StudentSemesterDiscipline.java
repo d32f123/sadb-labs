@@ -82,10 +82,10 @@ public class StudentSemesterDiscipline implements AbstractEntity<StudentSemester
                     semesterId.equals(that.semesterId);
         }
 
-        @Override
-        @MergeKey
-        public int hashCode() {
-            return Objects.hash(studentId, disciplineId, semesterId);
-        }
+    }
+
+    @Override
+    public int getMergeKey() {
+        return Objects.hash(this.id.studentId, this.id.disciplineId, this.id.semesterId);
     }
 }

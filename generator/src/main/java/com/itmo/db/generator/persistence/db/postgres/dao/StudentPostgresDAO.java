@@ -23,7 +23,7 @@ public class StudentPostgresDAO implements IdentifiableDAO<Integer> {
     private Integer id;
 
     @Column(name = "specialty_id")
-    private Integer specialty;
+    private Integer specialtyId;
 
     @Column(name = "study_type")
     private String studyType;

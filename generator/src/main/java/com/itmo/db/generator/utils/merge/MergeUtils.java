@@ -46,6 +46,8 @@ public class MergeUtils {
     ItmoParamOracleRepository itmoParamOracleRepository;
 
     public Map<Class<? extends IdentifiableDAO>, HashMap<Object, Object>> oldNewObjectsIdMap;
+    public Map<Class<? extends AbstractEntity>, HashMap<Long, Object>> oldNewOracleObjectsIdMap;
+
 
 
     public Method findSetter(Class clazz, String fieldName) {
@@ -73,7 +75,7 @@ public class MergeUtils {
             return pd.getReadMethod();
         } catch (IntrospectionException | IllegalArgumentException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            log.warn("Could not find getter in '{}#{}'", clazz.getSimpleName(), fieldName);
         }
         return null;
     }
@@ -131,9 +133,10 @@ public class MergeUtils {
             if (Long.class.equals(source)) {
                 return (Function<Long, PersonGroupLink.PersonGroupLinkPK>) (x) -> {
                     var keys = getOracleCompositeKey(x);
+
                     return new PersonGroupLink.PersonGroupLinkPK(
-                            keys.get(0).getReferenceId().intValue(),
-                            keys.get(1).getReferenceId().intValue()
+                            (int) this.oldNewOracleObjectsIdMap.get(Person.class).get(keys.get(0).getReferenceId()),
+                            (int) this.oldNewOracleObjectsIdMap.get(Group.class).get(keys.get(1).getReferenceId())
                     );
                 };
             }
@@ -187,8 +190,8 @@ public class MergeUtils {
                 return (Function<Long, StudentSemesterDiscipline.StudentSemesterDisciplinePK>) (x) -> {
                     var keys = getOracleCompositeKey(x);
                     return new StudentSemesterDiscipline.StudentSemesterDisciplinePK(
-                            keys.get(0).getReferenceId().intValue(),
-                            keys.get(1).getReferenceId().intValue(),
+                            (int) this.oldNewOracleObjectsIdMap.get(Person.class).get(keys.get(0).getReferenceId()),
+                            (int) this.oldNewOracleObjectsIdMap.get(Discipline.class).get(keys.get(1).getReferenceId()),
                             Integer.parseInt(keys.get(2).getValue())
                     );
                 };
@@ -211,15 +214,15 @@ public class MergeUtils {
             if (arg == null || arg.equals("null"))
                 return;
             setter.invoke(instance, converter.apply(arg));
-        } catch (NullPointerException | InvocationTargetException e) {
+        } catch (Exception e) {
             log.error("Failed to set arg '{}' to setter '{}' of instance '{}'", arg, setter, instance);
             throw e;
         }
     }
 
-    public List<Set<Class>> getEntities() {
+    public List<Set<Class<? extends AbstractEntity<?>>>> getEntities() {
         int baseAmount = 0;
-        List<Set<EntityDefinition>> list = new DependencyTree(Set.of(
+        List<Set<EntityDefinition<?, ?>>> list = new DependencyTree(Set.of(
                 new EntityDefinition<>(AcademicRecord.class, null, Set.of(
                         new DependencyDefinition<>(Person.class, 1)
                 )),
@@ -292,9 +295,9 @@ public class MergeUtils {
                 new EntityDefinition<>(University.class, 0, null)
         )).getLeveledEntities();
 
-        List<Set<Class>> retList = new ArrayList<>();
+        List<Set<Class<? extends AbstractEntity<?>>>> retList = new ArrayList<>();
         list.forEach(item -> retList.add(
-                item.stream().map((Function<EntityDefinition, Class>) EntityDefinition::getEntityClass).collect(Collectors.toSet())
+                item.stream().map((Function<EntityDefinition, Class<? extends AbstractEntity<?>>>) EntityDefinition::getEntityClass).collect(Collectors.toSet())
         ));
         return retList; // ????/
     }

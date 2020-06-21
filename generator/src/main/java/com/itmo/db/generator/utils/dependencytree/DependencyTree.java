@@ -11,7 +11,7 @@ import static java.util.Collections.EMPTY_SET;
 import static java.util.Collections.emptySet;
 
 public class DependencyTree {
-    private final List<Set<EntityDefinition>> leveledEntities;
+    private final List<Set<EntityDefinition<? ,?>>> leveledEntities;
 
     public DependencyTree(Set<EntityDefinition<?, ?>> entities) {
         this.leveledEntities = new ArrayList<>();
@@ -27,11 +27,11 @@ public class DependencyTree {
         this.buildDependencyLevels(entitiesMap);
     }
 
-    public List<Set<EntityDefinition>> getLeveledEntities() {
+    public List<Set<EntityDefinition<?, ?>>> getLeveledEntities() {
         return this.leveledEntities;
     }
 
-    public Set<EntityDefinition> getDependencyLevel(int index) {
+    public Set<EntityDefinition<?, ?>> getDependencyLevel(int index) {
         return this.leveledEntities.get(index);
     }
 

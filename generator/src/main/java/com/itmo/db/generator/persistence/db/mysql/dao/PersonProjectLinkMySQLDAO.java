@@ -41,10 +41,10 @@ public class PersonProjectLinkMySQLDAO implements IdentifiableDAO<PersonProjectL
     private Long projectId;
 
     @Column(name = "participation_start")
-    private Timestamp participationStart;
+    private Timestamp startDate;
 
     @Column(name = "participation_end")
-    private Timestamp participationEnd;
+    private Timestamp endDate;
 
     public PersonProjectLinkPK getId() {
         return new PersonProjectLinkPK(

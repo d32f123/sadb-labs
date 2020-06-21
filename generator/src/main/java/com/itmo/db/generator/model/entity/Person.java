@@ -26,6 +26,7 @@ import java.util.Objects;
 @Entity
 @EntityJpaRepository(clazz = PersonMergeRepository.class)
 @DAO(clazzes = {PersonMySQLDAO.class, PersonPostgresDAO.class, PersonMongoDAO.class})
+@MergeKey
 public class Person implements NumericallyIdentifiableEntity, OracleEntity {
 
     @Id
@@ -43,7 +44,6 @@ public class Person implements NumericallyIdentifiableEntity, OracleEntity {
     @ItmoAttribute
     private String birthPlace;
     @ItmoAttribute
-    @MergeKey
     private String personNumber;
     private Boolean isInDormitory;
     private Short warningCount;
@@ -61,7 +61,7 @@ public class Person implements NumericallyIdentifiableEntity, OracleEntity {
     }
 
     @Override
-    public int hashCode() {
+    public int getMergeKey() {
         return Objects.hash(personNumber);
     }
 

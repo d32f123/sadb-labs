@@ -24,7 +24,7 @@ public class SpecialtyPostgresDAO implements IdentifiableDAO<Integer> {
     private Integer id;
 
     @Column(name = "specialty_name")
-    private String specialtyName;
+    private String name;
 
     @Column(name = "study_standard")
     private String studyStandard;
