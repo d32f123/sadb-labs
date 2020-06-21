@@ -66,9 +66,22 @@ public class PersonGenerator extends AbstractEntityGenerator<Person, Integer> {
     }
 
     public LocalDate getBirthDate(Random random, String role) {
-        LocalDate date = LocalDate.of(1960, Month.JANUARY, 1);
-        int maxDays = 40 * 365;
-        date = date.plusYears(random.nextInt(maxDays));
+        LocalDate date = LocalDate.of(1975, Month.JANUARY, 1);
+        int maxDays = 27 * 365;
+        date = date.plusDays(random.nextInt(maxDays));
+        switch (role){
+            case "docent":
+                date = date.minusYears(5);
+                date = date.minusYears(random.nextInt(30));
+                break;
+            case "master":
+                date = date.minusYears(4);
+                date = date.minusYears(random.nextInt(5));
+                break;
+            case "bachelor":
+                date = date.minusYears(random.nextInt(5));
+                break;
+        }
         return date;
     }
 
@@ -105,14 +118,15 @@ public class PersonGenerator extends AbstractEntityGenerator<Person, Integer> {
             log.debug("Creating Person");
         Random random = new Random();
         Boolean isMale = random.nextInt(100) <= maleFemaleRatio;
+        String role = getRole(random);
 
         return List.of(new Person(
                 null,
                 getFirstName(random, isMale),
                 getSurname(random, isMale),
                 getPatronymic(random, isMale),
-                getRole(random),
-                getBirthDate(random),
+                role,
+                getBirthDate(random, role),
                 getBirthPlace(random),
                 getPersonNumber(),
                 getIsInDormitory(random),
