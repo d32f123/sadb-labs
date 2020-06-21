@@ -34,9 +34,9 @@ public class AccommodationRecordGenerator extends AbstractEntityGenerator<Accomm
     }
 
     public LocalDate getLivingStartDate(Random random) {
-        LocalDate startDate = LocalDate.of(2015, Month.SEPTEMBER, 1);
-        int MAX_YEARS_SINCE_START_DATE = 4;
-        startDate = startDate.plusDays(random.nextInt(MAX_YEARS_SINCE_START_DATE));
+        LocalDate startDate = LocalDate.of(1993, Month.SEPTEMBER, 1);
+        int MAX_DAYS_SINCE_START_DATE = 27*365;
+        startDate = startDate.plusDays(random.nextInt(MAX_DAYS_SINCE_START_DATE));
         return startDate;
     }
 
