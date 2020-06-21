@@ -97,7 +97,7 @@ public class MergeApplication implements ApplicationRunner {
             for (Class<? extends AbstractEntity<?>> entityClass : entityClasses.stream().filter(es ->
                     es.isAnnotationPresent(DAO.class)).collect(Collectors.toSet())) {
                 var entityMeta = this.entityMetaMap.get(entityClass);
-//                fetchEntitiesFromOracle();
+                fetchEntitiesFromOracle();
                 for (var daoMeta : entityMeta.daoClasses) {
                     this.saveEntityDAO(entityMeta, daoMeta);
                 }
