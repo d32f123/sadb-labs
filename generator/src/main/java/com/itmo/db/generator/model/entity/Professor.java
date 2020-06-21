@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public class Professor implements AbstractEntity<Integer> {
     private Integer id; // personId
     private Integer facultyId;
+    private String personNumber;
 }

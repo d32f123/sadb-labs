@@ -23,7 +23,8 @@ public class StudentPersistenceWorker extends AbstractPersistenceWorker<Student,
         StudentPostgresDAO studentPostgresDAO = new StudentPostgresDAO(
                 this.getDependencyDAOId(Person.class, entity.getId(), PersonPostgresDAO.class),
                 this.getDependencyDAOId(Specialty.class, entity.getSpecialtyId(), SpecialtyPostgresDAO.class),
-                entity.getStudyType()
+                entity.getStudyType(),
+                entity.getPersonNumber()
         );
 
         this.repository.save(studentPostgresDAO);

@@ -19,6 +19,9 @@ public class StudentSemesterDiscipline implements AbstractEntity<StudentSemester
     @ItmoAttribute
     private StudentSemesterDisciplinePK id;
 
+    @ItmoAttribute
+    private Integer globalId;
+
     private Integer professorId;
     private Integer semesterCounter;
     private Integer score;

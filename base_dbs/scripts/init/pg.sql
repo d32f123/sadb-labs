@@ -57,13 +57,15 @@ create table students
 (
     person_id    int primary key references persons (person_id),
     specialty_id int  not null references specialties (specialty_id),
-    study_type   text not null
+    study_type   text not null,
+    person_number   text not null
 );
 
 create table professors
 (
     person_id    int primary key references persons (person_id),
-    faculty_id   int not null references faculties (faculty_id)
+    faculty_id   int not null references faculties (faculty_id),
+    person_number   text not null
 );
 
 create table disciplines
@@ -88,6 +90,7 @@ create table student_semester_disciplines
     student_id       int       not null references students (person_id),
     semester_id      int       not null references semesters (semester_id),
     discipline_id    int       not null references disciplines (discipline_id),
+    global_id        int       not null,
     professor_id     int       not null references professors (person_id),
     semester_counter int       not null,
     score            int       not null,

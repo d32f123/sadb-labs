@@ -24,4 +24,7 @@ public class ProfessorPostgresDAO implements IdentifiableDAO<Integer> {
     @Column(name = "faculty_id")
     private Integer faculty;
 
+    @Column(name = "person_number")
+    private String personNumber;
+
 }

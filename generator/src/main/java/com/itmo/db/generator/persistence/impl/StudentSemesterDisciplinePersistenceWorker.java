@@ -36,6 +36,7 @@ public class StudentSemesterDisciplinePersistenceWorker
                 this.getDependencyDAOId(Student.class, entity.getId().getStudentId(), StudentPostgresDAO.class),
                 this.getDependencyDAOId(Semester.class, entity.getId().getSemesterId(), SemesterPostgresDAO.class),
                 this.getDependencyDAOId(Discipline.class, entity.getId().getDisciplineId(), DisciplinePostgresDAO.class),
+                entity.getGlobalId(),
                 this.getDependencyDAOId(Professor.class, entity.getProfessorId(), ProfessorPostgresDAO.class),
                 entity.getSemesterCounter(),
                 entity.getScore(),

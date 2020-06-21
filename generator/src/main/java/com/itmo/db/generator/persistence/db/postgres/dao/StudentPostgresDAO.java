@@ -24,4 +24,7 @@ public class StudentPostgresDAO implements IdentifiableDAO<Integer> {
     @Column(name = "study_type")
     private String studyType;
 
+    @Column(name = "person_number")
+    private String personNumber;
+
 }
