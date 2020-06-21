@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -24,7 +25,7 @@ public class StudentSemesterDisciplineGenerator
         if (random.nextInt(10) < 1) {
             return 0;
         }
-        double res = random.nextGaussian() * 10.0 + 65.0;
+        double res = random.nextGaussian() * 15.0 + 72.0;
         if (res < 0.0) {
             res = 0.0;
         }
@@ -119,8 +120,10 @@ public class StudentSemesterDisciplineGenerator
                 professor -> this.getDependencyInstances(Discipline.class).stream().map(
                         discipline -> this.getDependencyInstances(Semester.class).stream().map(
                                 semester -> this.getDependencyInstances(Student.class).stream().filter(x -> random.nextBoolean()).map(
-                                        student -> this.getEntity(student, discipline, semester, professor)
-                                )
+                                        student -> random.nextInt(100) < 20
+                                                ? null
+                                                : this.getEntity(student, discipline, semester, professor)
+                                ).filter(Objects::nonNull)
                         ).reduce(Stream::concat).orElseThrow()
                 ).reduce(Stream::concat).orElseThrow()
         ).reduce(Stream::concat).orElseThrow()

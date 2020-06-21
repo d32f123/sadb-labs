@@ -65,10 +65,10 @@ public class PersonGenerator extends AbstractEntityGenerator<Person, Integer> {
         return roles[0];
     }
 
-    public LocalDate getBirthDate(Random random) {
-        LocalDate date = LocalDate.of(1900, Month.JANUARY, 1);
-        int MAX_DAYS_SINCE_START_DATE = 37600;
-        date = date.plusDays(random.nextInt(MAX_DAYS_SINCE_START_DATE));
+    public LocalDate getBirthDate(Random random, String role) {
+        LocalDate date = LocalDate.of(1960, Month.JANUARY, 1);
+        int maxDays = 40 * 365;
+        date = date.plusYears(random.nextInt(maxDays));
         return date;
     }
 

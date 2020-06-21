@@ -32,6 +32,7 @@ public class GeneratorApplication implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
         int baseAmount = 100;
+
         Set<EntityDefinition<?, ?>> entities = Set.of(
                 new EntityDefinition<>(AcademicRecord.class, null, Set.of(
                         new DependencyDefinition<>(Person.class, 1)
@@ -93,13 +94,13 @@ public class GeneratorApplication implements ApplicationRunner {
                         new DependencyDefinition<>(Discipline.class, 6)
                 )),
                 new EntityDefinition<>(Student.class, null, Set.of(
-                        new DependencyDefinition<>(Person.class, 15),
+                        new DependencyDefinition<>(Person.class, 100),
                         new DependencyDefinition<>(Specialty.class, 1)
                 )),
                 new EntityDefinition<>(StudentSemesterDiscipline.class, null, Set.of(
-                        new DependencyDefinition<>(Student.class, 10),
-                        new DependencyDefinition<>(Semester.class, 2),
-                        new DependencyDefinition<>(Discipline.class, 1),
+                        new DependencyDefinition<>(Student.class, 100),
+                        new DependencyDefinition<>(Semester.class, 8),
+                        new DependencyDefinition<>(Discipline.class, 8),
                         new DependencyDefinition<>(Professor.class, 2)
                 )),
                 new EntityDefinition<>(University.class, UniversityGenerator.names.size(), null)

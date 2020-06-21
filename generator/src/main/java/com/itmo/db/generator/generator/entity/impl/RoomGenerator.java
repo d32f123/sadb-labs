@@ -32,8 +32,8 @@ public class RoomGenerator extends AbstractEntityGenerator<Room, Integer> {
     }
 
     public LocalDate getDate(Random random) {
-        LocalDate date = LocalDate.of(2019, Month.JANUARY, 1);
-        int MAX_DAYS_SINCE_START_DATE = 365;
+        LocalDate date = LocalDate.of(1993, Month.JANUARY, 1);
+        int MAX_DAYS_SINCE_START_DATE = 26 * 365;
         date = date.plusDays(random.nextInt(MAX_DAYS_SINCE_START_DATE));
         return date;
     }

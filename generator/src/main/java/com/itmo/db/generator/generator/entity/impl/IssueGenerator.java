@@ -36,7 +36,8 @@ public class IssueGenerator extends AbstractEntityGenerator<Issue, Integer> {
 
     String getLanguage(Random random) {
         String[] languages = new String[] { "RU", "ENG", "DE" };
-        int[] ratios = new int[] {50, 90, 10}; // 50%, 40%, 10%
+        // whoops
+        int[] ratios = new int[] {50, 90, 100}; // 50%, 40%, 10%
         int lang = random.nextInt(100);
 
         for (int i = 0; i < languages.length; i++) {
@@ -48,7 +49,7 @@ public class IssueGenerator extends AbstractEntityGenerator<Issue, Integer> {
     }
 
     String getLocation(Random random) {
-        String[] locations = new String[] { "Moscow", "Tver" };
+        String[] locations = new String[] { "Moscow", "Tver", "Saint-Petersburg" };
         return locations[random.nextInt(locations.length)];
     }
 

@@ -75,8 +75,8 @@ public class AcademicRecordGenerator extends AbstractEntityGenerator<AcademicRec
 
     public LocalDate getStartDate(Random random) {
         LocalDate startDate = LocalDate.of(1993, Month.SEPTEMBER, 1);
-        int MAX_YEARS_SINCE_START_DATE = 27;
-        startDate = startDate.plusDays(random.nextInt(MAX_YEARS_SINCE_START_DATE));
+        int MAX_DAYS_SINCE_START_DATE = 27 * 365;
+        startDate = startDate.plusDays(random.nextInt(MAX_DAYS_SINCE_START_DATE));
         return startDate;
     }
 
