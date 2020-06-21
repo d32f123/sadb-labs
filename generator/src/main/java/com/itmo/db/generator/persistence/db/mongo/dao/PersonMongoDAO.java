@@ -1,10 +1,7 @@
 package com.itmo.db.generator.persistence.db.mongo.dao;
 
-import com.itmo.db.generator.model.entity.AccommodationRecord;
-import com.itmo.db.generator.model.entity.Person;
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
 import com.itmo.db.generator.persistence.db.merge.annotations.EntityJpaRepository;
-import com.itmo.db.generator.persistence.db.mongo.repository.AccommodationRecordMongoRepository;
 import com.itmo.db.generator.persistence.db.mongo.repository.PersonMongoRepository;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -33,7 +30,7 @@ public class PersonMongoDAO implements IdentifiableDAO<String> {
     private String patronymicName;
 
     @Field(name = "is_in_dormitory")
-    private boolean isInDormitory;
+    private Boolean inDormitory;
 
     @Field(name = "warning_count")
     private Integer warningCount;

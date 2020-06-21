@@ -1,7 +1,5 @@
 package com.itmo.db.generator.utils.merge;
 
-import com.itmo.db.generator.generator.entity.impl.DisciplineGenerator;
-import com.itmo.db.generator.generator.entity.impl.DormitoryGenerator;
 import com.itmo.db.generator.generator.model.DependencyDefinition;
 import com.itmo.db.generator.generator.model.EntityDefinition;
 import com.itmo.db.generator.model.entity.*;
@@ -23,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Timestamp;
@@ -281,6 +280,10 @@ public class MergeUtils {
                 item.stream().map((Function<EntityDefinition, Class>) EntityDefinition::getEntityClass).collect(Collectors.toSet())
         ));
         return retList; // ????/
+    }
+
+    public List<String> getClassFieldNames(Class<?> clazz) {
+        return Arrays.stream(clazz.getDeclaredFields()).map(Field::getName).collect(Collectors.toUnmodifiableList());
     }
 
 }
