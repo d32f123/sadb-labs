@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import java.util.Objects;
 
 @Data
 @AllArgsConstructor
@@ -24,4 +25,10 @@ public class Professor implements AbstractEntity<Integer> {
     @GeneratedValue
     private Integer id; // personId
     private Integer facultyId;
+    private String personNumber;
+
+    @Override
+    public int getMergeKey() {
+        return Objects.hash(personNumber);
+    }
 }

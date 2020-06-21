@@ -14,6 +14,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.sql.Timestamp;
+import java.util.Objects;
 
 @Data
 @AllArgsConstructor
@@ -31,4 +32,8 @@ public class Conference implements NumericallyIdentifiableEntity {
     @Column(name="conferenceDate")
     private Timestamp date;
 
+    @Override
+    public int getMergeKey() {
+        return Objects.hash(name, location, date);
+    }
 }

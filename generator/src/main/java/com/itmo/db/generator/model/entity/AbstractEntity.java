@@ -8,7 +8,5 @@ public interface AbstractEntity<TId> extends Serializable {
     void setId(TId id);
     TId getId();
 
-    default int getMergeKey(){
-        return getId().hashCode();
-    };
+    int getMergeKey();
 }

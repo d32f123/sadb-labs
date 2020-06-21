@@ -28,12 +28,15 @@ import java.util.Objects;
 @Entity
 @EntityJpaRepository(clazz = StudentSemesterDisciplineMergeRepository.class)
 @DAO(clazzes = {StudentSemesterDisciplinePostgresDAO.class})
-public class StudentSemesterDiscipline implements AbstractEntity<StudentSemesterDiscipline.StudentSemesterDisciplinePK>,
-        OracleEntity {
+public class StudentSemesterDiscipline
+        implements AbstractEntity<StudentSemesterDiscipline.StudentSemesterDisciplinePK>, OracleEntity {
 
     @ItmoAttribute
     @EmbeddedId
     private StudentSemesterDisciplinePK id;
+
+    @ItmoAttribute
+    private Integer globalId;
 
     private Integer professorId;
     private Integer semesterCounter;
@@ -86,6 +89,6 @@ public class StudentSemesterDiscipline implements AbstractEntity<StudentSemester
 
     @Override
     public int getMergeKey() {
-        return Objects.hash(this.id.studentId, this.id.disciplineId, this.id.semesterId);
+        return Objects.hash(globalId);
     }
 }

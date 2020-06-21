@@ -25,7 +25,8 @@ public class ProfessorPersistenceWorker extends AbstractPersistenceWorker<Profes
     protected List<? extends IdentifiableDAO<?>> doPersist(Professor entity) {
         ProfessorPostgresDAO professorPostgresDAO = new ProfessorPostgresDAO(
                 this.getDependencyDAOId(Person.class, entity.getId(), PersonPostgresDAO.class),
-                this.getDependencyDAOId(Faculty.class, entity.getFacultyId(), FacultyPostgresDAO.class)
+                this.getDependencyDAOId(Faculty.class, entity.getFacultyId(), FacultyPostgresDAO.class),
+                entity.getPersonNumber()
         );
 
         this.professorPostgresRepository.save(professorPostgresDAO);

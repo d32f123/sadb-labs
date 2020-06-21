@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import java.util.Objects;
 
 @Data
 @AllArgsConstructor
@@ -27,4 +28,8 @@ public class Faculty implements NumericallyIdentifiableEntity {
     private String facultyName;
     private Integer universityId;
 
+    @Override
+    public int getMergeKey() {
+        return Objects.hash(facultyName, universityId);
+    }
 }

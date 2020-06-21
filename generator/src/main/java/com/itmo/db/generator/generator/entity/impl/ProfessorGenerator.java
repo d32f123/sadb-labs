@@ -25,7 +25,7 @@ public class ProfessorGenerator extends AbstractEntityGenerator<Professor, Integ
         Person person = this.getDependencyInstances(Person.class).get(0);
         Faculty faculty = this.getDependencyInstances(Faculty.class).get(0);
 
-        return List.of(new Professor(person.getId(), faculty.getId()));
+        return List.of(new Professor(person.getId(), faculty.getId(), person.getPersonNumber()));
     }
 }
 

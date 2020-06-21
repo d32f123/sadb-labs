@@ -14,6 +14,7 @@ import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import java.io.Serializable;
+import java.util.Objects;
 
 @Data
 @NoArgsConstructor
@@ -36,5 +37,10 @@ public class IssuePublicationLink implements AbstractEntity<IssuePublicationLink
     public static class IssuePublicationLinkPK implements Serializable {
         public Integer issueId;
         public Integer publicationId;
+    }
+
+    @Override
+    public int getMergeKey() {
+        return Objects.hash(id.issueId, id.publicationId);
     }
 }

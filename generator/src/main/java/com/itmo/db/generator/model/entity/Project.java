@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import java.util.Objects;
 
 @Data
 @AllArgsConstructor
@@ -26,4 +27,8 @@ public class Project implements NumericallyIdentifiableEntity {
     private Integer id;
     private String name;
 
+    @Override
+    public int getMergeKey() {
+        return Objects.hash(name);
+    }
 }

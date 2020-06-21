@@ -81,6 +81,7 @@ public class StudentSemesterDisciplineGenerator
     }
 
     private final Random random = new Random();
+    private int counter = 0;
 
     private StudentSemesterDiscipline getEntity(Student student,
                                                 Discipline discipline,
@@ -91,6 +92,7 @@ public class StudentSemesterDisciplineGenerator
         Short mark = getMark(score, random);
         Character markChar = score == null ? null : getMarkChar(score, mark);
         LocalDate markDate = mark == null ? null : getScoreDate(mark.intValue(), random);
+        counter++;
 
         return new StudentSemesterDiscipline(
                 new StudentSemesterDiscipline.StudentSemesterDisciplinePK(
@@ -98,6 +100,7 @@ public class StudentSemesterDisciplineGenerator
                         discipline.getId(),
                         semester.getId()
                 ),
+                counter,
                 professor.getId(),
                 1,
                 score,

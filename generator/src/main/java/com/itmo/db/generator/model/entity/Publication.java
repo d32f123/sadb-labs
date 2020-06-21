@@ -14,6 +14,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.sql.Timestamp;
+import java.util.Objects;
 
 @Data
 @AllArgsConstructor
@@ -31,4 +32,9 @@ public class Publication implements NumericallyIdentifiableEntity {
     private Integer citation_index;
     @Column(name="publicationDate")
     private Timestamp date;
+
+    @Override
+    public int getMergeKey() {
+        return Objects.hash(name, language, citation_index, date);
+    }
 }

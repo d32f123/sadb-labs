@@ -3,6 +3,7 @@ package com.itmo.db.generator.persistence.db.mongo.dao;
 import com.itmo.db.generator.model.entity.AccommodationRecord;
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
 import com.itmo.db.generator.persistence.db.merge.annotations.EntityJpaRepository;
+import com.itmo.db.generator.persistence.db.merge.annotations.FieldSource;
 import com.itmo.db.generator.persistence.db.mongo.repository.AccommodationRecordMongoRepository;
 import com.itmo.db.generator.persistence.db.mongo.repository.RoomMongoRepository;
 import lombok.AllArgsConstructor;
@@ -41,6 +42,7 @@ public class RoomMongoDAO implements IdentifiableDAO<String> {
     private Date lastCleaningDate;
 
     @Field(name = "dormitory_id")
+    @FieldSource(source = DormitoryMongoDAO.class)
     private String dormitoryId;
 
 }

@@ -13,6 +13,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Data
 @AllArgsConstructor
@@ -28,4 +29,8 @@ public class University implements NumericallyIdentifiableEntity {
     private String name;
     private LocalDate creationDate;
 
+    @Override
+    public int getMergeKey() {
+        return Objects.hash(name);
+    }
 }

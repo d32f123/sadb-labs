@@ -13,6 +13,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Data
 @AllArgsConstructor
@@ -34,4 +35,9 @@ public class Group implements NumericallyIdentifiableEntity, OracleEntity {
     private LocalDate startDate;
     @ItmoAttribute
     private LocalDate endDate;
+
+    @Override
+    public int getMergeKey() {
+        return Objects.hash(name, startDate, endDate);
+    }
 }

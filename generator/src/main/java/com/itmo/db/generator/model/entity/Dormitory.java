@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import java.util.Objects;
 
 @Data
 @AllArgsConstructor
@@ -25,5 +26,10 @@ public class Dormitory implements NumericallyIdentifiableEntity {
     private Integer id;
     private String address;
     private Integer roomCount;
+
+    @Override
+    public int getMergeKey() {
+        return Objects.hash(address);
+    }
 
 }

@@ -11,6 +11,7 @@ import javax.persistence.Embeddable;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import java.io.Serializable;
+import java.util.Objects;
 
 @Data
 @NoArgsConstructor
@@ -32,5 +33,10 @@ public class SpecialtyDisciplineLink implements AbstractEntity<SpecialtyDiscipli
     public static class SpecialtyDisciplineLinkPK implements Serializable { // lol
         public Integer specialtyId;
         public Integer disciplineId;
+    }
+
+    @Override
+    public int getMergeKey() {
+        return Objects.hash(id.specialtyId, id.disciplineId);
     }
 }

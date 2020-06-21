@@ -1,6 +1,7 @@
 package com.itmo.db.generator.model.entity;
 
 import com.itmo.db.generator.persistence.db.merge.annotations.EntityJpaRepository;
+import com.itmo.db.generator.persistence.db.merge.annotations.FieldSource;
 import com.itmo.db.generator.persistence.db.merge.repository.AcademicRecordMergeRepository;
 import com.itmo.db.generator.persistence.db.oracle.annotations.ItmoAttribute;
 import com.itmo.db.generator.persistence.db.oracle.annotations.ItmoEntity;
@@ -14,6 +15,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Data
 @AllArgsConstructor
@@ -54,4 +56,8 @@ public class AcademicRecord implements NumericallyIdentifiableEntity, OracleEnti
         return this.toString();
     }
 
+    @Override
+    public int getMergeKey() {
+        return Objects.hash(personId, academicYear);
+    }
 }

@@ -2,6 +2,7 @@ package com.itmo.db.generator.persistence.db.mysql.dao;
 
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
 import com.itmo.db.generator.persistence.db.merge.annotations.EntityJpaRepository;
+import com.itmo.db.generator.persistence.db.merge.annotations.FieldSource;
 import com.itmo.db.generator.persistence.db.mysql.repository.LibraryRecordMySQLRepository;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,6 +25,7 @@ public class LibraryRecordMySQLDAO implements IdentifiableDAO<Long> {
     private Long id;
 
     @Column(name = "person_id")
+    @FieldSource(source = PersonMySQLDAO.class)
     private Long personId;
 
     @Column(name = "book_id")

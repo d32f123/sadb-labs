@@ -23,10 +23,14 @@ public class ProfessorPostgresDAO implements IdentifiableDAO<Integer> {
 
     @Id
     @Column(name = "person_id")
+    @FieldSource(source = PersonPostgresDAO.class)
     private Integer id;
 
     @Column(name = "faculty_id")
     @FieldSource(source = FacultyPostgresDAO.class)
     private Integer facultyId;
+
+    @Column(name = "person_number")
+    private String personNumber;
 
 }

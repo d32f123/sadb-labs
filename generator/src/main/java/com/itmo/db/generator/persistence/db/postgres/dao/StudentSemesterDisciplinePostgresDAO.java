@@ -34,7 +34,12 @@ public class StudentSemesterDisciplinePostgresDAO implements IdentifiableDAO<Stu
     @Column(name = "discipline_id")
     @FieldSource(source = DisciplinePostgresDAO.class)
     private Integer disciplineId;
+
+    @Column(name = "global_id")
+    private Integer globalId;
+
     @Column(name = "professor_id")
+    @FieldSource(source = ProfessorPostgresDAO.class)
     private Integer professorId;
     @Column(name = "semester_counter")
     private Integer semesterCounter;

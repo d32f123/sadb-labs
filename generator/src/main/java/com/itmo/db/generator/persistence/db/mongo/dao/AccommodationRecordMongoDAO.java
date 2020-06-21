@@ -3,6 +3,7 @@ package com.itmo.db.generator.persistence.db.mongo.dao;
 import com.itmo.db.generator.model.entity.AccommodationRecord;
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
 import com.itmo.db.generator.persistence.db.merge.annotations.EntityJpaRepository;
+import com.itmo.db.generator.persistence.db.merge.annotations.FieldSource;
 import com.itmo.db.generator.persistence.db.mongo.repository.AccommodationRecordMongoRepository;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -42,9 +43,11 @@ public class AccommodationRecordMongoDAO implements IdentifiableDAO<String> {
     private String course;
 
     @Field(name = "person_id")
+    @FieldSource(source = PersonMongoDAO.class)
     private String personId;
 
     @Field(name = "room_id")
+    @FieldSource(source = RoomMongoDAO.class)
     private String roomId;
 }
 

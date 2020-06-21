@@ -18,6 +18,7 @@ import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import java.io.Serializable;
+import java.util.Objects;
 
 @Data
 @NoArgsConstructor
@@ -56,5 +57,10 @@ public class PersonGroupLink implements AbstractEntity<PersonGroupLink.PersonGro
         public String getName() {
             return this.toString();
         }
+    }
+
+    @Override
+    public int getMergeKey() {
+        return Objects.hash(id.personId, id.groupId);
     }
 }

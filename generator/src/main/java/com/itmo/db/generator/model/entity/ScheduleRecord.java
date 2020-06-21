@@ -15,6 +15,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.time.LocalTime;
+import java.util.Objects;
 
 @Data
 @AllArgsConstructor
@@ -41,6 +42,11 @@ public class ScheduleRecord implements NumericallyIdentifiableEntity, OracleEnti
     private LocalTime endTime;
     @ItmoAttribute
     private String classroom;
+
+    @Override
+    public int getMergeKey() {
+        return Objects.hash(personId, disciplineId, startTime, endTime, classroom);
+    }
 
     @Override
     public String getName() {

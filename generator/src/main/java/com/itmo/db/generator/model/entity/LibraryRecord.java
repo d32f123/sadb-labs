@@ -13,6 +13,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.time.LocalDate;
+import java.util.Objects;
 
 
 @Data
@@ -31,4 +32,8 @@ public class LibraryRecord implements NumericallyIdentifiableEntity {
     private String action;
     private LocalDate actionDate;
 
+    @Override
+    public int getMergeKey() {
+        return Objects.hash(personId, bookId, action, actionDate);
+    }
 }

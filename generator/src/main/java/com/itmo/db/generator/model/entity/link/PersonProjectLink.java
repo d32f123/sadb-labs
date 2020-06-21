@@ -15,6 +15,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.Objects;
 
 @Data
 @NoArgsConstructor
@@ -43,4 +44,9 @@ public class PersonProjectLink implements AbstractEntity<PersonProjectLink.Perso
 
     private Timestamp startDate;
     private Timestamp endDate;
+
+    @Override
+    public int getMergeKey() {
+        return Objects.hash(id.personId, id.projectId);
+    }
 }

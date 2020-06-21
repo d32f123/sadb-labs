@@ -79,7 +79,7 @@ public class MergeApplication implements ApplicationRunner {
     Map<Class<? extends IdentifiableDAO>, HashMap<Object, Object>> oldNewObjectsIdMap = new HashMap<>();
     Map<Class<? extends AbstractEntity>, HashMap<Long, Object>> oldNewOracleObjectsIdMap = new HashMap<>();
 
-    Object generatorStartMonitor = new Object();
+    final Object generatorStartMonitor = new Object();
     Semaphore generatorSemaphore;
 
     //todo rename methgod..
@@ -92,7 +92,7 @@ public class MergeApplication implements ApplicationRunner {
             for (Class<? extends AbstractEntity<?>> entityClass : entityClasses.stream().filter(es ->
                     es.isAnnotationPresent(DAO.class)).collect(Collectors.toSet())) {
                 var entityMeta = this.entityMetaMap.get(entityClass);
-                fetchEntitiesFromOracle();
+//                fetchEntitiesFromOracle();
                 for (var daoMeta : entityMeta.daoClasses) {
                     this.saveEntityDAO(entityMeta, daoMeta);
                 }
@@ -166,7 +166,9 @@ public class MergeApplication implements ApplicationRunner {
             this.generatorSemaphore = new Semaphore(entityLevel.size());
             entityLevel.forEach(entityClass -> new Thread(() -> {
                 this.generatorSemaphore.acquireUninterruptibly(1);
-                this.generatorStartMonitor.notify();
+                synchronized (this.generatorStartMonitor) {
+                    this.generatorStartMonitor.notify();
+                }
                 if (!itmoEntities.containsKey(entityClass)) {
                     this.generatorSemaphore.release(1);
                     return;
@@ -195,7 +197,6 @@ public class MergeApplication implements ApplicationRunner {
                             entityEnd = Instant.now();
                             log.info("Fetched {} of {} elements. Elapsed {} seconds.",counter, total, Duration.between(entityStart, entityEnd).toSeconds());
                             entityStart = Instant.now();
-                            doBreak = true;
                         }
                         AbstractEntity entityInstance = entityClass.getConstructor().newInstance();
                         itmoParamOracleRepository
@@ -242,7 +243,9 @@ public class MergeApplication implements ApplicationRunner {
             }).start());
 
             try {
-                this.generatorStartMonitor.wait();
+                synchronized (this.generatorStartMonitor) {
+                    this.generatorStartMonitor.wait();
+                }
             } catch (InterruptedException e) {
                 log.error("heheh", e);
             }

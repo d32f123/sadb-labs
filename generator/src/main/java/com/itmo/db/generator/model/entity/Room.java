@@ -13,6 +13,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Data
 @AllArgsConstructor
@@ -32,4 +33,8 @@ public class Room implements NumericallyIdentifiableEntity {
     private LocalDate lastCleaningDate;
     private Integer dormitoryId;
 
+    @Override
+    public int getMergeKey() {
+        return Objects.hash(roomNumber, capacity, engaged, bugs, lastCleaningDate, dormitoryId);
+    }
 }

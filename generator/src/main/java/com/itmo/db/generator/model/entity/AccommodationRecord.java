@@ -12,6 +12,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Data
 @AllArgsConstructor
@@ -34,4 +35,8 @@ public class AccommodationRecord implements NumericallyIdentifiableEntity {
     private LocalDate livingEndDate;
     private String course;
 
+    @Override
+    public int getMergeKey() {
+        return Objects.hash(personId, roomId, livingStartDate, livingEndDate);
+    }
 }

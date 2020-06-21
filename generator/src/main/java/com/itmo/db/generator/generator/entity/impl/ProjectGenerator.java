@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 @Slf4j
 public class ProjectGenerator extends AbstractEntityGenerator<Project, Integer> {
@@ -31,7 +32,7 @@ public class ProjectGenerator extends AbstractEntityGenerator<Project, Integer> 
 
         return part_1[random.nextInt(part_1.length)] + " " + part_2[random.nextInt(part_2.length)] + " " +
                 part_3[random.nextInt(part_3.length)] + " " + part_4[random.nextInt(part_4.length)] + " " +
-                part_5[random.nextInt(part_5.length)];
+                part_5[random.nextInt(part_5.length)] + " " + UUID.randomUUID().toString();
     }
 
     @Override

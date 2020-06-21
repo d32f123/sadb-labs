@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import java.util.Objects;
+import java.util.UUID;
 
 @Data
 @AllArgsConstructor
@@ -24,4 +26,9 @@ public class Semester implements NumericallyIdentifiableEntity {
     @Id
     @GeneratedValue
     private Integer id;
+
+    @Override
+    public int getMergeKey() {
+        return Objects.hash(UUID.randomUUID().hashCode());
+    }
 }
