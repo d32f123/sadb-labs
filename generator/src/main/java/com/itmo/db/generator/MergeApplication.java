@@ -11,6 +11,8 @@ import com.itmo.db.generator.persistence.db.oracle.repository.ItmoObjectTypeOrac
 import com.itmo.db.generator.persistence.db.oracle.repository.ItmoParamOracleRepository;
 import com.itmo.db.generator.utils.merge.MergeUtils;
 import lombok.Builder;
+import lombok.Data;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -40,10 +42,12 @@ import java.util.stream.Collectors;
 public class MergeApplication implements ApplicationRunner {
 
     @Builder
+    @ToString
     private static class EntityMeta {
         public Class<AbstractEntity> entityClass;
         public CrudRepository<AbstractEntity, ?> mergeRepository;
         public List<String> fields;
+        public Map<String, Method> getters;
         public Map<String, Method> setters;
         public List<DAOMeta> daoClasses;
         public boolean isLink;
@@ -51,6 +55,7 @@ public class MergeApplication implements ApplicationRunner {
     }
 
     @Builder
+    @ToString
     private static class DAOMeta {
         public Class<? extends IdentifiableDAO> daoClass;
         public List<String> fields;
@@ -288,7 +293,7 @@ public class MergeApplication implements ApplicationRunner {
             if (entityMeta.resultInstances.containsKey(mergeKey)) {
                 // Merge into existing instance
                 AbstractEntity existingEntity = entityMeta.resultInstances.get(mergeKey);
-                this.mergeFields(daoMeta, entityMeta, daoInstance, existingEntity);
+                this.mergeFields(daoMeta, entityMeta, entityInstance, existingEntity);
                 entityInstance = existingEntity;
             }
 
@@ -328,7 +333,7 @@ public class MergeApplication implements ApplicationRunner {
                         entityInstance,
                         setter,
                         newId,
-                        converter
+                        (x) -> x
                 );
                 continue;
             }
@@ -350,14 +355,17 @@ public class MergeApplication implements ApplicationRunner {
         return entityInstance;
     }
 
-    public void mergeFields(DAOMeta daoMeta, EntityMeta entityMeta, IdentifiableDAO newDAO, AbstractEntity oldEntity) {
+    public void mergeFields(DAOMeta daoMeta, EntityMeta entityMeta, AbstractEntity newEntity, AbstractEntity oldEntity) {
         daoMeta.fields.forEach(fieldName -> {
+            if (fieldName.equals("id")) {
+                return;
+            }
             try {
                 this.mergeUtils.setValueWithSpecifiedMethods(
                         oldEntity,
                         entityMeta.setters.get(fieldName),
-                        daoMeta.getters.get(fieldName).invoke(newDAO),
-                        daoMeta.converters.get(fieldName)
+                        entityMeta.getters.get(fieldName).invoke(newEntity),
+                        (x) -> x
                 );
             } catch (IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
@@ -398,12 +406,17 @@ public class MergeApplication implements ApplicationRunner {
             Class<AbstractEntity> entityClass = (Class<AbstractEntity>) Class.forName(bd.getBeanClassName());
             List<Field> entityFields = Arrays.asList(entityClass.getDeclaredFields());
             Map<String, Method> entitySetters = new HashMap<>();
+            Map<String, Method> entityGetters = new HashMap<>();
             String mergeFieldName = null;
 
             for (var field : entityFields) {
                 entitySetters.put(
                         field.getName(),
                         this.mergeUtils.findSetter(entityClass, field.getName())
+                );
+                entityGetters.put(
+                        field.getName(),
+                        this.mergeUtils.findGetter(entityClass, field.getName())
                 );
             }
 
@@ -415,6 +428,7 @@ public class MergeApplication implements ApplicationRunner {
                                     entityClass.getAnnotation(EntityJpaRepository.class).clazz()
                             )
                     ).setters(entitySetters)
+                    .getters(entityGetters)
                     .daoClasses(new ArrayList<>())
                     .isLink(
                             entityClass.getName().contains("Link") ||
