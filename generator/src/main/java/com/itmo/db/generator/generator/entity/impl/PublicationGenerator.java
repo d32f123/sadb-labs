@@ -51,9 +51,6 @@ public class PublicationGenerator extends AbstractEntityGenerator<Publication, I
             if (x.isAfter(newDate)) {
                 return x;
             }
-            if (x.plusYears(4).isAfter(newDate)) {
-                return null;
-            }
             return newDate;
         });
         if (activeDate == null) {
