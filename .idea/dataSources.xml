@@ -27,7 +27,7 @@
       <synchronize>true</synchronize>
       <auto-commit>false</auto-commit>
       <jdbc-driver>oracle.jdbc.OracleDriver</jdbc-driver>
-      <jdbc-url>jdbc:oracle:thin:@localhost:5435:orcl</jdbc-url>
+      <jdbc-url>jdbc:oracle:thin:@100.72.9.218:5435:orcl</jdbc-url>
     </data-source>
     <data-source source="LOCAL" name="oracle_local@localhost" uuid="438e5f73-6103-464e-b272-6dba7bcb8184">
       <driver-ref>oracle</driver-ref>
@@ -42,6 +42,13 @@
       <auto-commit>false</auto-commit>
       <jdbc-driver>oracle.jdbc.OracleDriver</jdbc-driver>
       <jdbc-url>jdbc:oracle:thin:@localhost:1521:XE</jdbc-url>
+    </data-source>
+    <data-source source="LOCAL" name="merge2" uuid="d4caad4c-ebd6-4032-b54d-53cb2047283a">
+      <driver-ref>oracle</driver-ref>
+      <synchronize>true</synchronize>
+      <auto-commit>false</auto-commit>
+      <jdbc-driver>oracle.jdbc.OracleDriver</jdbc-driver>
+      <jdbc-url>jdbc:oracle:thin:@100.72.9.218:5435:ORCL</jdbc-url>
     </data-source>
   </component>
 </project>
