@@ -69,11 +69,15 @@ public abstract class AbstractEntityGenerator<T extends AbstractEntity<TId>, TId
                 )
         );
 
+        int count = 0;
         while ((entity.getAmount() == null || pool.getAvailableAmount() < entity.getAmount()) && !this.noDependantsLeft) {
             if (log.isTraceEnabled()) {
                 log.trace("'{}' loop: '{}' entities so far", entity.getEntityClass(), pool.getAvailableAmount());
             }
-            log.info("Starting to process {} entities of {}.", entity.getAmount(), entity.getEntityClass().getName());
+            if (log.isInfoEnabled() && (count++ % 50 == 0)) {
+                log.info("'{}': Generated {} / {}.", entity.getEntityClass().getSimpleName(),
+                        pool.getAvailableAmount(), entity.getAmount());
+            }
 
             if (this.dependenciesMetaMap.isEmpty()) {
                 if (log.isTraceEnabled()) {

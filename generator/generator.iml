@@ -10,6 +10,7 @@
         <setting name="provider-name" value="Hibernate" />
         <datasource-mapping>
           <factory-entry name="entityManagerFactory" value="12ad51da-7263-403c-9270-e196de30eb10" />
+          <factory-entry name="generator" />
           <factory-entry name="mysqlEntityManager" value="f8a8fe10-c43c-45ce-bee7-0ac5c64dc736" />
           <factory-entry name="oracleEntityManager" value="22086cb3-60b1-4b86-aa46-9fc10b1f056e" />
           <factory-entry name="postgresEntityManager" value="12ad51da-7263-403c-9270-e196de30eb10" />
