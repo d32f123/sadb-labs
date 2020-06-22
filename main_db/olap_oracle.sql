@@ -186,7 +186,7 @@ CREATE MATERIALIZED VIEW PEOPLE_DORM_FACTS AS
                     student1.ID as ID,
                     EXTRACT(YEAR FROM ssd1.SCOREDATE) as YEAR,
                     MIN(ssd1.MARK) as MIN_MARK
-             FROM STUDENT student1, STUDENTSEMESTERDISCIPLINE ssd1
+             FROM PERSON student1, STUDENTSEMESTERDISCIPLINE ssd1
              WHERE student1.ID = ssd1.STUDENTID AND ssd1.SCORE IS NOT NULL
              GROUP BY student1.ID, EXTRACT(YEAR FROM ssd1.SCOREDATE)
          ) student_time_min_marks
