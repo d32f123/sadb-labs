@@ -286,7 +286,12 @@ public class MergeApplication implements ApplicationRunner {
                                             throw npe;
                                         }
                                     });
-                            entityMeta.mergeRepository.save(entityInstance);
+                            try {
+                                entityMeta.mergeRepository.save(entityInstance);
+                            }
+                            catch (Exception e){
+                                throw e;
+                            }
 
                             // K P A C U B O
                             this.oldNewOracleObjectsIdMap.get(entityClass).put(itmoTypedEntity.getId(), entityInstance.getId());

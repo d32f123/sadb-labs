@@ -276,9 +276,9 @@ public class MergeUtils {
                 new EntityDefinition<>(Room.class, null, Set.of(
                         new DependencyDefinition<>(Dormitory.class, 1)
                 )),
-                new EntityDefinition<>(ScheduleRecord.class, null, Set.of(
-                        new DependencyDefinition<>(StudentSemesterDiscipline.class, 1)
-                )),
+//                new EntityDefinition<>(ScheduleRecord.class, null, Set.of(
+//                        new DependencyDefinition<>(StudentSemesterDiscipline.class, 1)
+//                )),
                 new EntityDefinition<>(Semester.class, baseAmount, null),
                 new EntityDefinition<>(Specialty.class, null, Set.of(
                         new DependencyDefinition<>(Faculty.class, 1)
