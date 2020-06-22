@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import javax.persistence.Id;
-import java.sql.Date;
+import java.util.Date;
 
 @Data
 @AllArgsConstructor

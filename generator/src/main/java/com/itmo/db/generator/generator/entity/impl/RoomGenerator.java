@@ -54,9 +54,7 @@ public class RoomGenerator extends AbstractEntityGenerator<Room, Integer> {
         if (log.isDebugEnabled())
             log.debug("Generating Room");
 
-        return IntStream.range(0, random.nextInt(300) + 300).mapToObj(i ->
-                this.getEntity(this.getDependencyInstances(Dormitory.class).get(0))
-        ).collect(Collectors.toUnmodifiableList());
+        return List.of(this.getEntity(this.getDependencyInstances(Dormitory.class).get(0)));
     }
 }
 
