@@ -261,6 +261,7 @@ public class MergeApplication implements ApplicationRunner {
                                                         newId,
                                                         (x) -> x
                                                 );
+                                                return;
                                             }
 
                                             Object arg = !isReference
