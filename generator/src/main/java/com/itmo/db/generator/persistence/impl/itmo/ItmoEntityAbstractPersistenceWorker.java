@@ -20,18 +20,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 
 @Slf4j
 public class ItmoEntityAbstractPersistenceWorker<T extends AbstractEntity<TId>, TId> extends AbstractPersistenceWorker<T, TId> {
 
-
-    private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
     protected static ItmoAttributeOracleRepository itmoAttributeOracleRepository;
     protected static ItmoListValueOracleRepository itmoListValueOracleRepository;
     protected static ItmoObjectOracleRepository itmoObjectOracleRepository;
@@ -60,27 +54,14 @@ public class ItmoEntityAbstractPersistenceWorker<T extends AbstractEntity<TId>, 
     }
 
     public static void shutdown() {
-        executorService.shutdownNow();
-    }
-
-    private <V> V executeViaService(Callable<V> runnable) {
-        try {
-            return executorService.submit(runnable).get();
-        } catch (InterruptedException | ExecutionException ex) {
-            log.error("Got exception", ex);
-            return null;
-        }
     }
 
     public void commit() {
-        executeViaService(() -> {
-            itmoAttributeOracleRepository.flush();
-            itmoListValueOracleRepository.flush();
-            itmoObjectOracleRepository.flush();
-            itmoObjectTypeOracleRepository.flush();
-            itmoParamOracleRepository.flush();
-            return null;
-        });
+        itmoAttributeOracleRepository.flush();
+        itmoListValueOracleRepository.flush();
+        itmoObjectOracleRepository.flush();
+        itmoObjectTypeOracleRepository.flush();
+        itmoParamOracleRepository.flush();
     }
 
     @Override
@@ -104,13 +85,13 @@ public class ItmoEntityAbstractPersistenceWorker<T extends AbstractEntity<TId>, 
                         .objectTypeId(this.itmoIdMap.get(entity.getClass().getName()))
                         .parentId(null)
                         .build();
-        executeViaService(() -> itmoObjectOracleRepository.save(itmoObjectOracleDAO));
+        itmoObjectOracleRepository.save(itmoObjectOracleDAO);
 
         var paramDAOs = Arrays.stream(entity.getClass().getDeclaredFields())
                 .filter(field -> field.isAnnotationPresent(ItmoAttribute.class))
                 .map(field -> this.persistField(entity, field, itmoObjectOracleDAO))
                 .collect(Collectors.toList());
-        executeViaService(() -> itmoParamOracleRepository.saveAll(paramDAOs));
+        itmoParamOracleRepository.saveAll(paramDAOs);
 
         return itmoObjectOracleDAO;
     }
@@ -168,8 +149,7 @@ public class ItmoEntityAbstractPersistenceWorker<T extends AbstractEntity<TId>, 
                 .name(entityClass.getName())
                 .description(entityClass.getAnnotation(ItmoEntity.class).description())
                 .build();
-        executeViaService(() ->
-                itmoObjectTypeOracleRepository.save(objectTypeDAO));
+        itmoObjectTypeOracleRepository.save(objectTypeDAO);
         if (log.isTraceEnabled()) {
             log.trace("Generated itmoObjectType: '{}'", objectTypeDAO);
         }
@@ -231,11 +211,8 @@ public class ItmoEntityAbstractPersistenceWorker<T extends AbstractEntity<TId>, 
                         }
                     }
                 });
-        executeViaService(() -> {
-            itmoAttributeOracleRepository.saveAll(itmoAttributeOracleDAOS);
-            itmoListValueOracleRepository.saveAll(itmoListValueOracleDAOS);
-            return null;
-        });
+        itmoAttributeOracleRepository.saveAll(itmoAttributeOracleDAOS);
+        itmoListValueOracleRepository.saveAll(itmoListValueOracleDAOS);
     }
 
     private static String getFieldQualifiedName(Field field) {
