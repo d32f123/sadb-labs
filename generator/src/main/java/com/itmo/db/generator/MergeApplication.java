@@ -200,7 +200,7 @@ public class MergeApplication implements ApplicationRunner {
                                 });
                         setters.put(entityClass, classSpecificSetters);
                         itmoEntities.put(entityClass, typedEntities);
-                    } catch (ClassNotFoundException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
