@@ -152,6 +152,65 @@ CREATE MATERIALIZED VIEW PERSON_FACTS AS
     ORDER BY pob_d.ID, uni_role_d.ID, time_d.ID;
 -- END PERSON FACTS --
 
+-- PEOPLE DORMITORY FACTS --
+DROP MATERIALIZED VIEW PEOPLE_DORM_FACTS;
+CREATE MATERIALIZED VIEW PEOPLE_DORM_FACTS AS
+    SELECT
+           AVG(room_people_cnt.N_PEOPLE) as n_people,
+           COUNT(CASE WHEN student_time_min_marks.MIN_MARK = 5 THEN 1 END) as n_excellent,
+           COUNT(CASE WHEN student_time_min_marks.MIN_MARK = 4 THEN 1 END) as n_good,
+           COUNT(CASE WHEN student_time_min_marks.MIN_MARK = 3 THEN 1 END) as n_fair,
+           dorm_d.ID as dorm_d_id,
+           time_d.ID as time_d_id
+    FROM
+         DORMITORY dorm,
+         ROOM room,
+         ACCOMMODATIONRECORD acc_rec,
+         PERSON person,
+         STUDENTSEMESTERDISCIPLINE ssd,
+         DORM_DIMENSION dorm_d,
+         TIME_DIMENSION time_d,
+         (
+             SELECT room1.ID as ROOM_ID,
+                    EXTRACT(YEAR FROM acc_rec1.LIVINGSTARTDATE) as YEAR,
+                    COUNT(DISTINCT acc_rec1.ID) as N_PEOPLE
+             FROM
+                  ROOM room1,
+                  ACCOMMODATIONRECORD acc_rec1
+             WHERE room1.ID = acc_rec1.ROOMID
+             GROUP BY room1.ID, EXTRACT(YEAR FROM acc_rec1.LIVINGSTARTDATE)
+         ) room_people_cnt,
+         (
+             SELECT
+                    student1.ID as ID,
+                    EXTRACT(YEAR FROM ssd1.MARKDATE) as YEAR,
+                    MIN(ssd1.MARK) as MIN_MARK
+             FROM STUDENT student1, STUDENTSEMESTERDISCIPLINE ssd1
+             WHERE student1.ID = ssd1.STUDENTID AND ssd1.MARK IS NOT NULL
+             GROUP BY student1.ID, EXTRACT(YEAR FROM ssd1.MARKDATE)
+         ) student_time_min_marks
+    WHERE
+          dorm.ID = room.DORMITORYID AND
+          room.ID = acc_rec.ROOMID AND
+          acc_rec.PERSONID = person.ID AND
+          ssd.STUDENTID = person.ID AND
+          room_people_cnt.ROOM_ID = room.ID AND
+          student_time_min_marks.ID = person.ID AND
+          dorm_d.ADDRESS = dorm.ADDRESS AND
+          time_d.YEAR = EXTRACT(YEAR FROM acc_rec.LIVINGSTARTDATE) AND
+          time_d.SEMESTER = (FLOOR(EXTRACT(MONTH FROM acc_rec.LIVINGSTARTDATE) / 6) + 1) AND
+          time_d.YEAR = room_people_cnt.YEAR AND
+          time_d.YEAR = student_time_min_marks.YEAR
+    GROUP BY dorm_d.ID, time_d.ID
+    ORDER BY dorm_d.ID, time_d.ID;
+
+SELECT COUNT(*) FROM STUDENTSEMESTERDISCIPLINE;
+SELECT * FROM PEOPLE_DORM_FACTS;
+SELECT SUM(N_PEOPLE) FROM PEOPLE_DORM_FACTS;
+SELECT COUNT(*) FROM STUDENT;
+SELECT COUNT(*) FROM PERSON;
+-- END PEOPLE DORMITORY FACTS --
+
 SELECT * FROM person, ACADEMICRECORD where person.id = ACADEMICRECORD.PERSONID;
 
 SELECT * FROM PERSON_FACTS;
@@ -160,7 +219,7 @@ SELECT * FROM PUBLICATION_LENGTH_DIMENSION;
 SELECT * FROM PUBLICATION_LANG_DIMENSION;
 SELECT * FROM ISSUE_DIMENSION;
 SELECT * FROM UNI_ROLE_DIMENSION;
-SELECT * FROM dorm_dimension;
+SELECT UNIQUE * FROM dorm_dimension;
 SELECT * FROM time_dimension;
 
 SELECT * FROM DORMITORY;
