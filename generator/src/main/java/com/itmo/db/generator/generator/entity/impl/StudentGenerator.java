@@ -36,7 +36,7 @@ public class StudentGenerator extends AbstractEntityGenerator<Student, Integer> 
         if (log.isDebugEnabled())
             log.debug("Creating Student");
 
-        return this.getDependencyInstances(Person.class).filter(person -> !person.getRole().equals("docent")).stream().map(
+        return this.getDependencyInstances(Person.class).stream().filter(person -> !person.getRole().equals("docent")).stream().map(
                 person -> this.getDependencyInstances(Specialty.class).stream().map(
                         specialty -> getEntity(person, specialty)
                 )
