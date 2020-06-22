@@ -8,6 +8,7 @@ import com.itmo.db.generator.model.entity.Person;
 import com.itmo.db.generator.model.entity.Professor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -23,6 +24,9 @@ public class ProfessorGenerator extends AbstractEntityGenerator<Professor, Integ
             log.debug("Creating Professor");
 
         Person person = this.getDependencyInstances(Person.class).get(0);
+        if (!person.getRole().equals("docent")) {
+            return Collections.emptyList();
+        }
         Faculty faculty = this.getDependencyInstances(Faculty.class).get(0);
 
         return List.of(new Professor(person.getId(), faculty.getId(), person.getPersonNumber()));
