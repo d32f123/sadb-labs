@@ -4,6 +4,7 @@ import com.itmo.db.generator.model.entity.AbstractEntity;
 import com.itmo.db.generator.persistence.PersistenceWorkerFactory;
 import com.itmo.db.generator.persistence.db.IdentifiableDAO;
 import com.itmo.db.generator.persistence.db.merge.annotations.*;
+import com.itmo.db.generator.persistence.db.oracle.annotations.ItmoReference;
 import com.itmo.db.generator.persistence.db.oracle.dao.ItmoObjectOracleDAO;
 import com.itmo.db.generator.persistence.db.oracle.repository.ItmoAttributeOracleRepository;
 import com.itmo.db.generator.persistence.db.oracle.repository.ItmoObjectOracleRepository;
@@ -76,14 +77,13 @@ public class MergeApplication implements ApplicationRunner {
     @Autowired
     MergeUtils mergeUtils;
 
-    private final AtomicInteger counter = new AtomicInteger();
     Map<Class, CrudRepository> mergeRepositoryClassMergeRepositoryMap = new ConcurrentHashMap<>();
     Map<Class, CrudRepository> fetchRepositoryClassFetchRepositoryMap = new ConcurrentHashMap<>();
     Map<Class<? extends AbstractEntity>, EntityMeta> entityMetaMap = new ConcurrentHashMap<>();
     // DAO Class to DAO class ID to EntityId
     // PersonPostgresDAO -> [daoIds] -> [entityIds]
-    Map<Class<? extends IdentifiableDAO>, HashMap<Object, Object>> oldNewObjectsIdMap = new ConcurrentHashMap<>();
-    Map<Class<? extends AbstractEntity>, HashMap<Long, Object>> oldNewOracleObjectsIdMap = new ConcurrentHashMap<>();
+    Map<Class<? extends IdentifiableDAO>, Map<Object, Object>> oldNewObjectsIdMap = new ConcurrentHashMap<>();
+    Map<Class<? extends AbstractEntity>, Map<Long, Object>> oldNewOracleObjectsIdMap = new ConcurrentHashMap<>();
 
     final Object generatorStartMonitor = new Object();
     Semaphore generatorSemaphore;
@@ -93,7 +93,6 @@ public class MergeApplication implements ApplicationRunner {
         this.initializeEntities();
         fetchEntitiesFromOracle();
 
-        boolean doBreak = false;
         for (Set<Class<? extends AbstractEntity<?>>> entityClasses : mergeUtils.getEntities()) {
             //TODO parallel execution
             this.generatorSemaphore = new Semaphore(entityClasses.size());
@@ -164,9 +163,10 @@ public class MergeApplication implements ApplicationRunner {
         //receive all classes
         var itmoObjectTypeOracleDAOS = itmoObjectTypeOracleRepository.findAll();
 
-        HashMap<Class<? extends AbstractEntity>, List<ItmoObjectOracleDAO>> itmoEntities = new HashMap<>();
-        HashMap<Class<? extends AbstractEntity>, HashMap<Long, Method>> setters = new HashMap<>();
-        HashMap<Method, Function> parsers = new HashMap<>();
+        Map<Class<? extends AbstractEntity>, List<ItmoObjectOracleDAO>> itmoEntities = new ConcurrentHashMap<>();
+        Map<Class<? extends AbstractEntity>, HashMap<Long, Method>> setters = new ConcurrentHashMap<>();
+        Map<Method, Function> parsers = new ConcurrentHashMap<>();
+        Map<Method, Class<? extends AbstractEntity>> references = new ConcurrentHashMap<>();
 
         itmoObjectTypeOracleDAOS.forEach(
                 itmoObjectTypeOracleDAO -> {
@@ -180,9 +180,23 @@ public class MergeApplication implements ApplicationRunner {
                                     String attributeName = itmoAttributeOracleRepository
                                             .findById(itmoParamOracleDAO.getAttributeId())
                                             .get().getName();
+                                    Field entityField = null;
+                                    try {
+                                        entityField = entityClass.getDeclaredField(attributeName);
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                    assert entityField != null;
                                     Method setter = mergeUtils.findSetter(entityClass, attributeName);
                                     classSpecificSetters.put(itmoParamOracleDAO.getAttributeId(), setter);
                                     parsers.put(setter, mergeUtils.getConverter(itmoParamOracleDAO.getReferenceId() != null ? Long.class : String.class, setter.getParameterTypes()[0]));
+                                    if (entityField.isAnnotationPresent(ItmoReference.class)
+                                            && !entityField.getAnnotation(ItmoReference.class).isTransient()) {
+                                        references.put(
+                                                setter,
+                                                entityField.getAnnotation(ItmoReference.class).value()
+                                        );
+                                    }
                                 });
                         setters.put(entityClass, classSpecificSetters);
                         itmoEntities.put(entityClass, typedEntities);
@@ -192,7 +206,6 @@ public class MergeApplication implements ApplicationRunner {
                 }
         );
 
-        AtomicInteger counter = new AtomicInteger();
         for (var entityLevel : this.mergeUtils.getEntities()) {
             this.generatorSemaphore = new Semaphore(entityLevel.size());
             if (entityLevel.stream().noneMatch(itmoEntities::containsKey)) {
@@ -208,26 +221,21 @@ public class MergeApplication implements ApplicationRunner {
                         this.generatorStartMonitor.notify();
                     }
 
+                    int counter = 0;
                     int total = itmoEntities.get(entityClass).size();
                     int step = (total >= 100) ? total / 100 : total;
-                    boolean doBreak = false;
-                    counter.set(0);
 
-                    this.oldNewOracleObjectsIdMap.put(entityClass, new HashMap<>());
+                    this.oldNewOracleObjectsIdMap.put(entityClass, new ConcurrentHashMap<Long, Object>());
                     EntityMeta entityMeta = entityMetaMap.get(entityClass);
                     ArrayList typedEntities = new ArrayList(total);
                     HashMap<Long, Method> classSpecificSetters = setters.get(entityClass);
                     log.info("Starting fetching of entities " + entityClass.getName() + " with " + total + " entities total.");
                     Instant entityStart = Instant.now();
-                    Instant entityEnd = Instant.now();
+                    Instant entityEnd;
                     for (ItmoObjectOracleDAO itmoTypedEntity : itmoEntities.get(entityClass)) {
                         try {
-                            if (doBreak) {
-                                doBreak = false;
-                                break;
-                            }
 
-                            if (counter.incrementAndGet() % step == 0) {
+                            if (++counter % step == 0) {
                                 entityEnd = Instant.now();
                                 log.info("Fetched {} of {} elements. Elapsed {} seconds.", counter, total, Duration.between(entityStart, entityEnd).toSeconds());
                                 entityStart = Instant.now();
@@ -241,6 +249,20 @@ public class MergeApplication implements ApplicationRunner {
                                             Method setter =  classSpecificSetters.get(itmoParamOracleDAO.getAttributeId());
                                             var isReference = itmoParamOracleDAO.getReferenceId() != null;
                                             Function parser = parsers.get(setter);
+
+                                            if (references.containsKey(setter)) {
+                                                var referencedEntityClass = references.get(setter);
+                                                var newId = oldNewOracleObjectsIdMap.get(referencedEntityClass).get(
+                                                        itmoParamOracleDAO.getReferenceId()
+                                                );
+                                                mergeUtils.setValueWithSpecifiedMethods(
+                                                        entityInstance,
+                                                        setter,
+                                                        newId,
+                                                        (x) -> x
+                                                );
+                                            }
+
                                             Object arg = !isReference
                                                     ? itmoParamOracleDAO.getValue()
                                                     : itmoParamOracleDAO.getReferenceId();
@@ -302,18 +324,12 @@ public class MergeApplication implements ApplicationRunner {
         }
 
         int step = total / 10;
-        HashMap<Object, Object> daoMergeIdMap = new HashMap<>();
-        counter.set(0);
-        boolean doBreak = false;
+        int counter = 0;
+        Map<Object, Object> daoMergeIdMap = new ConcurrentHashMap<>();
 
         log.info("Starting fetching of entities " + entityClass.getName() + " with " + total + " entities total.");
         for (IdentifiableDAO daoInstance : daoMeta.daoInstances) {
-            if (doBreak) {
-                doBreak = false;
-                break;
-            }
-
-            if (counter.incrementAndGet() % step == 0)
+            if (++counter % step == 0)
                 log.info("Fetched " + counter + " of " + total + " elements");
             var entityInstance = this.convertDAOToEntity(entityMeta, daoMeta, daoInstance);
 

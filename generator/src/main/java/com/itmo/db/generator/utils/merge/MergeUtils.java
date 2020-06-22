@@ -45,8 +45,8 @@ public class MergeUtils {
     @Autowired
     ItmoParamOracleRepository itmoParamOracleRepository;
 
-    public Map<Class<? extends IdentifiableDAO>, HashMap<Object, Object>> oldNewObjectsIdMap;
-    public Map<Class<? extends AbstractEntity>, HashMap<Long, Object>> oldNewOracleObjectsIdMap;
+    public Map<Class<? extends IdentifiableDAO>, Map<Object, Object>> oldNewObjectsIdMap;
+    public Map<Class<? extends AbstractEntity>, Map<Long, Object>> oldNewOracleObjectsIdMap;
 
 
 
