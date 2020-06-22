@@ -73,8 +73,7 @@ public abstract class AbstractEntityGenerator<T extends AbstractEntity<TId>, TId
             if (log.isTraceEnabled()) {
                 log.trace("'{}' loop: '{}' entities so far", entity.getEntityClass(), pool.getAvailableAmount());
             }
-            if (pool.getAvailableAmount() % 100 == 0)
-                log.info("Processing {} enttities. {} of {} ", entity.getEntityClass().getName(), pool.getAvailableAmount(), entity.getAmount());
+            log.info("Starting to process {} entities of {}.", entity.getAmount(), entity.getEntityClass().getName());
 
             if (this.dependenciesMetaMap.isEmpty()) {
                 if (log.isTraceEnabled()) {

@@ -43,6 +43,9 @@ public abstract class AbstractPersistenceWorker<T extends AbstractEntity<TId>, T
             while (this.shouldContinue) {
                 if (log.isDebugEnabled())
                     log.debug("'{}': PersistenceWorker requesting entity", entityClass);
+                if (log.isInfoEnabled() && pool.getNumberOfAvailableEntities() % 100 == 0) {
+                    log.info("'{}': {} entities left", entityClass, pool.getNumberOfAvailableEntities());
+                }
                 this.pool.request(1, (entities) -> {
                     if (entities == null || entities.isEmpty()) {
                         if (log.isDebugEnabled())

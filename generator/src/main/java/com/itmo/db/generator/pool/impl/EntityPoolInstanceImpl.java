@@ -76,7 +76,7 @@ public class EntityPoolInstanceImpl<T extends AbstractEntity<TId>, TId> implemen
         }
     }
 
-    private int getNumberOfAvailableEntities() {
+    public int getNumberOfAvailableEntities() {
         return this.pool.getAvailableAmount() - this.pointer;
     }
 

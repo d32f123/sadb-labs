@@ -8,5 +8,6 @@ import java.util.function.Consumer;
 public interface EntityPoolInstance<T extends AbstractEntity<TId>, TId> {
 
     void request(int entitiesCount, Consumer<List<T>> callback);
+    int getNumberOfAvailableEntities();
 
 }
