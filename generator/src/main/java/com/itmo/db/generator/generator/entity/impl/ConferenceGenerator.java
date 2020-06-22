@@ -100,7 +100,7 @@ public class ConferenceGenerator extends AbstractEntityGenerator<Conference, Int
         Random random = new Random();
 
         return IntStream.range(0, 3).mapToObj(i -> {
-            if (random.nextInt(10) < (10 - i * 3)) {
+            if (random.nextInt(10) < (i * 2)) {
                 return null;
             }
             return getConference(random, this.getDependencyInstances(Publication.class));
