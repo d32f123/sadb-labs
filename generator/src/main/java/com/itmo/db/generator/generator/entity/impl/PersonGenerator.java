@@ -88,7 +88,7 @@ public class PersonGenerator extends AbstractEntityGenerator<Person, Integer> {
     public LocalDate getAppearanceDate(Random random, Person person) {
         var date = LocalDate.of(2000, Month.SEPTEMBER, 1);
         int maxYears = 6;
-        return date.plusYears(maxYears);
+        return date.plusYears(random.nextInt(maxYears));
     }
 
     public String getPersonNumber() {
