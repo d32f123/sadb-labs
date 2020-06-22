@@ -238,7 +238,7 @@ public class MergeApplication implements ApplicationRunner {
                                     .forEach(itmoParamOracleDAO -> {
                                         try {
                                             //log.info("fetching: " + itmoParamOracleDAO);
-                                            Method setter = classSpecificSetters.get(itmoParamOracleDAO.getAttributeId());
+                                            Method setter =  classSpecificSetters.get(itmoParamOracleDAO.getAttributeId());
                                             var isReference = itmoParamOracleDAO.getReferenceId() != null;
                                             Function parser = parsers.get(setter);
                                             Object arg = !isReference

@@ -58,7 +58,7 @@ public class MergeUtils {
             }
             pd = new PropertyDescriptor(fieldName, clazz);
             return pd.getWriteMethod();
-        } catch (IntrospectionException | IllegalArgumentException e) {
+        } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -73,7 +73,7 @@ public class MergeUtils {
             }
             pd = new PropertyDescriptor(fieldName, clazz);
             return pd.getReadMethod();
-        } catch (IntrospectionException | IllegalArgumentException e) {
+        } catch (Exception e) {
             // TODO Auto-generated catch block
             log.warn("Could not find getter in '{}#{}'", clazz.getSimpleName(), fieldName);
         }
