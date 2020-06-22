@@ -10,8 +10,10 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Slf4j
 public class LibraryRecordGenerator extends AbstractEntityGenerator<LibraryRecord, Integer> {
@@ -32,15 +34,19 @@ public class LibraryRecordGenerator extends AbstractEntityGenerator<LibraryRecor
         return random.nextBoolean() ? "взял" : "вернул";
     }
 
-    public LocalDate getDate(Random random) {
-        LocalDate date = LocalDate.of(2000, Month.JANUARY, 1);
-        int MAX_DAYS_SINCE_START_DATE = 7200;
-        date = date.plusDays(random.nextInt(MAX_DAYS_SINCE_START_DATE));
-        return date;
-    }
-
-    private LibraryRecord getEntity(Person person) {
-        return new LibraryRecord(null, person.getId(), getBookId(random), getAction(random), getDate(random));
+    private LibraryRecord getEntity(Person person, int i) {
+        if (random.nextInt(10) < 5) {
+            return null;
+        }
+        int years = i / 3;
+        var date = person.getDateOfAppearance().plusYears(years).plusDays(random.nextInt(365 - 1));
+        return new LibraryRecord(
+                null,
+                person.getId(),
+                getBookId(random),
+                getAction(random),
+                date
+        );
     }
 
     @Override
@@ -48,9 +54,10 @@ public class LibraryRecordGenerator extends AbstractEntityGenerator<LibraryRecor
         if (log.isDebugEnabled())
             log.debug("Generating LibraryRecord");
 
-        return this.getDependencyInstances(Person.class).stream().map(
-                person -> getEntity(person)
-        ).collect(Collectors.toList());
+        var person = this.getDependencyInstances(Person.class).get(0);
+        return IntStream.range(0, 12).mapToObj(i -> getEntity(person, i))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toUnmodifiableList());
     }
 
 }

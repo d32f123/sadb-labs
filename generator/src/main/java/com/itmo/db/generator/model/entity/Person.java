@@ -31,6 +31,8 @@ public class Person implements NumericallyIdentifiableEntity, OracleEntity {
     private boolean isInDormitory;
     private short warningCount;
 
+    private LocalDate dateOfAppearance;
+
     public String getName() {
         return String.join(" ", this.lastName, this.firstName, this.patronymicName);
     }

@@ -11,6 +11,8 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Slf4j
 public class AcademicRecordGenerator extends AbstractEntityGenerator<AcademicRecord, Integer> {
@@ -20,19 +22,6 @@ public class AcademicRecordGenerator extends AbstractEntityGenerator<AcademicRec
 
     public AcademicRecordGenerator(EntityDefinition<AcademicRecord, Integer> entity, Generator generator) {
         super(entity, generator);
-    }
-
-    public String getDegree(Random random) {
-        String[] roles = new String[]{"доцент", "магистр", "бакалавр"};
-        int[] ratios = new int[]{10, 40, 100}; // 10%, 30%, 60%
-        int role = random.nextInt(100);
-
-        for (int i = 0; i < roles.length; i++) {
-            if (role < ratios[i]) {
-                return roles[i];
-            }
-        }
-        return roles[0];
     }
 
     public boolean getBudget(Random random) {
@@ -73,39 +62,36 @@ public class AcademicRecordGenerator extends AbstractEntityGenerator<AcademicRec
         return subdivisions[random.nextInt(subdivisions.length)];
     }
 
-    public LocalDate getStartDate(Random random) {
-        LocalDate startDate = LocalDate.of(1993, Month.SEPTEMBER, 1);
-        int MAX_DAYS_SINCE_START_DATE = 27 * 365;
-        startDate = startDate.plusDays(random.nextInt(MAX_DAYS_SINCE_START_DATE));
-        return startDate;
-    }
-
-    public LocalDate getEndDate(LocalDate startDate) {
-        return LocalDate.of(startDate.getYear() + 1, Month.AUGUST, 31);
-    }
-
     @Override
     protected List<AcademicRecord> getEntities() {
         if (log.isDebugEnabled())
             log.debug("Creating AcademicRecord");
+        var person = this.getDependencyInstances(Person.class).get(0);
         Random random = new Random();
-        LocalDate startDate = getStartDate(random);
-        LocalDate endDate = getEndDate(startDate);
-        LocalDate academicYear = getStartDate(random);
 
-        return List.of(new AcademicRecord(
+        var degree = person.getRole();
+        var isBudget = degree.equals("docent") || getBudget(random);
+        var fullTime = getFullTime(random);
+        var direction = getDirection(random);
+        var specialty = getSpecialty(random);
+        var position = getPosition(random);
+        var subdivision = getSubdivision(random);
+
+        return IntStream.range(0, degree.equals("docent")
+                ? 10 - (person.getDateOfAppearance().getYear() - 2000)
+                : degree.equals("bachelor") ? 4 : 2).mapToObj(i -> new AcademicRecord(
                 null,
-                this.getDependencyInstances(Person.class).get(0).getId(),
-                academicYear,
-                getDegree(random),
-                getBudget(random),
-                getFullTime(random),
-                getDirection(random),
-                getSpecialty(random),
-                getPosition(random),
-                getSubdivision(random),
-                startDate,
-                endDate
-        ));
+                person.getId(),
+                person.getDateOfAppearance().plusYears(i),
+                degree,
+                isBudget,
+                fullTime,
+                direction,
+                specialty,
+                position,
+                subdivision,
+                person.getDateOfAppearance().plusYears(i),
+                person.getDateOfAppearance().plusYears(i).plusMonths(9)
+        )).collect(Collectors.toUnmodifiableList());
     }
 }

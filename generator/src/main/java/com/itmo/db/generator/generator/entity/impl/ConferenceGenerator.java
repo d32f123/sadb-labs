@@ -4,11 +4,18 @@ import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.generator.entity.AbstractEntityGenerator;
 import com.itmo.db.generator.generator.model.EntityDefinition;
 import com.itmo.db.generator.model.entity.Conference;
+import com.itmo.db.generator.model.entity.Publication;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.Timestamp;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Slf4j
 public class ConferenceGenerator extends AbstractEntityGenerator<Conference, Integer> {
@@ -66,12 +73,37 @@ public class ConferenceGenerator extends AbstractEntityGenerator<Conference, Int
         return locations[0];
     }
 
+    private Conference getConference(Random random, List<Publication> publications) {
+        var startDate = publications.stream().map(pub -> pub.getDate().toInstant()).reduce(
+                LocalDate.of(2000, 1, 1).atStartOfDay().toInstant(ZoneOffset.UTC),
+                (acc, x) -> {
+                    if (acc.isBefore(x)) {
+                        return x;
+                    }
+                    return acc;
+                }
+        );
+
+        return new Conference(
+                null,
+                getName(random),
+                getLocation(random),
+                Timestamp.valueOf(startDate.plus(Duration.ofDays(random.nextInt(365 / 2))).atZone(ZoneOffset.UTC).toLocalDateTime()),
+                publications
+        );
+    }
+
     @Override
     protected List<Conference> getEntities() {
         if (log.isDebugEnabled())
             log.debug("Creating Conference");
         Random random = new Random();
 
-        return List.of(new Conference(null, getName(random), getLocation(random), getDate(random)));
+        return IntStream.range(0, 3).mapToObj(i -> {
+            if (random.nextInt(10) < (10 - i * 3)) {
+                return null;
+            }
+            return getConference(random, this.getDependencyInstances(Publication.class));
+        }).filter(Objects::nonNull).collect(Collectors.toUnmodifiableList());
     }
 }

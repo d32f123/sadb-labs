@@ -33,20 +33,13 @@ public class AccommodationRecordGenerator extends AbstractEntityGenerator<Accomm
         return random.nextDouble() * 8000 + 2000;
     }
 
-    public LocalDate getLivingStartDate(Random random) {
-        LocalDate startDate = LocalDate.of(1993, Month.SEPTEMBER, 1);
-        int MAX_DAYS_SINCE_START_DATE = 27*365;
-        startDate = startDate.plusDays(random.nextInt(MAX_DAYS_SINCE_START_DATE));
-        return startDate;
-    }
-
     public LocalDate getLivingEndDate(LocalDate startDate) {
         return LocalDate.of(startDate.getYear() + 1, Month.AUGUST, 31);
     }
 
-    private AccommodationRecord getPersonEntity(Person person) {
+    private AccommodationRecord getPersonEntity(Person person, int i) {
         Room room = this.getDependencyInstances(Room.class).get(0);
-        LocalDate startDate = getLivingStartDate(random);
+        LocalDate startDate = person.getDateOfAppearance().plusYears(i);
         Double payment = getPayment(random);
 
         return new AccommodationRecord(
@@ -56,10 +49,13 @@ public class AccommodationRecordGenerator extends AbstractEntityGenerator<Accomm
     }
 
     private Stream<AccommodationRecord> getPersonEntities(Person person) {
+        if (!person.isInDormitory()) {
+            return Stream.empty();
+        }
         int n = random.nextInt(3) + 1;
         if (log.isDebugEnabled())
             log.debug("Creating '{}' AccommodationRecords", n);
-        return IntStream.range(0, n).mapToObj((i) -> this.getPersonEntity(person));
+        return IntStream.range(0, n).mapToObj((i) -> this.getPersonEntity(person, i));
     }
 
     @Override

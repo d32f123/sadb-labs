@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -16,4 +17,5 @@ public class Conference implements NumericallyIdentifiableEntity {
     private String location;
     private Timestamp date;
 
+    private List<Publication> publications;
 }

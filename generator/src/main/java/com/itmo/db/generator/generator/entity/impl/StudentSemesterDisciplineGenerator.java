@@ -7,10 +7,12 @@ import com.itmo.db.generator.model.entity.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -35,12 +37,9 @@ public class StudentSemesterDisciplineGenerator
         return (int) Math.floor(res);
     }
 
-    private LocalDate getScoreDate(Integer score, Random random) {
-        var m = random.nextInt(8) + 2;
-        if (m > 4) {
-            m += 2;
-        }
-        return LocalDate.of(2015 + random.nextInt(4), m, random.nextInt(27) + 1);
+    private LocalDate getScoreDate(int year, boolean secondSemester, Random random) {
+        LocalDate date = LocalDate.of(year, secondSemester ? 2 : 9, 1);
+        return date.plusDays(random.nextInt(90));
     }
 
     private Short getMark(Integer score, Random random) {
@@ -87,12 +86,14 @@ public class StudentSemesterDisciplineGenerator
     private StudentSemesterDiscipline getEntity(Student student,
                                                 Discipline discipline,
                                                 Semester semester,
-                                                Professor professor) {
+                                                Professor professor,
+                                                int year) {
+        var secondSemester = semester.getId() % 2 == 0;
         Integer score = getScore(random);
-        LocalDate scoreDate = getScoreDate(score, random);
+        LocalDate scoreDate = getScoreDate(year, secondSemester, random);
         Short mark = getMark(score, random);
         Character markChar = score == null ? null : getMarkChar(score, mark);
-        LocalDate markDate = mark == null ? null : getScoreDate(mark.intValue(), random);
+        LocalDate markDate = mark == null ? null : scoreDate;
         counter++;
 
         return new StudentSemesterDiscipline(
@@ -116,18 +117,51 @@ public class StudentSemesterDisciplineGenerator
     protected List<StudentSemesterDiscipline> getEntities() {
         if (log.isDebugEnabled())
             log.debug("Creating StudentSemesterDiscipline");
-        return this.getDependencyInstances(Professor.class).stream().map(
-                professor -> this.getDependencyInstances(Discipline.class).stream().map(
-                        discipline -> this.getDependencyInstances(Semester.class).stream().map(
-                                semester -> this.getDependencyInstances(Student.class).stream().filter(x -> random.nextBoolean()).map(
-                                        student -> random.nextInt(100) < 20
-                                                ? null
-                                                : this.getEntity(student, discipline, semester, professor)
-                                ).filter(Objects::nonNull)
-                        ).reduce(Stream::concat).orElseThrow()
-                ).reduce(Stream::concat).orElseThrow()
-        ).reduce(Stream::concat).orElseThrow()
-                .collect(Collectors.toList());
+        var professors = this.getDependencyInstances(Professor.class);
+        var disciplines = this.getDependencyInstances(Discipline.class);
+        var semesters = this.getDependencyInstances(Semester.class);
+        var students = this.getDependencyInstances(Student.class);
+
+        var minYear = students.stream()
+                .map(Student::getPerson)
+                .map(Person::getDateOfAppearance)
+                .reduce(
+                        LocalDate.of(2010, 12, 31),
+                        (acc, x) -> {
+                            if (acc.isAfter(x)) {
+                                return x;
+                            }
+                            return acc;
+                        }
+                ).getYear();
+        var maxYear = students.stream()
+                .map(Student::getPerson)
+                .map(person -> person.getDateOfAppearance().plusYears(4))
+                .reduce(
+                        LocalDate.of(2000, 1, 1),
+                        (acc, x) -> {
+                            if (acc.isBefore(x)) {
+                                return x;
+                            }
+                            return acc;
+                        }
+                ).getYear();
+
+        return IntStream.range(minYear, maxYear + 1).mapToObj(year ->
+                students.stream()
+                        .filter(student -> student.getPerson().getDateOfAppearance().getYear() < year &&
+                                student.getPerson().getDateOfAppearance().getYear() + 4 > year)
+                        .map((student) -> {
+                            var professor = professors.get(random.nextInt(professors.size()));
+                            return semesters.stream().map(semester ->
+                                disciplines.stream().map(discipline ->
+                                    getEntity(student, discipline, semester, professor, year)
+                                )
+                            );
+                        }).reduce(Stream.empty(), Stream::concat)
+                        .reduce(Stream.empty(), Stream::concat)
+        ).reduce(Stream.empty(), Stream::concat).collect(Collectors.toUnmodifiableList());
+
     }
 }
 

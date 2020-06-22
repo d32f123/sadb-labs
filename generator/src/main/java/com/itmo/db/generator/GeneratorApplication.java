@@ -31,20 +31,21 @@ public class GeneratorApplication implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        int baseAmount = 500;
+        int baseAmount = 100;
 
         Set<EntityDefinition<?, ?>> entities = Set.of(
                 new EntityDefinition<>(AcademicRecord.class, null, Set.of(
                         new DependencyDefinition<>(Person.class, 1)
                 )),
                 new EntityDefinition<>(AccommodationRecord.class, null, Set.of(
-                        new DependencyDefinition<>(Person.class, 2),
+                        new DependencyDefinition<>(Person.class, 20),
                         new DependencyDefinition<>(Room.class, 1)
                 )),
-                new EntityDefinition<>(Conference.class, baseAmount, null),
+                new EntityDefinition<>(Conference.class, null, Set.of(
+                        new DependencyDefinition<>(Publication.class, 10)
+                )),
                 new EntityDefinition<>(ConferencePublicationLink.class, null, Set.of(
-                        new DependencyDefinition<>(Conference.class, 1),
-                        new DependencyDefinition<>(Publication.class, 5)
+                        new DependencyDefinition<>(Conference.class, 1)
                 )),
                 new EntityDefinition<>(Discipline.class, DisciplineGenerator.disciplines.size(), null),
                 new EntityDefinition<>(Dormitory.class, DormitoryGenerator.addresses.size(), null),
@@ -70,15 +71,16 @@ public class GeneratorApplication implements ApplicationRunner {
                         new DependencyDefinition<>(Project.class, 4)
                 )),
                 new EntityDefinition<>(PersonPublicationLink.class, null, Set.of(
-                        new DependencyDefinition<>(Person.class, 1),
-                        new DependencyDefinition<>(Publication.class, 2)
+                        new DependencyDefinition<>(Publication.class, 1)
                 )),
                 new EntityDefinition<>(Professor.class, null, Set.of(
                         new DependencyDefinition<>(Person.class, 1),
                         new DependencyDefinition<>(Faculty.class, 1)
                 )),
                 new EntityDefinition<>(Project.class, baseAmount, null),
-                new EntityDefinition<>(Publication.class, baseAmount, null),
+                new EntityDefinition<>(Publication.class, null, Set.of(
+                        new DependencyDefinition<>(Person.class, 4)
+                )),
                 new EntityDefinition<>(Room.class, null, Set.of(
                         new DependencyDefinition<>(Dormitory.class, 1)
                 )),

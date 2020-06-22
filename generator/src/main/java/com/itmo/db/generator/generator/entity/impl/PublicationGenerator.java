@@ -3,12 +3,15 @@ package com.itmo.db.generator.generator.entity.impl;
 import com.itmo.db.generator.generator.Generator;
 import com.itmo.db.generator.generator.entity.AbstractEntityGenerator;
 import com.itmo.db.generator.generator.model.EntityDefinition;
+import com.itmo.db.generator.model.entity.Person;
 import com.itmo.db.generator.model.entity.Publication;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.Timestamp;
-import java.util.List;
-import java.util.Random;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Slf4j
 public class PublicationGenerator extends AbstractEntityGenerator<Publication, Integer> {
@@ -39,16 +42,32 @@ public class PublicationGenerator extends AbstractEntityGenerator<Publication, I
         return 100000 + random.nextInt(899999);
     }
 
-    Timestamp getDate(Random random) {
-        String y = "201" + random.nextInt(10);
+    private Publication getPublication(Random random, List<Person> persons) {
+        LocalDate activeDate = LocalDate.of(2010, 1, 1);
+        activeDate = persons.stream().map(Person::getDateOfAppearance).reduce(activeDate, (newDate, x) -> {
+            if (newDate == null) {
+                return null;
+            }
+            if (x.isAfter(newDate)) {
+                return x;
+            }
+            if (x.plusYears(4).isAfter(newDate)) {
+                return null;
+            }
+            return newDate;
+        });
+        if (activeDate == null) {
+            return null;
+        }
 
-        int i = 1 + random.nextInt(12);
-        String m = (i > 9) ? String.valueOf(i) : ("0" + i);
-
-        i = 1 + random.nextInt(28);
-        String d = (i > 9) ? String.valueOf(i) : ("0" + i);
-
-        return Timestamp.valueOf(y + "-" + m + "-" + d + " 03:00:00");
+        return new Publication(
+                null,
+                getName(random),
+                getLanguage(random),
+                getIndex(random),
+                Timestamp.valueOf(activeDate.plusDays(random.nextInt(365 / 2)).atStartOfDay()),
+                persons
+        );
     }
 
     @Override
@@ -57,6 +76,17 @@ public class PublicationGenerator extends AbstractEntityGenerator<Publication, I
             log.debug("Creating Publication");
         Random random = new Random();
 
-        return List.of(new Publication(null, getName(random), getLanguage(random), getIndex(random), getDate(random)));
+        var persons = this.getDependencyInstances(Person.class);
+        var noDocents = persons.stream().noneMatch(person -> person.getRole().equals("docent"));
+        if (noDocents && random.nextInt(10) < 7) {
+            return Collections.emptyList();
+        }
+        return IntStream.range(0, random.nextInt(4)).mapToObj((i) -> {
+            var list = new ArrayList<>(persons);
+            Collections.shuffle(list);
+            var k = random.nextInt(list.size()) + 1;
+            return getPublication(random, list.subList(0, k));
+        }).filter(Objects::nonNull).collect(Collectors.toUnmodifiableList());
+
     }
 }

@@ -19,20 +19,16 @@ public class PersonPublicationLinkGenerator extends AbstractEntityGenerator<Pers
         super(entity, generator);
     }
 
-    private PersonPublicationLink getEntity(Person person, Publication publication) {
-        return new PersonPublicationLink(person.getId(), publication.getId());
-    }
-
     @Override
     protected List<PersonPublicationLink> getEntities() {
         if (log.isDebugEnabled())
             log.debug("Generating PersonPublicationLink");
 
-        return this.getDependencyInstances(Person.class).stream().map(
-                person -> this.getDependencyInstances(Publication.class).stream().map(
-                        publication -> getEntity(person, publication)
-                )
-        ).reduce(Stream::concat).orElseThrow().collect(Collectors.toList());
+        var publication = this.getDependencyInstances(Publication.class).get(0);
 
+        return publication.getAuthors().stream().map(author -> new PersonPublicationLink(
+                author.getId(),
+                publication.getId()
+        )).collect(Collectors.toUnmodifiableList());
     }
 }

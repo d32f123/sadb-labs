@@ -28,7 +28,7 @@ public class StudentGenerator extends AbstractEntityGenerator<Student, Integer> 
     }
 
     private Student getEntity(Person person, Specialty specialty) {
-        return new Student(person.getId(), specialty.getId(), getStudyType(random), person.getPersonNumber());
+        return new Student(person.getId(), specialty.getId(), getStudyType(random), person.getPersonNumber(), person);
     }
 
     @Override

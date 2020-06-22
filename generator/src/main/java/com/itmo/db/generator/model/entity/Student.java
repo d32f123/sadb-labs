@@ -14,4 +14,6 @@ public class Student implements NumericallyIdentifiableEntity {
     private String studyType;
     private String personNumber;
 
+    private Person person;
+
 }

@@ -12,6 +12,7 @@ import java.time.Month;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Slf4j
 public class RoomGenerator extends AbstractEntityGenerator<Room, Integer> {
@@ -53,7 +54,9 @@ public class RoomGenerator extends AbstractEntityGenerator<Room, Integer> {
         if (log.isDebugEnabled())
             log.debug("Generating Room");
 
-        return this.getDependencyInstances(Dormitory.class).stream().map(this::getEntity).collect(Collectors.toList());
+        return IntStream.range(0, random.nextInt(300) + 300).mapToObj(i ->
+                this.getEntity(this.getDependencyInstances(Dormitory.class).get(0))
+        ).collect(Collectors.toUnmodifiableList());
     }
 }
 

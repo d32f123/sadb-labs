@@ -85,6 +85,12 @@ public class PersonGenerator extends AbstractEntityGenerator<Person, Integer> {
         return date;
     }
 
+    public LocalDate getAppearanceDate(Random random, Person person) {
+        var date = LocalDate.of(2000, Month.SEPTEMBER, 1);
+        int maxYears = 6;
+        return date.plusYears(maxYears);
+    }
+
     public String getPersonNumber() {
         return String.format("s%05d", personNumber++);
     }
@@ -104,8 +110,14 @@ public class PersonGenerator extends AbstractEntityGenerator<Person, Integer> {
         return cities[random.nextInt(cities.length)];
     }
 
-    public boolean getIsInDormitory(Random random) {
-        return random.nextBoolean();
+    public boolean getIsInDormitory(Random random, Person person) {
+        if (person.getRole().equals("docent")) {
+            return random.nextInt(10) < 2;
+        }
+        if (person.getRole().equals("master")) {
+            return random.nextInt(10) < 4;
+        }
+        return random.nextInt(10) < 7;
     }
 
     public short getWarningCount(Random random) {
@@ -120,7 +132,7 @@ public class PersonGenerator extends AbstractEntityGenerator<Person, Integer> {
         Boolean isMale = random.nextInt(100) <= maleFemaleRatio;
         String role = getRole(random);
 
-        return List.of(new Person(
+        var person = new Person(
                 null,
                 getFirstName(random, isMale),
                 getSurname(random, isMale),
@@ -129,8 +141,14 @@ public class PersonGenerator extends AbstractEntityGenerator<Person, Integer> {
                 getBirthDate(random, role),
                 getBirthPlace(random),
                 getPersonNumber(),
-                getIsInDormitory(random),
-                getWarningCount(random)
-        ));
+                false,
+                getWarningCount(random),
+                null
+        );
+
+        person.setInDormitory(getIsInDormitory(random, person));
+        person.setDateOfAppearance(getAppearanceDate(random, person));
+
+        return List.of(person);
     }
 }
