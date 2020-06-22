@@ -1,5 +1,8 @@
 package com.itmo.db.generator.utils.merge;
 
+import com.itmo.db.generator.generator.entity.impl.DisciplineGenerator;
+import com.itmo.db.generator.generator.entity.impl.DormitoryGenerator;
+import com.itmo.db.generator.generator.entity.impl.UniversityGenerator;
 import com.itmo.db.generator.generator.model.DependencyDefinition;
 import com.itmo.db.generator.generator.model.EntityDefinition;
 import com.itmo.db.generator.model.entity.*;
@@ -227,16 +230,17 @@ public class MergeUtils {
                         new DependencyDefinition<>(Person.class, 1)
                 )),
                 new EntityDefinition<>(AccommodationRecord.class, null, Set.of(
-                        new DependencyDefinition<>(Person.class, 2),
+                        new DependencyDefinition<>(Person.class, 20),
                         new DependencyDefinition<>(Room.class, 1)
                 )),
-                new EntityDefinition<>(Conference.class, baseAmount, null),
-                new EntityDefinition<>(ConferencePublicationLink.class, null, Set.of(
-                        new DependencyDefinition<>(Conference.class, 1),
-                        new DependencyDefinition<>(Publication.class, 5)
+                new EntityDefinition<>(Conference.class, null, Set.of(
+                        new DependencyDefinition<>(Publication.class, 10)
                 )),
-                new EntityDefinition<>(Discipline.class, 0, null),
-                new EntityDefinition<>(Dormitory.class, 0, null),
+                new EntityDefinition<>(ConferencePublicationLink.class, null, Set.of(
+                        new DependencyDefinition<>(Conference.class, 1)
+                )),
+                new EntityDefinition<>(Discipline.class, DisciplineGenerator.disciplines.size(), null),
+                new EntityDefinition<>(Dormitory.class, DormitoryGenerator.addresses.size(), null),
                 new EntityDefinition<>(Faculty.class, null, Set.of(
                         new DependencyDefinition<>(University.class, 1)
                 )),
@@ -259,15 +263,16 @@ public class MergeUtils {
                         new DependencyDefinition<>(Project.class, 4)
                 )),
                 new EntityDefinition<>(PersonPublicationLink.class, null, Set.of(
-                        new DependencyDefinition<>(Person.class, 1),
-                        new DependencyDefinition<>(Publication.class, 2)
+                        new DependencyDefinition<>(Publication.class, 1)
                 )),
                 new EntityDefinition<>(Professor.class, null, Set.of(
                         new DependencyDefinition<>(Person.class, 1),
                         new DependencyDefinition<>(Faculty.class, 1)
                 )),
                 new EntityDefinition<>(Project.class, baseAmount, null),
-                new EntityDefinition<>(Publication.class, baseAmount, null),
+                new EntityDefinition<>(Publication.class, null, Set.of(
+                        new DependencyDefinition<>(Person.class, 4)
+                )),
                 new EntityDefinition<>(Room.class, null, Set.of(
                         new DependencyDefinition<>(Dormitory.class, 1)
                 )),
@@ -283,16 +288,16 @@ public class MergeUtils {
                         new DependencyDefinition<>(Discipline.class, 6)
                 )),
                 new EntityDefinition<>(Student.class, null, Set.of(
-                        new DependencyDefinition<>(Person.class, 15),
+                        new DependencyDefinition<>(Person.class, 100),
                         new DependencyDefinition<>(Specialty.class, 1)
                 )),
                 new EntityDefinition<>(StudentSemesterDiscipline.class, null, Set.of(
-                        new DependencyDefinition<>(Student.class, 10),
+                        new DependencyDefinition<>(Student.class, 100),
                         new DependencyDefinition<>(Semester.class, 2),
-                        new DependencyDefinition<>(Discipline.class, 1),
+                        new DependencyDefinition<>(Discipline.class, 6),
                         new DependencyDefinition<>(Professor.class, 2)
                 )),
-                new EntityDefinition<>(University.class, 0, null)
+                new EntityDefinition<>(University.class, UniversityGenerator.names.size(), null)
         )).getLeveledEntities();
 
         List<Set<Class<? extends AbstractEntity<?>>>> retList = new ArrayList<>();
