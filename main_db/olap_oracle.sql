@@ -160,6 +160,7 @@ CREATE MATERIALIZED VIEW PEOPLE_DORM_FACTS AS
            COUNT(CASE WHEN student_time_min_marks.MIN_MARK = 5 THEN 1 END) as n_excellent,
            COUNT(CASE WHEN student_time_min_marks.MIN_MARK = 4 THEN 1 END) as n_good,
            COUNT(CASE WHEN student_time_min_marks.MIN_MARK = 3 THEN 1 END) as n_fair,
+           COUNT(CASE student_time_min_marks.MIN_MARK WHEN 2 THEN 1 WHEN NULL THEN 1 END) as n_poor,
            dorm_d.ID as dorm_d_id,
            time_d.ID as time_d_id
     FROM
@@ -183,11 +184,11 @@ CREATE MATERIALIZED VIEW PEOPLE_DORM_FACTS AS
          (
              SELECT
                     student1.ID as ID,
-                    EXTRACT(YEAR FROM ssd1.MARKDATE) as YEAR,
+                    EXTRACT(YEAR FROM ssd1.SCOREDATE) as YEAR,
                     MIN(ssd1.MARK) as MIN_MARK
              FROM STUDENT student1, STUDENTSEMESTERDISCIPLINE ssd1
-             WHERE student1.ID = ssd1.STUDENTID AND ssd1.MARK IS NOT NULL
-             GROUP BY student1.ID, EXTRACT(YEAR FROM ssd1.MARKDATE)
+             WHERE student1.ID = ssd1.STUDENTID AND ssd1.SCORE IS NOT NULL
+             GROUP BY student1.ID, EXTRACT(YEAR FROM ssd1.SCOREDATE)
          ) student_time_min_marks
     WHERE
           dorm.ID = room.DORMITORYID AND
@@ -223,6 +224,7 @@ SELECT UNIQUE * FROM dorm_dimension;
 SELECT * FROM time_dimension;
 
 SELECT * FROM DORMITORY;
+SELECT * FROM STUDENTSEMESTERDISCIPLINE;
 
 truncate table time_dimension;
 
