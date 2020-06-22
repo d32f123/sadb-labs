@@ -13,14 +13,20 @@ DROP MATERIALIZED VIEW PEOPLE_DORM_FACTS;
 CREATE TABLE time_dimension (
     id          NUMBER(22, 0) PRIMARY KEY,
     semester    NUMBER(22, 0),
-    year        NUMBER(22, 0)
+    year	  	number(22, 0),
+    year_date   date
 );
 
 DECLARE
     i integer;
 BEGIN
     FOR i in 0..66 LOOP
-        INSERT INTO time_dimension VALUES (i, MOD(i, 2) + 1, 1990 + FLOOR(i / 2));
+        INSERT INTO time_dimension VALUES (
+       i, 
+       MOD(i, 2) + 1, 
+       1990 + FLOOR(i / 2),
+       TO_DATE(TO_CHAR(MOD(i, 2)*6 + 1)|| '-'  ||TO_CHAR(1990 + FLOOR(i / 2)), 'MM-YYYY') 
+      );
     end loop;
     commit;
 end;
