@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -82,13 +83,14 @@ public class ScheduleRecordGenerator extends AbstractEntityGenerator<ScheduleRec
 
     @Override
     protected List<ScheduleRecord> getEntities() {
-        if (log.isDebugEnabled())
-            log.debug("Creating ScheduleRecord");
-        var ssd = this.getDependencyInstances(StudentSemesterDiscipline.class).get(0);
-        return IntStream.range(0, random.nextInt(5) + 1)
-                .mapToObj(
-                        i -> this.getEntity(ssd)
-                ).collect(Collectors.toList());
+        return Collections.emptyList();
+//        if (log.isDebugEnabled())
+//            log.debug("Creating ScheduleRecord");
+//        var ssd = this.getDependencyInstances(StudentSemesterDiscipline.class).get(0);
+//        return IntStream.range(0, random.nextInt(5) + 1)
+//                .mapToObj(
+//                        i -> this.getEntity(ssd)
+//                ).collect(Collectors.toList());
     }
 
     @Data

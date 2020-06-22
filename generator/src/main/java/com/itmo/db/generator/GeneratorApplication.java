@@ -101,8 +101,8 @@ public class GeneratorApplication implements ApplicationRunner {
                 )),
                 new EntityDefinition<>(StudentSemesterDiscipline.class, null, Set.of(
                         new DependencyDefinition<>(Student.class, 100),
-                        new DependencyDefinition<>(Semester.class, 8),
-                        new DependencyDefinition<>(Discipline.class, 8),
+                        new DependencyDefinition<>(Semester.class, 2),
+                        new DependencyDefinition<>(Discipline.class, 6),
                         new DependencyDefinition<>(Professor.class, 2)
                 )),
                 new EntityDefinition<>(University.class, UniversityGenerator.names.size(), null)
