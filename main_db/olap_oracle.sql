@@ -101,38 +101,44 @@ FROM (SELECT LENGTH FROM ISSUE GROUP BY LENGTH ORDER BY LENGTH);
 -- PUBLICATION FACTS --
 CREATE MATERIALIZED VIEW PUBLICATION_FACTS AS
 SELECT COUNT(pubs.person_id) as person_count,
-       issue_d.ID              as issue_id,
-       pub_lang_d.ID           as pub_lang_id,
-       pub_len_d.id            as pub_len_id,
-       time_d.id               as time_id
+       issue_d.ID            as issue_id,
+       pub_lang_d.ID         as pub_lang_id,
+       pub_len_d.id          as pub_len_id,
+       time_d.id             as time_id
 FROM ISSUE_DIMENSION issue_d,
      PUBLICATION_LANG_DIMENSION pub_lang_d,
      PUBLICATION_LENGTH_DIMENSION pub_len_d,
      TIME_DIMENSION time_d,
      (
-        SELECT issue_d1.ID issue_d_id,
-               pub_lang_d1.ID pub_lang_d_id,
-               pub_len_d1.ID pub_len_d_id,
-               time_d1.ID time_d_id,
-               pers1.ID person_id
-        FROM ISSUE_DIMENSION issue_d1, PUBLICATION_LANG_DIMENSION pub_lang_d1, PUBLICATION_LENGTH_DIMENSION pub_len_d1,
-             TIME_DIMENSION time_d1, PERSON pers1, PUBLICATION pub1, PERSONPUBLICATIONLINK pers_pub1,
-             ISSUE iss1, ISSUEPUBLICATIONLINK iss_pub1
-        WHERE pers1.ID = pers_pub1.PERSONID AND
-              pers_pub1.PUBLICATIONID = pub1.ID AND
-              pub1.ID = iss_pub1.PUBLICATIONID AND
-              iss_pub1.ISSUEID = iss1.ID AND
-              time_d1.YEAR = EXTRACT(YEAR FROM pub1.PUBLICATIONDATE) AND
-              time_d1.semester = (FLOOR(EXTRACT(MONTH FROM pub1.PUBLICATIONDATE) / 6) + 1) AND
-              pub_lang_d1.LANGUAGE = pub1.LANGUAGE AND
-              pub_len_d1.LENGTH = iss1.LENGTH AND
-              issue_d1.NAME = iss1.FORMAT
-        GROUP BY issue_d1.ID, pub_lang_d1.ID, pub_len_d1.ID, time_d1.ID, pers1.ID
+         SELECT issue_d1.ID    issue_d_id,
+                pub_lang_d1.ID pub_lang_d_id,
+                pub_len_d1.ID  pub_len_d_id,
+                time_d1.ID     time_d_id,
+                pers1.ID       person_id
+         FROM ISSUE_DIMENSION issue_d1,
+              PUBLICATION_LANG_DIMENSION pub_lang_d1,
+              PUBLICATION_LENGTH_DIMENSION pub_len_d1,
+              TIME_DIMENSION time_d1,
+              PERSON pers1,
+              PUBLICATION pub1,
+              PERSONPUBLICATIONLINK pers_pub1,
+              ISSUE iss1,
+              ISSUEPUBLICATIONLINK iss_pub1
+         WHERE pers1.ID = pers_pub1.PERSONID
+           AND pers_pub1.PUBLICATIONID = pub1.ID
+           AND pub1.ID = iss_pub1.PUBLICATIONID
+           AND iss_pub1.ISSUEID = iss1.ID
+           AND time_d1.YEAR = EXTRACT(YEAR FROM pub1.PUBLICATIONDATE)
+           AND time_d1.semester = (FLOOR(EXTRACT(MONTH FROM pub1.PUBLICATIONDATE) / 6) + 1)
+           AND pub_lang_d1.LANGUAGE = pub1.LANGUAGE
+           AND pub_len_d1.LENGTH = iss1.LENGTH
+           AND issue_d1.NAME = iss1.FORMAT
+         GROUP BY issue_d1.ID, pub_lang_d1.ID, pub_len_d1.ID, time_d1.ID, pers1.ID
      ) pubs
-WHERE pubs.issue_d_id (+)= issue_d.ID AND
-      pubs.pub_lang_d_id (+)= pub_lang_d.ID AND
-      pubs.pub_len_d_id (+)= pub_len_d.ID AND
-      pubs.time_d_id (+)= time_d.ID
+WHERE pubs.issue_d_id (+) = issue_d.ID
+  AND pubs.pub_lang_d_id (+) = pub_lang_d.ID
+  AND pubs.pub_len_d_id (+) = pub_len_d.ID
+  AND pubs.time_d_id (+) = time_d.ID
 GROUP BY issue_d.id, pub_lang_d.id, pub_len_d.id, time_d.id
 ORDER BY issue_d.id, pub_lang_d.id, pub_len_d.id, time_d.id;
 -- END PUBLICATION FACTS --
@@ -141,81 +147,102 @@ ORDER BY issue_d.id, pub_lang_d.id, pub_len_d.id, time_d.id;
 -- place of birth and uni role
 CREATE MATERIALIZED VIEW PERSON_FACTS AS
 SELECT COUNT(person_aca.person_id) as person_count,
-       pob_d.ID                as pob_id_id,
-       uni_role_d.ID           as uni_role_id,
-       time_d.ID               as time_d_id
+       pob_d.ID                    as pob_id_id,
+       uni_role_d.ID               as uni_role_id,
+       time_d.ID                   as time_d_id
 FROM PLACE_OF_BIRTH_DIMENSION pob_d,
      UNI_ROLE_DIMENSION uni_role_d,
      TIME_DIMENSION time_d,
      (
-        SELECT pob_d1.id pob_id,
-               uni_role_d1.id uni_role_id,
-               time_d1.id time_id,
-               person1.ID person_id
-        FROM PLACE_OF_BIRTH_DIMENSION pob_d1, UNI_ROLE_DIMENSION uni_role_d1,
-             TIME_DIMENSION time_d1, PERSON person1, ACADEMICRECORD aca_rec1
-        WHERE person1.BIRTHPLACE = pob_d1.CITY AND
-              person1.ROLE = uni_role_d1.ROLE_NAME AND
-              aca_rec1.PERSONID = person1.ID AND
-              EXTRACT(YEAR FROM aca_rec1.ACADEMICYEAR) = time_d1.YEAR
-        GROUP BY pob_d1.id, uni_role_d1.id, time_d1.id, person1.ID
+         SELECT pob_d1.id      pob_id,
+                uni_role_d1.id uni_role_id,
+                time_d1.id     time_id,
+                person1.ID     person_id
+         FROM PLACE_OF_BIRTH_DIMENSION pob_d1,
+              UNI_ROLE_DIMENSION uni_role_d1,
+              TIME_DIMENSION time_d1,
+              PERSON person1,
+              ACADEMICRECORD aca_rec1
+         WHERE person1.BIRTHPLACE = pob_d1.CITY
+           AND person1.ROLE = uni_role_d1.ROLE_NAME
+           AND aca_rec1.PERSONID = person1.ID
+           AND EXTRACT(YEAR FROM aca_rec1.ACADEMICYEAR) = time_d1.YEAR
+         GROUP BY pob_d1.id, uni_role_d1.id, time_d1.id, person1.ID
      ) person_aca
-WHERE person_aca.pob_id (+)= pob_d.ID AND
-      person_aca.uni_role_id (+)= uni_role_d.ID AND
-      person_aca.time_id (+)= time_d.ID
+WHERE person_aca.pob_id (+) = pob_d.ID
+  AND person_aca.uni_role_id (+) = uni_role_d.ID
+  AND person_aca.time_id (+) = time_d.ID
 GROUP BY pob_d.ID, uni_role_d.ID, time_d.ID
 ORDER BY pob_d.ID, uni_role_d.ID, time_d.ID;
 -- END PERSON FACTS --
 
 -- PEOPLE DORMITORY FACTS --
 CREATE MATERIALIZED VIEW PEOPLE_DORM_FACTS AS
-SELECT AVG(room_people_cnt.N_PEOPLE)                                                  as n_people,
-       COUNT(CASE WHEN student_time_min_marks.MIN_MARK = 5 THEN 1 END)                as n_excellent,
-       COUNT(CASE WHEN student_time_min_marks.MIN_MARK = 4 THEN 1 END)                as n_good,
-       COUNT(CASE WHEN student_time_min_marks.MIN_MARK = 3 THEN 1 END)                as n_fair,
-       COUNT(CASE student_time_min_marks.MIN_MARK WHEN 2 THEN 1 WHEN NULL THEN 1 END) as n_poor,
-       dorm_d.ID                                                                      as dorm_d_id,
-       time_d.ID                                                                      as time_d_id
-FROM DORMITORY dorm,
-     ROOM room,
-     ACCOMMODATIONRECORD acc_rec,
-     PERSON person,
-     STUDENTSEMESTERDISCIPLINE ssd,
-     DORM_DIMENSION dorm_d,
+SELECT AVG(room_people_cnt.N_PEOPLE)                                        as n_people,
+       COUNT(CASE WHEN student_time_min_marks.AVG_MARK > 4.5 THEN 1 END)    as n_excellent,
+       COUNT(CASE
+                 WHEN student_time_min_marks.AVG_MARK > 3.8
+                     AND student_time_min_marks.AVG_MARK <= 4.5 THEN 1 END) as n_good,
+       COUNT(CASE
+                 WHEN student_time_min_marks.AVG_MARK >= 3
+                     AND student_time_min_marks.AVG_MARK <= 3.8 THEN 1 END) as n_fair,
+       COUNT(CASE WHEN student_time_min_marks.AVG_MARK < 3 THEN 1 END)      as n_poor,
+       dorm_d.ID                                                            as dorm_d_id,
+       time_d.ID                                                            as time_d_id
+FROM DORM_DIMENSION dorm_d,
      TIME_DIMENSION time_d,
      (
-         SELECT room1.ID                                    as ROOM_ID,
-                EXTRACT(YEAR FROM acc_rec1.LIVINGSTARTDATE) as YEAR,
-                COUNT(DISTINCT acc_rec1.ID)                 as N_PEOPLE
-         FROM ROOM room1,
+         SELECT dorm_d1.ID         dorm_d_id,
+                time_d1.ID         time_d_id,
+                room1.ID           romm_id,
+                COUNT(acc_rec1.ID) n_people
+         FROM TIME_DIMENSION time_d1,
+              DORM_DIMENSION dorm_d1,
+              DORMITORY dorm1,
+              ROOM room1,
               ACCOMMODATIONRECORD acc_rec1
-         WHERE room1.ID = acc_rec1.ROOMID
-         GROUP BY room1.ID, EXTRACT(YEAR FROM acc_rec1.LIVINGSTARTDATE)
+         WHERE dorm1.ADDRESS = dorm_d1.ADDRESS
+           AND dorm1.ID = room1.DORMITORYID
+           AND room1.ID = acc_rec1.ROOMID
+           AND time_d1.YEAR = EXTRACT(YEAR FROM acc_rec1.LIVINGSTARTDATE)
+           AND time_d1.SEMESTER = (FLOOR(EXTRACT(MONTH FROM acc_rec1.LIVINGSTARTDATE) / 6) + 1)
+         GROUP BY dorm_d1.ID, time_d1.ID, room1.ID
      ) room_people_cnt,
      (
-         SELECT student1.ID                       as ID,
-                EXTRACT(YEAR FROM ssd1.SCOREDATE) as YEAR,
-                MIN(ssd1.MARK)                    as MIN_MARK
-         FROM PERSON student1,
-              STUDENTSEMESTERDISCIPLINE ssd1
-         WHERE student1.ID = ssd1.STUDENTID
-           AND ssd1.SCORE IS NOT NULL
-         GROUP BY student1.ID, EXTRACT(YEAR FROM ssd1.SCOREDATE)
+         SELECT dorm_d2.ID                                 dorm_d_id,
+                time_d2.ID                                 time_d_id,
+                pers2.ID                                   pers_id,
+                AVG(DECODE(ssd2.MARK, NULL, 2, ssd2.MARK) + 0.4) avg_mark
+         FROM DORMITORY dorm2,
+              ROOM room2,
+              ACCOMMODATIONRECORD acc_rec2,
+              PERSON pers2,
+              STUDENTSEMESTERDISCIPLINE ssd2,
+              TIME_DIMENSION time_d2,
+              DORM_DIMENSION dorm_d2
+         WHERE dorm2.ID = room2.DORMITORYID
+           AND room2.ID = acc_rec2.ROOMID
+           AND pers2.ID = acc_rec2.PERSONID
+           AND ssd2.STUDENTID = pers2.ID
+           AND dorm_d2.ADDRESS = dorm2.ADDRESS
+           AND time_d2.YEAR = EXTRACT(YEAR FROM ssd2.SCOREDATE)
+           AND time_d2.SEMESTER = (FLOOR(EXTRACT(MONTH FROM ssd2.SCOREDATE)))
+         GROUP BY dorm_d2.ID, time_d2.ID, pers2.ID
      ) student_time_min_marks
-WHERE dorm.ID = room.DORMITORYID
-  AND room.ID = acc_rec.ROOMID
-  AND acc_rec.PERSONID (+) = person.ID
-  AND ssd.STUDENTID = person.ID
-  AND room_people_cnt.ROOM_ID = room.ID
-  AND student_time_min_marks.ID = person.ID
-  AND dorm_d.ADDRESS = dorm.ADDRESS
-  AND time_d.YEAR = EXTRACT(YEAR FROM acc_rec.LIVINGSTARTDATE)
-  AND time_d.SEMESTER = (FLOOR(EXTRACT(MONTH FROM acc_rec.LIVINGSTARTDATE) / 6) + 1)
-  AND time_d.YEAR = room_people_cnt.YEAR
-  AND time_d.YEAR = student_time_min_marks.YEAR
+WHERE room_people_cnt.time_d_id (+) = time_d.ID
+  AND room_people_cnt.dorm_d_id (+) = dorm_d.ID
+  AND student_time_min_marks.time_d_id (+) = time_d.ID
+  AND student_time_min_marks.dorm_d_id (+) = dorm_d.ID
 GROUP BY dorm_d.ID, time_d.ID
 ORDER BY dorm_d.ID, time_d.ID;
 -- END PEOPLE DORMITORY FACTS --
+SELECT COUNT(*)
+FROM ROOM;
+SELECT *
+FROM ACCOMMODATIONRECORD
+WHERE PERSONID = 820;
+SELECT COUNT(UNIQUE ROOMID)
+FROM ACCOMMODATIONRECORD;
 
 -- PEOPLE GENERAL FACTS --
 CREATE MATERIALIZED VIEW PEOPLE_GENERAL_FACTS AS
@@ -312,15 +339,23 @@ ORDER BY time_d.ID;
 -- END PEOPLE GENERAL FACTS --
 
 
-SELECT * FROM PEOPLE_GENERAL_FACTS;
-SELECT * FROM PEOPLE_DORM_FACTS;
-SELECT * FROM PERSON_FACTS;
-SELECT * FROM PUBLICATION_FACTS;
-SELECT * FROM conference;
-SELECT * FROM PUBLICATION;
+SELECT *
+FROM PEOPLE_GENERAL_FACTS;
+SELECT *
+FROM PEOPLE_DORM_FACTS;
+SELECT *
+FROM PERSON_FACTS;
+SELECT *
+FROM PUBLICATION_FACTS;
+SELECT *
+FROM conference;
+SELECT *
+FROM PUBLICATION;
 
-UPDATE CONFERENCE SET CONFERENCEDATE = TO_DATE(TO_CHAR(ROUND(DBMS_RANDOM.value(2000, 2010))), 'YYYY');
-UPDATE PUBLICATION SET PUBLICATIONDATE = TO_DATE(TO_CHAR(ROUND(DBMS_RANDOM.value(2000, 2010))), 'YYYY');
+UPDATE CONFERENCE
+SET CONFERENCEDATE = TO_DATE(TO_CHAR(ROUND(DBMS_RANDOM.value(2000, 2010))), 'YYYY');
+UPDATE PUBLICATION
+SET PUBLICATIONDATE = TO_DATE(TO_CHAR(ROUND(DBMS_RANDOM.value(2000, 2010))), 'YYYY');
 commit;
 
 BEGIN
