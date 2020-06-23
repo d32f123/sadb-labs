@@ -130,19 +130,29 @@ ORDER BY issue_d.id, pub_lang_d.id, pub_len_d.id, time_d.id;
 -- PERSON FACTS --
 -- place of birth and uni role
 CREATE MATERIALIZED VIEW PERSON_FACTS AS
-SELECT COUNT(UNIQUE person.ID) as person_count,
+SELECT COUNT(person_aca.person_id) as person_count,
        pob_d.ID                as pob_id_id,
        uni_role_d.ID           as uni_role_id,
        time_d.ID               as time_d_id
 FROM PLACE_OF_BIRTH_DIMENSION pob_d,
      UNI_ROLE_DIMENSION uni_role_d,
      TIME_DIMENSION time_d,
-     PERSON person,
-     ACADEMICRECORD aca_rec
-WHERE person.ID = aca_rec.PERSONID
-  AND time_d.YEAR = EXTRACT(YEAR FROM aca_rec.ACADEMICYEAR)
-  AND uni_role_d.ROLE_NAME = person.ROLE
-  AND pob_d.CITY = person.BIRTHPLACE
+     (
+        SELECT pob_d1.id pob_id,
+               uni_role_d1.id uni_role_id,
+               time_d1.id time_id,
+               person1.ID person_id
+        FROM PLACE_OF_BIRTH_DIMENSION pob_d1, UNI_ROLE_DIMENSION uni_role_d1,
+             TIME_DIMENSION time_d1, PERSON person1, ACADEMICRECORD aca_rec1
+        WHERE person1.BIRTHPLACE = pob_d1.CITY AND
+              person1.ROLE = uni_role_d1.ROLE_NAME AND
+              aca_rec1.PERSONID = person1.ID AND
+              EXTRACT(YEAR FROM aca_rec1.ACADEMICYEAR) = time_d1.YEAR
+        GROUP BY pob_d1.id, uni_role_d1.id, time_d1.id, person1.ID
+     ) person_aca
+WHERE person_aca.pob_id (+)= pob_d.ID AND
+      person_aca.uni_role_id (+)= uni_role_d.ID AND
+      person_aca.time_id (+)= time_d.ID
 GROUP BY pob_d.ID, uni_role_d.ID, time_d.ID
 ORDER BY pob_d.ID, uni_role_d.ID, time_d.ID;
 -- END PERSON FACTS --

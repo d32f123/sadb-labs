@@ -50,5 +50,12 @@
       <jdbc-driver>oracle.jdbc.OracleDriver</jdbc-driver>
       <jdbc-url>jdbc:oracle:thin:@100.72.9.218:5435:ORCL</jdbc-url>
     </data-source>
+    <data-source source="LOCAL" name="merge3" uuid="82200f47-1a94-44b6-b49e-5ecd8600665c">
+      <driver-ref>oracle</driver-ref>
+      <synchronize>true</synchronize>
+      <auto-commit>false</auto-commit>
+      <jdbc-driver>oracle.jdbc.OracleDriver</jdbc-driver>
+      <jdbc-url>jdbc:oracle:thin:@100.72.9.218:5435:ORCL</jdbc-url>
+    </data-source>
   </component>
 </project>
