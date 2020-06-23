@@ -100,7 +100,7 @@ FROM (SELECT LENGTH FROM ISSUE GROUP BY LENGTH ORDER BY LENGTH);
 
 -- PUBLICATION FACTS --
 CREATE MATERIALIZED VIEW PUBLICATION_FACTS AS
-SELECT COUNT(UNIQUE person.ID) as person_count,
+SELECT COUNT(pubs.person_id) as person_count,
        issue_d.ID              as issue_id,
        pub_lang_d.ID           as pub_lang_id,
        pub_len_d.id            as pub_len_id,
@@ -109,20 +109,30 @@ FROM ISSUE_DIMENSION issue_d,
      PUBLICATION_LANG_DIMENSION pub_lang_d,
      PUBLICATION_LENGTH_DIMENSION pub_len_d,
      TIME_DIMENSION time_d,
-     PUBLICATION pub,
-     ISSUEPUBLICATIONLINK iss_pub,
-     ISSUE iss,
-     PERSON person,
-     PERSONPUBLICATIONLINK person_pub
-WHERE iss_pub.ISSUEID = iss.ID
-  AND iss_pub.PUBLICATIONID = pub.ID
-  AND person_pub.PUBLICATIONID = pub.ID
-  AND person_pub.PERSONID = person.ID
-  AND issue_d.NAME = iss.FORMAT
-  AND pub_lang_d.LANGUAGE = pub.LANGUAGE
-  AND pub_len_d.LENGTH = iss.LENGTH
-  AND time_d.YEAR = EXTRACT(YEAR FROM pub.PUBLICATIONDATE)
-  AND time_d.semester = (FLOOR(EXTRACT(MONTH FROM pub.PUBLICATIONDATE) / 6) + 1)
+     (
+        SELECT issue_d1.ID issue_d_id,
+               pub_lang_d1.ID pub_lang_d_id,
+               pub_len_d1.ID pub_len_d_id,
+               time_d1.ID time_d_id,
+               pers1.ID person_id
+        FROM ISSUE_DIMENSION issue_d1, PUBLICATION_LANG_DIMENSION pub_lang_d1, PUBLICATION_LENGTH_DIMENSION pub_len_d1,
+             TIME_DIMENSION time_d1, PERSON pers1, PUBLICATION pub1, PERSONPUBLICATIONLINK pers_pub1,
+             ISSUE iss1, ISSUEPUBLICATIONLINK iss_pub1
+        WHERE pers1.ID = pers_pub1.PERSONID AND
+              pers_pub1.PUBLICATIONID = pub1.ID AND
+              pub1.ID = iss_pub1.PUBLICATIONID AND
+              iss_pub1.ISSUEID = iss1.ID AND
+              time_d1.YEAR = EXTRACT(YEAR FROM pub1.PUBLICATIONDATE) AND
+              time_d1.semester = (FLOOR(EXTRACT(MONTH FROM pub1.PUBLICATIONDATE) / 6) + 1) AND
+              pub_lang_d1.LANGUAGE = pub1.LANGUAGE AND
+              pub_len_d1.LENGTH = iss1.LENGTH AND
+              issue_d1.NAME = iss1.FORMAT
+        GROUP BY issue_d1.ID, pub_lang_d1.ID, pub_len_d1.ID, time_d1.ID, pers1.ID
+     ) pubs
+WHERE pubs.issue_d_id (+)= issue_d.ID AND
+      pubs.pub_lang_d_id (+)= pub_lang_d.ID AND
+      pubs.pub_len_d_id (+)= pub_len_d.ID AND
+      pubs.time_d_id (+)= time_d.ID
 GROUP BY issue_d.id, pub_lang_d.id, pub_len_d.id, time_d.id
 ORDER BY issue_d.id, pub_lang_d.id, pub_len_d.id, time_d.id;
 -- END PUBLICATION FACTS --
